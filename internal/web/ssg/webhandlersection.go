@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/adrianpk/clio/internal/am"
+	feat "github.com/adrianpk/clio/internal/feat/ssg"
 	"github.com/google/uuid"
 )
 
@@ -29,17 +30,17 @@ func (h *WebHandler) CreateSection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	section := ToSection(form)
+	featSection := ToFeatSection(form)
 
 	var response struct {
-		Section Section `json:"section"`
+		Section feat.Section `json:"section"`
 	}
-	err = h.apiClient.Post(r, "/ssg/sections", section, &response)
+	err = h.apiClient.Post(r, "/ssg/sections", featSection, &response)
 	if err != nil {
 		h.Err(w, err, "Failed to create section via API", http.StatusInternalServerError)
 		return
 	}
-	createdSection := response.Section
+	createdSection := ToWebSection(response.Section)
 
 	h.FlashInfo(w, r, "Section created")
 	h.Redir(w, r, am.EditPath(&Section{}, createdSection.GetID()), http.StatusSeeOther)
@@ -55,7 +56,7 @@ func (h *WebHandler) EditSection(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var response struct {
-		Section Section `json:"section"`
+		Section feat.Section `json:"section"`
 	}
 	path := fmt.Sprintf("/ssg/sections/%s", idStr)
 	err := h.apiClient.Get(r, path, &response)
@@ -66,7 +67,7 @@ func (h *WebHandler) EditSection(w http.ResponseWriter, r *http.Request) {
 	section := response.Section
 
 	form := ToSectionForm(r, section)
-	h.renderSectionForm(w, r, form, section, "", http.StatusOK)
+	h.renderSectionForm(w, r, form, ToWebSection(section), "", http.StatusOK)
 }
 
 func (h *WebHandler) UpdateSection(w http.ResponseWriter, r *http.Request) {
@@ -83,10 +84,10 @@ func (h *WebHandler) UpdateSection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	section := ToSection(form)
+	featSection := ToFeatSection(form)
 
-	path := fmt.Sprintf("/ssg/sections/%s", section.GetID())
-	err = h.apiClient.Put(r, path, section, nil)
+	path := fmt.Sprintf("/ssg/sections/%s", featSection.GetID())
+	err = h.apiClient.Put(r, path, featSection, nil)
 	if err != nil {
 		h.Err(w, err, "Failed to update section via API", http.StatusInternalServerError)
 		return
@@ -100,14 +101,14 @@ func (h *WebHandler) ListSections(w http.ResponseWriter, r *http.Request) {
 	h.Log().Info("List sections")
 
 	var response struct {
-		Sections []Section `json:"sections"`
+		Sections []feat.Section `json:"sections"`
 	}
 	err := h.apiClient.Get(r, "/ssg/sections", &response)
 	if err != nil {
 		h.Err(w, err, "Failed to get sections from API", http.StatusInternalServerError)
 		return
 	}
-	sections := response.Sections
+	sections := ToWebSections(response.Sections)
 
 	page := am.NewPage(r, sections)
 	page.Form.SetAction(ssgPath)
@@ -139,7 +140,7 @@ func (h *WebHandler) ShowSection(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var response struct {
-		Section Section `json:"section"`
+		Section feat.Section `json:"section"`
 	}
 	path := fmt.Sprintf("/ssg/sections/%s", idStr)
 	err := h.apiClient.Get(r, path, &response)
@@ -147,7 +148,7 @@ func (h *WebHandler) ShowSection(w http.ResponseWriter, r *http.Request) {
 		h.Err(w, err, "Failed to get section from API", http.StatusInternalServerError)
 		return
 	}
-	section := response.Section
+	section := ToWebSection(response.Section)
 
 	page := am.NewPage(r, section)
 	page.Name = "Show Section"

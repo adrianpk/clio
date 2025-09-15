@@ -29,5 +29,17 @@ func NewAPIRouter(handler *APIHandler, mw []am.Middleware, opts ...am.Option) *a
 	core.Put("/contents/{id}", handler.UpdateContent)
 	core.Delete("/contents/{id}", handler.DeleteContent)
 
+	// Content-Tag API routes
+	core.Post("/contents/{content_id}/tags", handler.AddTagToContent)
+	core.Delete("/contents/{content_id}/tags/{tag_id}", handler.RemoveTagFromContent)
+
+	// Tag API routes
+	core.Get("/tags", handler.GetAllTags)
+	core.Get("/tags/{id}", handler.GetTag)
+	core.Get("/tags/name/{name}", handler.GetTagByName)
+	core.Post("/tags", handler.CreateTag)
+	core.Put("/tags/{id}", handler.UpdateTag)
+	core.Delete("/tags/{id}", handler.DeleteTag)
+
 	return core
 }

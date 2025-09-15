@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/adrianpk/clio/internal/am"
+	feat "github.com/adrianpk/clio/internal/feat/ssg"
 )
 
 func (h *WebHandler) NewLayout(w http.ResponseWriter, r *http.Request) {
@@ -28,17 +29,17 @@ func (h *WebHandler) CreateLayout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	layout := ToLayout(form)
+	featLayout := ToFeatLayout(form)
 
 	var response struct {
-		Layout Layout `json:"layout"`
+		Layout feat.Layout `json:"layout"`
 	}
-	err = h.apiClient.Post(r, "/ssg/layouts", layout, &response)
+	err = h.apiClient.Post(r, "/ssg/layouts", featLayout, &response)
 	if err != nil {
 		h.Err(w, err, "Failed to create layout via API", http.StatusInternalServerError)
 		return
 	}
-	createdLayout := response.Layout
+	createdLayout := ToWebLayout(response.Layout)
 
 	h.FlashInfo(w, r, "Layout created")
 	h.Redir(w, r, am.EditPath(&Layout{}, createdLayout.GetID()), http.StatusSeeOther)
@@ -54,7 +55,7 @@ func (h *WebHandler) EditLayout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var response struct {
-		Layout Layout `json:"layout"`
+		Layout feat.Layout `json:"layout"`
 	}
 	path := fmt.Sprintf("/ssg/layouts/%s", idStr)
 	err := h.apiClient.Get(r, path, &response)
@@ -65,7 +66,7 @@ func (h *WebHandler) EditLayout(w http.ResponseWriter, r *http.Request) {
 	layout := response.Layout
 
 	form := ToLayoutForm(r, layout)
-	h.renderLayoutForm(w, r, form, layout, "", http.StatusOK)
+	h.renderLayoutForm(w, r, form, ToWebLayout(layout), "", http.StatusOK)
 }
 
 func (h *WebHandler) UpdateLayout(w http.ResponseWriter, r *http.Request) {
@@ -82,10 +83,10 @@ func (h *WebHandler) UpdateLayout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	layout := ToLayout(form)
+	featLayout := ToFeatLayout(form)
 
-	path := fmt.Sprintf("/ssg/layouts/%s", layout.GetID())
-	err = h.apiClient.Put(r, path, layout, nil)
+	path := fmt.Sprintf("/ssg/layouts/%s", featLayout.GetID())
+	err = h.apiClient.Put(r, path, featLayout, nil)
 	if err != nil {
 		h.Err(w, err, "Failed to update layout via API", http.StatusInternalServerError)
 		return
@@ -99,14 +100,14 @@ func (h *WebHandler) ListLayouts(w http.ResponseWriter, r *http.Request) {
 	h.Log().Info("List layouts")
 
 	var response struct {
-		Layouts []Layout `json:"layouts"`
+		Layouts []feat.Layout `json:"layouts"`
 	}
 	err := h.apiClient.Get(r, "/ssg/layouts", &response)
 	if err != nil {
 		h.Err(w, err, "Failed to get layouts from API", http.StatusInternalServerError)
 		return
 	}
-	layouts := response.Layouts
+	layouts := ToWebLayouts(response.Layouts)
 
 	page := am.NewPage(r, layouts)
 	page.Form.SetAction(ssgPath)
@@ -139,7 +140,7 @@ func (h *WebHandler) ShowLayout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var response struct {
-		Layout Layout `json:"layout"`
+		Layout feat.Layout `json:"layout"`
 	}
 	path := fmt.Sprintf("/ssg/layouts/%s", idStr)
 	err := h.apiClient.Get(r, path, &response)
@@ -147,7 +148,7 @@ func (h *WebHandler) ShowLayout(w http.ResponseWriter, r *http.Request) {
 		h.Err(w, err, "Failed to get layout from API", http.StatusInternalServerError)
 		return
 	}
-	layout := response.Layout
+	layout := ToWebLayout(response.Layout)
 
 	page := am.NewPage(r, layout)
 	page.Name = "Show Layout"

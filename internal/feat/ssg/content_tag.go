@@ -1,0 +1,181 @@
+package ssg
+
+import (
+	"encoding/json"
+	"time"
+
+	"github.com/google/uuid"
+
+	"github.com/adrianpk/clio/internal/am"
+)
+
+// ContentTag model represents the many-to-many relationship between Content and Tag.
+type ContentTag struct {
+	// Common
+	ID      uuid.UUID `json:"id" db:"id"`
+	mType   string
+	ShortID string `json:"-" db:"short_id"`
+
+	ContentID uuid.UUID `json:"content_id" db:"content_id"`
+	TagID     uuid.UUID `json:"tag_id" db:"tag_id"`
+
+	// Audit
+	CreatedBy uuid.UUID `json:"-" db:"created_by"`
+	UpdatedBy uuid.UUID `json:"-" db:"updated_by"`
+	CreatedAt time.Time `json:"-" db:"created_at"`
+	UpdatedAt time.Time `json:"-" db:"updated_at"`
+}
+
+// NewContentTag creates a new ContentTag.
+func NewContentTag(contentID, tagID uuid.UUID) ContentTag {
+	ct := ContentTag{
+		mType:     contentTagType,
+		ContentID: contentID,
+		TagID:     tagID,
+	}
+
+	return ct
+}
+
+// Type returns the type of the entity.
+func (ct *ContentTag) Type() string {
+	return am.DefaultType(ct.mType)
+}
+
+// SetType sets the type of the entity.
+func (ct *ContentTag) SetType(typ string) {
+	ct.mType = typ
+}
+
+// GetID returns the unique identifier of the entity.
+func (ct *ContentTag) GetID() uuid.UUID {
+	return ct.ID
+}
+
+// GenID delegates to the functional helper.
+func (ct *ContentTag) GenID() {
+	am.GenID(ct)
+}
+
+// SetID sets the unique identifier of the entity.
+func (ct *ContentTag) SetID(id uuid.UUID, force ...bool) {
+	shouldForce := len(force) > 0 && force[0]
+	if ct.ID == uuid.Nil || (shouldForce && id != uuid.Nil) {
+		ct.ID = id
+	}
+}
+
+// ShortID returns the short ID portion of the slug.
+func (ct *ContentTag) GetShortID() string {
+	return ct.ShortID
+}
+
+// GenShortID delegates to the functional helper.
+func (ct *ContentTag) GenShortID() {
+	am.GenShortID(ct)
+}
+
+// SetShortID sets the short ID of the entity.
+func (ct *ContentTag) SetShortID(shortID string, force ...bool) {
+	shouldForce := len(force) > 0 && force[0]
+	if ct.ShortID == "" || shouldForce {
+		ct.ShortID = shortID
+	}
+}
+
+// TypeID returns a universal identifier for a specific model instance.
+func (ct *ContentTag) TypeID() string {
+	return am.Normalize(ct.Type()) + "-" + ct.GetShortID()
+}
+
+// GenCreateValues delegates to the functional helper.
+func (ct *ContentTag) GenCreateValues(userID ...uuid.UUID) {
+	am.SetCreateValues(ct, userID...)
+}
+
+// GenUpdateValues delegates to the functional helper.
+func (ct *ContentTag) GenUpdateValues(userID ...uuid.UUID) {
+	am.SetUpdateValues(ct, userID...)
+}
+
+// CreatedBy returns the UUID of the user who created the entity.
+func (ct *ContentTag) GetCreatedBy() uuid.UUID {
+	return ct.CreatedBy
+}
+
+// UpdatedBy returns the UUID of the user who last updated the entity.
+func (ct *ContentTag) GetUpdatedBy() uuid.UUID {
+	return ct.UpdatedBy
+}
+
+// CreatedAt returns the creation time of the entity.
+func (ct *ContentTag) GetCreatedAt() time.Time {
+	return ct.CreatedAt
+}
+
+// UpdatedAt returns the last update time of the entity.
+func (ct *ContentTag) GetUpdatedAt() time.Time {
+	return ct.UpdatedAt
+}
+
+// SetCreatedAt implements the Auditable interface.
+func (ct *ContentTag) SetCreatedAt(createdAt time.Time) {
+	ct.CreatedAt = createdAt
+}
+
+// SetUpdatedAt implements the Auditable interface.
+func (ct *ContentTag) SetUpdatedAt(updatedAt time.Time) {
+	ct.UpdatedAt = updatedAt
+}
+
+// SetCreatedBy implements the Auditable interface.
+func (ct *ContentTag) SetCreatedBy(createdBy uuid.UUID) {
+	ct.CreatedBy = createdBy
+}
+
+// SetUpdatedBy implements the Auditable interface.
+func (ct *ContentTag) SetUpdatedBy(updatedBy uuid.UUID) {
+	ct.UpdatedBy = updatedBy
+}
+
+// IsZero returns true if the ContentTag is uninitialized.
+func (ct *ContentTag) IsZero() bool {
+	return ct.ID == uuid.Nil
+}
+
+// Slug returns a human-readable, URL-friendly string identifier for the entity.
+func (ct *ContentTag) Slug() string {
+	return am.Normalize(ct.Type()) + "-" + ct.GetShortID()
+}
+
+func (ct *ContentTag) OptValue() string {
+	return ct.GetID().String()
+}
+
+func (ct *ContentTag) OptLabel() string {
+	return ct.TypeID()
+}
+
+// UnmarshalJSON ensures model fields are initialized after unmarshal.
+func (ct *ContentTag) UnmarshalJSON(data []byte) error {
+	type Alias ContentTag
+	temp := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(ct),
+	}
+
+	if err := json.Unmarshal(data, &temp); err != nil {
+		return err
+	}
+
+	if ct.mType == "" {
+		ct.mType = contentTagType
+	}
+
+	return nil
+}
+
+const (
+	contentTagType = "content-tag"
+)

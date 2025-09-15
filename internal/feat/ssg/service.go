@@ -2,6 +2,9 @@ package ssg
 
 import (
 	"context"
+	"database/sql"
+	"errors"
+	"fmt"
 
 	"github.com/adrianpk/clio/internal/am"
 	"github.com/google/uuid"
@@ -25,6 +28,18 @@ type Service interface {
 	GetAllLayouts(ctx context.Context) ([]Layout, error)
 	UpdateLayout(ctx context.Context, layout Layout) error
 	DeleteLayout(ctx context.Context, id uuid.UUID) error
+
+	CreateTag(ctx context.Context, tag Tag) error
+	GetTag(ctx context.Context, id uuid.UUID) (Tag, error)
+	GetTagByName(ctx context.Context, name string) (Tag, error)
+	GetAllTags(ctx context.Context) ([]Tag, error)
+	UpdateTag(ctx context.Context, tag Tag) error
+	DeleteTag(ctx context.Context, id uuid.UUID) error
+
+	AddTagToContent(ctx context.Context, contentID uuid.UUID, tagName string) error
+	RemoveTagFromContent(ctx context.Context, contentID, tagID uuid.UUID) error
+	GetTagsForContent(ctx context.Context, contentID uuid.UUID) ([]Tag, error)
+	GetContentForTag(ctx context.Context, tagID uuid.UUID) ([]Content, error)
 }
 
 type BaseService struct {
@@ -101,4 +116,61 @@ func (svc *BaseService) UpdateLayout(ctx context.Context, layout Layout) error {
 
 func (svc *BaseService) DeleteLayout(ctx context.Context, id uuid.UUID) error {
 	return svc.repo.DeleteLayout(ctx, id)
+}
+
+// Tag related
+func (svc *BaseService) CreateTag(ctx context.Context, tag Tag) error {
+	return svc.repo.CreateTag(ctx, tag)
+}
+
+func (svc *BaseService) GetTag(ctx context.Context, id uuid.UUID) (Tag, error) {
+	return svc.repo.GetTag(ctx, id)
+}
+
+func (svc *BaseService) GetTagByName(ctx context.Context, name string) (Tag, error) {
+	return svc.repo.GetTagByName(ctx, name)
+}
+
+func (svc *BaseService) GetAllTags(ctx context.Context) ([]Tag, error) {
+	return svc.repo.GetAllTags(ctx)
+}
+
+func (svc *BaseService) UpdateTag(ctx context.Context, tag Tag) error {
+	return svc.repo.UpdateTag(ctx, tag)
+}
+
+func (svc *BaseService) DeleteTag(ctx context.Context, id uuid.UUID) error {
+	return svc.repo.DeleteTag(ctx, id)
+}
+
+// ContentTag related
+func (svc *BaseService) AddTagToContent(ctx context.Context, contentID uuid.UUID, tagName string) error {
+	tag, err := svc.repo.GetTagByName(ctx, tagName)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return fmt.Errorf("error getting tag by name: %w", err)
+	}
+
+	if tag.IsZero() {
+		newTag := NewTag(tagName)
+		newTag.GenCreateValues()
+		err = svc.repo.CreateTag(ctx, newTag)
+		if err != nil {
+			return fmt.Errorf("error creating tag: %w", err)
+		}
+		tag = newTag
+	}
+
+	return svc.repo.AddTagToContent(ctx, contentID, tag.ID)
+}
+
+func (svc *BaseService) RemoveTagFromContent(ctx context.Context, contentID, tagID uuid.UUID) error {
+	return svc.repo.RemoveTagFromContent(ctx, contentID, tagID)
+}
+
+func (svc *BaseService) GetTagsForContent(ctx context.Context, contentID uuid.UUID) ([]Tag, error) {
+	return svc.repo.GetTagsForContent(ctx, contentID)
+}
+
+func (svc *BaseService) GetContentForTag(ctx context.Context, tagID uuid.UUID) ([]Content, error) {
+	return svc.repo.GetContentForTag(ctx, tagID)
 }

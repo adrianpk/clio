@@ -7,6 +7,7 @@ import (
 
 	"github.com/adrianpk/clio/internal/am"
 	"github.com/adrianpk/clio/internal/feat/auth"
+	feat "github.com/adrianpk/clio/internal/feat/ssg"
 )
 
 func (h *WebHandler) NewContent(w http.ResponseWriter, r *http.Request) {
@@ -25,31 +26,33 @@ func (h *WebHandler) CreateContent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := form.Validate(); err != nil || form.HasErrors() {
-		h.renderContentForm(w, r, form, NewContent("", ""), "Validation failed", http.StatusBadRequest)
+		content := ToFeatContent(form)
+		webContent := ToWebContent(content)
+		h.renderContentForm(w, r, form, webContent, "Validation failed", http.StatusBadRequest)
 		return
 	}
 
-	content := ToContent(form)
+	content := ToFeatContent(form)
 
 	var response struct {
-		Content Content `json:"content"`
+		Content feat.Content `json:"content"`
 	}
 	err = h.apiClient.Post(r, "/ssg/contents", content, &response)
 	if err != nil {
 		h.Err(w, err, "Failed to create content via API", http.StatusInternalServerError)
 		return
 	}
-	createdContent := response.Content
+	createdContent := ToWebContent(response.Content)
 
 	if am.IsHTMXRequest(r) {
-		redirectURL := am.EditPath(&Content{}, createdContent.GetID())
+		redirectURL := am.EditPath(&createdContent, createdContent.GetID())
 		w.Header().Set("HX-Redirect", redirectURL)
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
 	h.FlashInfo(w, r, "Content created")
-	h.Redir(w, r, am.EditPath(&Content{}, createdContent.GetID()), http.StatusSeeOther)
+	h.Redir(w, r, am.EditPath(&createdContent, createdContent.GetID()), http.StatusSeeOther)
 }
 
 func (h *WebHandler) EditContent(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +65,7 @@ func (h *WebHandler) EditContent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var response struct {
-		Content Content `json:"content"`
+		Content feat.Content `json:"content"`
 	}
 	path := fmt.Sprintf("/ssg/contents/%s", idStr)
 	err := h.apiClient.Get(r, path, &response)
@@ -71,9 +74,10 @@ func (h *WebHandler) EditContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	content := response.Content
+	webContent := ToWebContent(content)
 
 	form := ToContentForm(r, content)
-	h.renderContentForm(w, r, form, content, "", http.StatusOK)
+	h.renderContentForm(w, r, form, webContent, "", http.StatusOK)
 }
 
 func (h *WebHandler) UpdateContent(w http.ResponseWriter, r *http.Request) {
@@ -86,11 +90,13 @@ func (h *WebHandler) UpdateContent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := form.Validate(); err != nil || form.HasErrors() {
-		h.renderContentForm(w, r, form, NewContent("", ""), "Validation failed", http.StatusBadRequest)
+		content := ToFeatContent(form)
+		webContent := ToWebContent(content)
+		h.renderContentForm(w, r, form, webContent, "Validation failed", http.StatusBadRequest)
 		return
 	}
 
-	content := ToContent(form)
+	content := ToFeatContent(form)
 
 	path := fmt.Sprintf("/ssg/contents/%s", content.GetID())
 	err = h.apiClient.Put(r, path, content, nil)
@@ -113,7 +119,7 @@ func (h *WebHandler) ListContent(w http.ResponseWriter, r *http.Request) {
 	h.Log().Info("List content")
 
 	var response struct {
-		Contents []Content `json:"contents"`
+		Contents []feat.Content `json:"contents"`
 	}
 	h.Log().Info("Calling apiClient.Get /contents")
 	h.Log().Infof("h.apiClient: %+v", h.apiClient)
@@ -164,7 +170,7 @@ func (h *WebHandler) ShowContent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var response struct {
-		Content Content `json:"content"`
+		Content feat.Content `json:"content"`
 	}
 	path := fmt.Sprintf("/ssg/contents/%s", idStr)
 	err := h.apiClient.Get(r, path, &response)
@@ -220,38 +226,52 @@ func (h *WebHandler) DeleteContent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *WebHandler) renderContentForm(w http.ResponseWriter, r *http.Request, form ContentForm, content Content, errorMessage string, statusCode int) {
-	h.Log().Debugf("renderContentForm: h.apiClient: %+v", h.apiClient)
+	h.Log().Debugf("h.apiClient: %+v", h.apiClient)
 
 	var sectionsResponse struct {
 		Sections []Section `json:"sections"`
 	}
-	h.Log().Debug("renderContentForm: Calling API to get sections")
+	h.Log().Debug("Calling API to get sections")
 	err := h.apiClient.Get(r, "/ssg/sections", &sectionsResponse)
 	if err != nil {
-		h.Log().Errorf("renderContentForm: Failed to get sections from API: %v", err)
+		h.Log().Errorf("Failed to get sections from API: %v", err)
 		h.Err(w, err, "Failed to get sections from API", http.StatusInternalServerError)
 		return
 	}
 	sections := sectionsResponse.Sections
-	h.Log().Debugf("renderContentForm: Sections received: %+v", sections)
+	h.Log().Debugf("Sections received: %+v", sections)
 
 	var usersResponse struct {
 		Users []auth.User `json:"users"`
 	}
-	h.Log().Debug("renderContentForm: Calling API to get users")
+	h.Log().Debug("Calling API to get users")
 	err = h.apiClient.Get(r, "/auth/users", &usersResponse)
 	if err != nil {
-		h.Log().Errorf("renderContentForm: Failed to get users from API: %v", err)
+		h.Log().Errorf("Failed to get users from API: %v", err)
 		h.Err(w, err, "Failed to get users from API", http.StatusInternalServerError)
 		return
 	}
 	users := usersResponse.Users
-	h.Log().Debugf("renderContentForm: Users received: %+v", users)
+	h.Log().Debugf("Users received: %+v", users)
+
+	var tagsResponse struct {
+		Tags []Tag `json:"tags"`
+	}
+	h.Log().Debug("Calling API to get tags")
+	err = h.apiClient.Get(r, "/ssg/tags", &tagsResponse)
+	if err != nil {
+		h.Log().Errorf("Failed to get tags from API: %v", err)
+		h.Err(w, err, "Failed to get tags from API", http.StatusInternalServerError)
+		return
+	}
+	tags := tagsResponse.Tags
+	h.Log().Debugf("Tags received: %+v", tags)
 
 	page := am.NewPage(r, content)
 	page.SetForm(&form)
 	page.AddSelect("sections", am.ToSelectOpt(am.ToPtrSlice(sections)))
 	page.AddSelect("users", am.ToSelectOpt(am.ToPtrSlice(users)))
+	page.AddSelect("tags", am.ToSelectOpt(am.ToPtrSlice(tags)))
 
 	if content.IsZero() {
 		page.Name = "New Content"

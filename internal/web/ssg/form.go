@@ -1,11 +1,14 @@
 package ssg
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/adrianpk/clio/internal/am"
 	"github.com/google/uuid"
+	feat "github.com/adrianpk/clio/internal/feat/ssg"
 )
 
 // ContentForm represents the form data for a content.
@@ -17,6 +20,7 @@ type ContentForm struct {
 	Heading   string `json:"heading"`
 	Body      string `json:"body"`
 	Status    string `json:"status"`
+	Tags      string `json:"tags"`
 	Errors    map[string]string
 }
 
@@ -41,13 +45,14 @@ func ContentFormFromRequest(r *http.Request) (ContentForm, error) {
 	form.Heading = r.Form.Get("heading")
 	form.Body = r.Form.Get("body")
 	form.Status = r.Form.Get("status")
+	form.Tags = r.Form.Get("tags")
 
 	return form, nil
 }
 
-// ToContent converts a ContentForm to a Content model.
-func ToContent(form ContentForm) Content {
-	content := NewContent(form.Heading, form.Body)
+// ToFeatContent converts a ContentForm to a feat.Content model.
+func ToFeatContent(form ContentForm) feat.Content {
+	content := feat.NewContent(form.Heading, form.Body)
 	content.Status = form.Status
 
 	if form.ID != "" {
@@ -71,11 +76,23 @@ func ToContent(form ContentForm) Content {
 		}
 	}
 
+	// New part for tags
+	if form.Tags != "" {
+		var tags []struct {
+			Value string `json:"value"`
+		}
+		if err := json.Unmarshal([]byte(form.Tags), &tags); err == nil {
+			for _, t := range tags {
+				content.Tags = append(content.Tags, feat.Tag{Name: t.Value})
+			}
+		}
+	}
+
 	return content
 }
 
-// ToContentForm converts a Content model to a ContentForm.
-func ToContentForm(r *http.Request, content Content) ContentForm {
+// ToContentForm converts a feat.Content model to a ContentForm.
+func ToContentForm(r *http.Request, content feat.Content) ContentForm {
 	form := NewContentForm(r) // Initialize with BaseForm
 	form.ID = content.GetID().String()
 	form.UserID = content.UserID.String()
@@ -83,6 +100,14 @@ func ToContentForm(r *http.Request, content Content) ContentForm {
 	form.Heading = content.Heading
 	form.Body = content.Body
 	form.Status = content.Status
+
+	// Create a comma-separated string of tag names
+	tagNames := make([]string, len(content.Tags))
+	for i, tag := range content.Tags {
+		tagNames[i] = tag.Name
+	}
+	form.Tags = strings.Join(tagNames, ",")
+
 	return form
 }
 
@@ -134,9 +159,9 @@ func LayoutFormFromRequest(r *http.Request) (LayoutForm, error) {
 	return form, nil
 }
 
-// ToLayout converts a LayoutForm to a Layout model.
-func ToLayout(form LayoutForm) Layout {
-	layout := Newlayout(form.Name, form.Description, form.Code)
+// ToFeatLayout converts a LayoutForm to a feat.Layout model.
+func ToFeatLayout(form LayoutForm) feat.Layout {
+	layout := feat.Newlayout(form.Name, form.Description, form.Code)
 	if form.ID != "" {
 		id, err := uuid.Parse(form.ID)
 		if err == nil {
@@ -146,8 +171,8 @@ func ToLayout(form LayoutForm) Layout {
 	return layout
 }
 
-// ToLayoutForm converts a Layout model to a LayoutForm.
-func ToLayoutForm(r *http.Request, layout Layout) LayoutForm {
+// ToLayoutForm converts a feat.Layout model to a LayoutForm.
+func ToLayoutForm(r *http.Request, layout feat.Layout) LayoutForm {
 	form := NewLayoutForm(r)
 	form.ID = layout.GetID().String()
 	form.Name = layout.Name
@@ -212,10 +237,10 @@ func SectionFormFromRequest(r *http.Request) (SectionForm, error) {
 	return form, nil
 }
 
-// ToSection converts a SectionForm to a Section model.
-func ToSection(form SectionForm) Section {
+// ToFeatSection converts a SectionForm to a feat.Section model.
+func ToFeatSection(form SectionForm) feat.Section {
 	layoutID, _ := uuid.Parse(form.LayoutID)
-	section := NewSection(form.Name, form.Description, form.Path, layoutID)
+	section := feat.NewSection(form.Name, form.Description, form.Path, layoutID)
 	section.Image = form.Image
 	section.Header = form.Header
 	if form.ID != "" {
@@ -228,8 +253,8 @@ func ToSection(form SectionForm) Section {
 	return section
 }
 
-// ToSectionForm converts a Section model to a SectionForm.
-func ToSectionForm(r *http.Request, section Section) SectionForm {
+// ToSectionForm converts a feat.Section model to a SectionForm.
+func ToSectionForm(r *http.Request, section feat.Section) SectionForm {
 	form := NewSectionForm(r)
 	form.ID = section.GetID().String()
 	form.Name = section.Name
@@ -261,3 +286,63 @@ func (f *SectionForm) Validate() error {
 func (f *SectionForm) HasErrors() bool {
 	return len(f.Errors) > 0
 }
+
+// TagForm represents the form data for a tag.
+type TagForm struct {
+	*am.BaseForm
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	Errors map[string]string
+}
+
+// NewTagForm creates a new TagForm from a request.
+func NewTagForm(r *http.Request) TagForm {
+	return TagForm{
+		BaseForm: am.NewBaseForm(r),
+		Errors:   make(map[string]string),
+	}
+}
+
+// TagFormFromRequest creates a TagForm from an HTTP request.
+func TagFormFromRequest(r *http.Request) (TagForm, error) {
+	if err := r.ParseForm(); err != nil {
+		return TagForm{}, fmt.Errorf("error parsing form: %w", err)
+	}
+
+	form := NewTagForm(r)
+	form.ID = r.Form.Get("id")
+	form.Name = r.Form.Get("name")
+
+	return form, nil
+}
+
+// ToFeatTag converts a TagForm to a feat.Tag model.
+func ToFeatTag(form TagForm) feat.Tag {
+	tag := feat.NewTag(form.Name)
+	if form.ID != "" {
+		id, err := uuid.Parse(form.ID)
+		if err == nil {
+			tag.ID = id
+		}
+	}
+	return tag
+}
+
+// ToTagForm converts a feat.Tag model to a TagForm.
+func ToTagForm(r *http.Request, featTag feat.Tag) TagForm {
+	form := NewTagForm(r)
+	form.ID = featTag.GetID().String()
+	form.Name = featTag.Name
+	return form
+}
+
+// Validate validates the TagForm.
+func (f *TagForm) Validate() error {
+	if f.Name == "" {
+		f.Errors["name"] = "Name cannot be empty"
+	}
+	return nil
+}
+
+// HasErrors returns true if the form has validation errors.
+func (f *TagForm) HasErrors() bool { return len(f.Errors) > 0 }

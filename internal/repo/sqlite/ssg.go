@@ -15,6 +15,7 @@ var (
 	resLayout  = "layout"
 	resContent = "content"
 	resSection = "section"
+	resTag     = "tag"
 )
 
 // Content related
@@ -163,13 +164,13 @@ func (repo *ClioRepo) CreateSection(ctx context.Context, section ssg.Section) er
 
 	_, err = repo.db.ExecContext(ctx, query,
 		section.GetID(),
+		section.GetShortID(),
 		section.Name,
 		section.Description,
 		section.Path,
 		section.LayoutID,
 		section.Image,
 		section.Header,
-		section.GetShortID(),
 		section.GetCreatedBy(),
 		section.GetUpdatedBy(),
 		section.GetCreatedAt(),
@@ -231,7 +232,7 @@ func (repo *ClioRepo) GetSection(ctx context.Context, id uuid.UUID) (ssg.Section
 	)
 
 	err = row.Scan(
-		&sectionID, &name, &description, &path, &layoutID, &image, &header, &shortID,
+		&sectionID, &shortID, &name, &description, &path, &layoutID, &image, &header,
 		&createdBy, &updatedBy, &createdAt, &updatedAt, &layoutName,
 	)
 	if err != nil {
@@ -387,8 +388,8 @@ func (repo *ClioRepo) UpdateLayout(ctx context.Context, layout ssg.Layout) error
 	return err
 }
 
-func (repo *ClioRepo) DeleteLayout(ctx context.Context, id uuid.UUID) error {
-	query, err := repo.Query().Get(featSSG, "layout", "Delete")
+	func (repo *ClioRepo) DeleteLayout(ctx context.Context, id uuid.UUID) error {
+	query, err := repo.Query().Get(featSSG, resLayout, "Delete")
 	if err != nil {
 		return err
 	}
@@ -396,3 +397,135 @@ func (repo *ClioRepo) DeleteLayout(ctx context.Context, id uuid.UUID) error {
 	_, err = repo.db.ExecContext(ctx, query, id)
 	return err
 }
+
+
+// Tag related
+
+func (repo *ClioRepo) CreateTag(ctx context.Context, tag ssg.Tag) error {
+	query, err := repo.Query().Get(featSSG, resTag, "Create")
+	if err != nil {
+		return err
+	}
+
+	_, err = repo.db.NamedExecContext(ctx, query, tag)
+	return err
+}
+
+func (repo *ClioRepo) GetTag(ctx context.Context, id uuid.UUID) (ssg.Tag, error) {
+	query, err := repo.Query().Get(featSSG, resTag, "Get")
+	if err != nil {
+		return ssg.Tag{}, err
+	}
+
+	var tag ssg.Tag
+	err = repo.db.GetContext(ctx, &tag, query, id)
+	if err != nil {
+		return ssg.Tag{}, err
+	}
+
+	return tag, nil
+}
+
+func (repo *ClioRepo) GetTagByName(ctx context.Context, name string) (ssg.Tag, error) {
+	query, err := repo.Query().Get(featSSG, resTag, "GetByName")
+	if err != nil {
+		return ssg.Tag{}, err
+	}
+
+	var tag ssg.Tag
+	err = repo.db.GetContext(ctx, &tag, query, name)
+	if err != nil {
+		return ssg.Tag{}, err
+	}
+
+	return tag, nil
+}
+
+func (repo *ClioRepo) GetAllTags(ctx context.Context) ([]ssg.Tag, error) {
+	query, err := repo.Query().Get(featSSG, resTag, "GetAll")
+	if err != nil {
+		return nil, err
+	}
+
+	var tags []ssg.Tag
+	err = repo.db.SelectContext(ctx, &tags, query)
+	if err != nil {
+		return nil, err
+	}
+
+	return tags, nil
+}
+
+func (repo *ClioRepo) UpdateTag(ctx context.Context, tag ssg.Tag) error {
+	query, err := repo.Query().Get(featSSG, resTag, "Update")
+	if err != nil {
+		return err
+	}
+
+	_, err = repo.db.NamedExecContext(ctx, query, tag)
+	return err
+}
+
+func (repo *ClioRepo) DeleteTag(ctx context.Context, id uuid.UUID) error {
+	query, err := repo.Query().Get(featSSG, resTag, "Delete")
+	if err != nil {
+		return err
+	}
+
+	_, err = repo.db.ExecContext(ctx, query, id)
+	return err
+}
+
+// ContentTag related
+
+func (repo *ClioRepo) AddTagToContent(ctx context.Context, contentID, tagID uuid.UUID) error {
+	query, err := repo.Query().Get(featSSG, resTag, "AddTagToContent")
+	if err != nil {
+		return err
+	}
+
+	_, err = repo.db.ExecContext(ctx, query, contentID, tagID)
+	return err
+}
+
+func (repo *ClioRepo) RemoveTagFromContent(ctx context.Context, contentID, tagID uuid.UUID) error {
+	query, err := repo.Query().Get(featSSG, resTag, "RemoveTagFromContent")
+	if err != nil {
+		return err
+	}
+
+	_, err = repo.db.ExecContext(ctx, query, contentID, tagID)
+	return err
+}
+
+func (repo *ClioRepo) GetTagsForContent(ctx context.Context, contentID uuid.UUID) ([]ssg.Tag, error) {
+	query, err := repo.Query().Get(featSSG, resTag, "GetTagsForContent")
+	if err != nil {
+		return nil, err
+	}
+
+	var tags []ssg.Tag
+	err = repo.db.SelectContext(ctx, &tags, query, contentID)
+	if err != nil {
+		return nil, err
+	}
+
+	return tags, nil
+}
+
+func (repo *ClioRepo) GetContentForTag(ctx context.Context, tagID uuid.UUID) ([]ssg.Content, error) {
+	query, err := repo.Query().Get(featSSG, resTag, "GetContentForTag")
+	if err != nil {
+		return nil, err
+	}
+
+	var contents []ssg.Content
+	err = repo.db.SelectContext(ctx, &contents, query, tagID)
+	if err != nil {
+		return nil, err
+	}
+
+	return contents, nil
+}
+
+	

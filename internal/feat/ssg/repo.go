@@ -27,4 +27,16 @@ type Repo interface {
 	GetAllLayouts(ctx context.Context) ([]Layout, error)
 	UpdateLayout(ctx context.Context, layout Layout) error
 	DeleteLayout(ctx context.Context, id uuid.UUID) error
+
+	CreateTag(ctx context.Context, tag Tag) error
+	GetTag(ctx context.Context, id uuid.UUID) (Tag, error)
+	GetTagByName(ctx context.Context, name string) (Tag, error)
+	GetAllTags(ctx context.Context) ([]Tag, error)
+	UpdateTag(ctx context.Context, tag Tag) error
+	DeleteTag(ctx context.Context, id uuid.UUID) error
+
+	AddTagToContent(ctx context.Context, contentID, tagID uuid.UUID) error
+	RemoveTagFromContent(ctx context.Context, contentID, tagID uuid.UUID) error
+	GetTagsForContent(ctx context.Context, contentID uuid.UUID) ([]Tag, error)
+	GetContentForTag(ctx context.Context, tagID uuid.UUID) ([]Content, error)
 }
