@@ -25,6 +25,15 @@ func NewWebRouter(handler *WebHandler, mw []am.Middleware, opts ...am.Option) *a
 	core.Get("/show-section", handler.ShowSection)
 	core.Post("/delete-section", handler.DeleteSection)
 
+	// Tag routes
+	core.Get("/new-tag", handler.NewTag)
+	core.Post("/create-tag", handler.CreateTag)
+	core.Get("/edit-tag", handler.EditTag)
+	core.Post("/update-tag", handler.UpdateTag)
+	core.Get("/list-tags", handler.ListTags)
+	core.Get("/show-tag", handler.ShowTag)
+	core.Post("/delete-tag", handler.DeleteTag)
+
 	// Layout routes
 	core.Get("/new-layout", handler.NewLayout)
 	core.Post("/create-layout", handler.CreateLayout)

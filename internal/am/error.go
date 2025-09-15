@@ -9,4 +9,5 @@ const (
 	ErrInvalidFormData      = "Invalid form data"
 	ErrValidationFailed     = "Validation failed"
 	ErrInvalidBody          = "Invalid request body"
+	ErrInvalidParam         = "Invalid parameter"
 )

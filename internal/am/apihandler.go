@@ -2,6 +2,7 @@ package am
 
 import (
 	"net/http"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -41,4 +42,13 @@ func (h *APIHandler) ID(w http.ResponseWriter, r *http.Request) (uuid.UUID, erro
 		return uuid.Nil, err
 	}
 	return id, nil
+}
+
+func (h *APIHandler) Param(w http.ResponseWriter, r *http.Request, key string) (string, error) {
+	param := r.PathValue(key)
+	if param == "" {
+		h.Err(w, http.StatusBadRequest, "Missing parameter in URL", nil)
+		return "", fmt.Errorf("missing parameter %s in URL", key)
+	}
+	return param, nil
 }

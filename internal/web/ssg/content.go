@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/adrianpk/clio/internal/am"
+	feat "github.com/adrianpk/clio/internal/feat/ssg"
 )
 
 const (
@@ -93,4 +94,26 @@ func (c *Content) OptValue() string {
 
 func (c *Content) OptLabel() string {
 	return c.Heading
+}
+
+// ToWebContent converts a feat.Content model to a web.Content model.
+func ToWebContent(featContent feat.Content) Content {
+	return Content{
+		ID:        featContent.ID,
+		ShortID:   featContent.ShortID,
+		UserID:    featContent.UserID,
+		SectionID: featContent.SectionID,
+		Heading:   featContent.Heading,
+		Body:      featContent.Body,
+		Status:    featContent.Status,
+	}
+}
+
+// ToWebContents converts a slice of feat.Content models to a slice of web.Content models.
+func ToWebContents(featContents []feat.Content) []Content {
+	webContents := make([]Content, len(featContents))
+	for i, featContent := range featContents {
+		webContents[i] = ToWebContent(featContent)
+	}
+	return webContents
 }

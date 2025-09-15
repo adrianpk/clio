@@ -26,6 +26,7 @@ type Content struct {
 	Heading   string    `json:"heading" db:"heading"`
 	Body      string    `json:"body" db:"body"`
 	Status    string    `json:"status" db:"status"`
+	Tags      []Tag     `json:"tags"`
 
 	// Audit
 	CreatedBy uuid.UUID `json:"-" db:"created_by"`

@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/adrianpk/clio/internal/am"
+	feat "github.com/adrianpk/clio/internal/feat/ssg"
 )
 
 const (
@@ -97,4 +98,30 @@ func (s *Section) OptValue() string {
 
 func (s *Section) OptLabel() string {
 	return s.Name
+}
+
+// ToWebSection converts a feat.Section model to a web.Section model.
+// NOTE: Probably we want to avoid this coupling in the future.
+func ToWebSection(featSection feat.Section) Section {
+	return Section{
+		ID:          featSection.ID,
+		ShortID:     featSection.ShortID,
+		Name:        featSection.Name,
+		Description: featSection.Description,
+		Path:        featSection.Path,
+		LayoutID:    featSection.LayoutID,
+		Image:       featSection.Image,
+		Header:      featSection.Header,
+		LayoutName:  featSection.LayoutName,
+	}
+}
+
+// ToWebSections converts a slice of feat.Section models to a slice of web.Section models.
+// NOTE: Prpbably we want to avoid this coupling in the future.
+func ToWebSections(featSections []feat.Section) []Section {
+	webSections := make([]Section, len(featSections))
+	for i, featSection := range featSections {
+		webSections[i] = ToWebSection(featSection)
+	}
+	return webSections
 }

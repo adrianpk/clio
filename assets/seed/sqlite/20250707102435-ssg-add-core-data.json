@@ -54,5 +54,69 @@
       "content_type": "html",
       "section_ref": "root"
     }
+  ],
+  "tags": [
+    {
+      "ref": "programming",
+      "name": "Programming"
+    },
+    {
+      "ref": "go",
+      "name": "Go"
+    },
+    {
+      "ref": "messaging",
+      "name": "Messaging"
+    },
+    {
+      "ref": "orchestration",
+      "name": "Orchestration"
+    },
+    {
+      "ref": "cloud-native",
+      "name": "Cloud Native"
+    }
+  ],
+  "content_tags": [
+    {
+      "content_ref": "intro-to-golang",
+      "tag_ref": "programming"
+    },
+    {
+      "content_ref": "intro-to-golang",
+      "tag_ref": "go"
+    },
+    {
+      "content_ref": "go-generics",
+      "tag_ref": "programming"
+    },
+    {
+      "content_ref": "go-generics",
+      "tag_ref": "go"
+    },
+    {
+      "content_ref": "what-is-nats",
+      "tag_ref": "messaging"
+    },
+    {
+      "content_ref": "what-is-nats",
+      "tag_ref": "cloud-native"
+    },
+    {
+      "content_ref": "hashicorp-nomad",
+      "tag_ref": "orchestration"
+    },
+    {
+      "content_ref": "hashicorp-nomad",
+      "tag_ref": "cloud-native"
+    },
+    {
+      "content_ref": "kubernetes-basics",
+      "tag_ref": "orchestration"
+    },
+    {
+      "content_ref": "kubernetes-basics",
+      "tag_ref": "cloud-native"
+    }
   ]
 }

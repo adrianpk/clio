@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/adrianpk/clio/internal/am"
+	"github.com/google/uuid"
 )
 
 const (
@@ -15,6 +16,8 @@ const (
 	resSectionNameCap = "Section"
 	resLayoutName     = "layout"
 	resLayoutNameCap  = "Layout"
+	resTagName        = "tag"
+	resTagNameCap     = "Tag"
 )
 
 type APIHandler struct {
@@ -48,6 +51,8 @@ func (h *APIHandler) wrapData(data interface{}) interface{} {
 		return map[string]interface{}{"section": v}
 	case Content:
 		return map[string]interface{}{"content": v}
+	case Tag:
+		return map[string]interface{}{"tag": v}
 
 	// Slices of entities
 	case []Layout:
@@ -56,6 +61,8 @@ func (h *APIHandler) wrapData(data interface{}) interface{} {
 		return map[string]interface{}{"sections": v}
 	case []Content:
 		return map[string]interface{}{"contents": v}
+	case []Tag:
+		return map[string]interface{}{"tags": v}
 
 	// Default case for nil, maps, or other types
 	default:
@@ -305,6 +312,16 @@ func (h *APIHandler) GetAllContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	for i, content := range contents {
+		tags, err := h.svc.GetTagsForContent(r.Context(), content.ID)
+		if err != nil {
+			msg := fmt.Sprintf("Cannot get tags for content %s", content.ID)
+			h.Err(w, http.StatusInternalServerError, msg, err)
+			return
+		}
+		contents[i].Tags = tags
+	}
+
 	msg := fmt.Sprintf(am.MsgGetAllItems, resContentNameCap)
 	h.OK(w, msg, contents)
 }
@@ -325,6 +342,14 @@ func (h *APIHandler) GetContent(w http.ResponseWriter, r *http.Request) {
 		h.Err(w, http.StatusInternalServerError, msg, err)
 		return
 	}
+
+	tags, err := h.svc.GetTagsForContent(r.Context(), id)
+	if err != nil {
+		msg := fmt.Sprintf("Cannot get tags for content %s", id)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+	content.Tags = tags
 
 	msg := fmt.Sprintf(am.MsgGetItem, resContentNameCap)
 	h.OK(w, msg, content)
@@ -347,6 +372,15 @@ func (h *APIHandler) CreateContent(w http.ResponseWriter, r *http.Request) {
 		msg := fmt.Sprintf(am.ErrCannotCreateResource, resContentName)
 		h.Err(w, http.StatusInternalServerError, msg, err)
 		return
+	}
+
+	for _, tag := range content.Tags {
+		err = h.svc.AddTagToContent(r.Context(), content.ID, tag.Name)
+		if err != nil {
+			msg := fmt.Sprintf("Cannot add tag %s to content %s", tag.Name, content.ID)
+			h.Err(w, http.StatusInternalServerError, msg, err)
+			return
+		}
 	}
 
 	msg := fmt.Sprintf(am.MsgCreateItem, resContentNameCap)
@@ -380,6 +414,32 @@ func (h *APIHandler) UpdateContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Remove existing tags
+	existingTags, err := h.svc.GetTagsForContent(r.Context(), id)
+	if err != nil {
+		msg := fmt.Sprintf("Cannot get existing tags for content %s", id)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+	for _, tag := range existingTags {
+		err = h.svc.RemoveTagFromContent(r.Context(), id, tag.ID)
+		if err != nil {
+			msg := fmt.Sprintf("Cannot remove tag %s from content %s", tag.ID, id)
+			h.Err(w, http.StatusInternalServerError, msg, err)
+			return
+		}
+	}
+
+	// Add new tags
+	for _, tag := range content.Tags {
+		err = h.svc.AddTagToContent(r.Context(), id, tag.Name)
+		if err != nil {
+			msg := fmt.Sprintf("Cannot add tag %s to content %s", tag.Name, id)
+			h.Err(w, http.StatusInternalServerError, msg, err)
+			return
+		}
+	}
+
 	msg := fmt.Sprintf(am.MsgUpdateItem, resContentNameCap)
 	h.OK(w, msg, content)
 }
@@ -402,5 +462,221 @@ func (h *APIHandler) DeleteContent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msg := fmt.Sprintf(am.MsgDeleteItem, resContentNameCap)
+	h.OK(w, msg, json.RawMessage("null"))
+}
+
+// Tag related API handlers
+
+func (h *APIHandler) CreateTag(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling CreateTag", h.Name())
+
+	var tag Tag
+	err := json.NewDecoder(r.Body).Decode(&tag)
+	if err != nil {
+		h.Err(w, http.StatusBadRequest, am.ErrInvalidBody, err)
+		return
+	}
+
+	newTag := NewTag(tag.Name)
+	newTag.GenCreateValues()
+
+	err = h.svc.CreateTag(r.Context(), newTag)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotCreateResource, resTagName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgCreateItem, resTagNameCap)
+	h.Created(w, msg, newTag)
+}
+
+func (h *APIHandler) GetTag(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling GetTag", h.Name())
+
+	id, err := h.ID(w, r)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resTagNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	tag, err := h.svc.GetTag(r.Context(), id)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotGetResource, resTagName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgGetItem, resTagNameCap)
+	h.OK(w, msg, tag)
+}
+
+func (h *APIHandler) GetTagByName(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling GetTagByName", h.Name())
+
+	name, err := h.Param(w, r, "name")
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidParam, "name", resTagNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	tag, err := h.svc.GetTagByName(r.Context(), name)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotGetResource, resTagName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgGetItem, resTagNameCap)
+	h.OK(w, msg, tag)
+}
+
+func (h *APIHandler) GetAllTags(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling GetAllTags", h.Name())
+
+	tags, err := h.svc.GetAllTags(r.Context())
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotGetResources, resTagName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgGetAllItems, resTagNameCap)
+	h.OK(w, msg, tags)
+}
+
+func (h *APIHandler) UpdateTag(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling UpdateTag", h.Name())
+
+	id, err := h.ID(w, r)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resTagNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	var tag Tag
+	err = json.NewDecoder(r.Body).Decode(&tag)
+	if err != nil {
+		h.Err(w, http.StatusBadRequest, am.ErrInvalidBody, err)
+		return
+	}
+
+	updatedTag := NewTag(tag.Name)
+	updatedTag.SetID(id, true)
+	updatedTag.GenUpdateValues()
+
+	err = h.svc.UpdateTag(r.Context(), updatedTag)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotUpdateResource, resTagName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgUpdateItem, resTagNameCap)
+	h.OK(w, msg, updatedTag)
+}
+
+func (h *APIHandler) DeleteTag(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling DeleteTag", h.Name())
+
+	id, err := h.ID(w, r)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resTagNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	err = h.svc.DeleteTag(r.Context(), id)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotDeleteResource, resTagName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgDeleteItem, resTagNameCap)
+	h.OK(w, msg, json.RawMessage("null"))
+}
+
+// AddTagToContentForm represents the data for adding a tag to content.
+type AddTagToContentForm struct {
+	Name string `json:"name"`
+}
+
+// Content-Tag related API handlers
+
+func (h *APIHandler) AddTagToContent(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling AddTagToContent", h.Name())
+
+	contentIDStr, err := h.Param(w, r, "content_id")
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+	contentID, err := uuid.Parse(contentIDStr)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	var form AddTagToContentForm
+	err = json.NewDecoder(r.Body).Decode(&form)
+	if err != nil {
+		h.Err(w, http.StatusBadRequest, am.ErrInvalidBody, err)
+		return
+	}
+
+	err = h.svc.AddTagToContent(r.Context(), contentID, form.Name)
+	if err != nil {
+		msg := fmt.Sprintf("Cannot add tag %s to content %s", form.Name, contentID)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf("Tag %s added to content %s", form.Name, contentID)
+	h.Created(w, msg, nil)
+}
+
+func (h *APIHandler) RemoveTagFromContent(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling RemoveTagFromContent", h.Name())
+
+	contentIDStr, err := h.Param(w, r, "content_id")
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+	contentID, err := uuid.Parse(contentIDStr)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	tagIDStr, err := h.Param(w, r, "tag_id")
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resTagNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+	tagID, err := uuid.Parse(tagIDStr)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resTagNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	err = h.svc.RemoveTagFromContent(r.Context(), contentID, tagID)
+	if err != nil {
+		msg := fmt.Sprintf("Cannot remove tag %s from content %s", tagID, contentID)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf("Tag %s removed from content %s", tagID, contentID)
 	h.OK(w, msg, json.RawMessage("null"))
 }

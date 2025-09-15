@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/adrianpk/clio/internal/am"
+	feat "github.com/adrianpk/clio/internal/feat/ssg"
 )
 
 const (
@@ -98,4 +99,24 @@ func (l *Layout) OptLabel() string {
 // StringID returns the unique identifier of the entity as a string.
 func (l *Layout) StringID() string {
 	return l.GetID().String()
+}
+
+// ToWebLayout converts a feat.Layout model to a web.Layout model.
+func ToWebLayout(featLayout feat.Layout) Layout {
+	return Layout{
+		ID:          featLayout.ID,
+		ShortID:     featLayout.ShortID,
+		Name:        featLayout.Name,
+		Description: featLayout.Description,
+		Code:        featLayout.Code,
+	}
+}
+
+// ToWebLayouts converts a slice of feat.Layout models to a slice of web.Layout models.
+func ToWebLayouts(featLayouts []feat.Layout) []Layout {
+	webLayouts := make([]Layout, len(featLayouts))
+	for i, featLayout := range featLayouts {
+		webLayouts[i] = ToWebLayout(featLayout)
+	}
+	return webLayouts
 }
