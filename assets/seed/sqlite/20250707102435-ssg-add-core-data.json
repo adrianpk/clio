@@ -1,0 +1,58 @@
+{
+  "layouts": [
+    {
+      "ref": "alt",
+      "name": "alt",
+      "description": "Alternative editable layout, copy of the default layout from the filesystem.",
+      "code": "{{ define \"layout\" }}\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>{{ block \"title\" . }}Title{{ end }}</title>\n    <link href=\"https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css\" rel=\"stylesheet\">\n</head>\n<body class=\"bg-gray-100 text-gray-900\">\n{{ block \"header\" . }}Header{{ end }}\n{{ block \"flash\" . }}\n{{ end }}\n<main class=\"p-4\">\n    {{ block \"content\" . }}Content{{ end }}\n</main>\n<aside class=\"p-4\">\n    {{ block \"submenu\" . }}{{ end }}\n</aside>\n<footer class=\"bg-gray-200 text-center p-4 mt-4\">\n    <p>&copy; 2025 clio</p>\n</footer>\n</body>\n</html>\n{{ end }}"
+    }
+  ],
+  "sections": [
+    {
+      "ref": "root",
+      "name": "root",
+      "description": "Top-level section of the site.",
+      "path": "/",
+      "layout_ref": "alt",
+      "image": "",
+      "header": ""
+    }
+  ],
+  "contents": [
+    {
+      "slug": "intro-to-golang",
+      "heading": "Introduction to Golang",
+      "body": "Go, also known as Golang, is a statically typed, compiled programming language designed at Google. It is known for its simplicity, efficiency, and strong support for concurrent programming.",
+      "content_type": "html",
+      "section_ref": "root"
+    },
+    {
+      "slug": "go-generics",
+      "heading": "Generics in Go",
+      "body": "Go introduced generics in version 1.18, allowing developers to write more flexible and reusable code. Generics enable writing functions and data structures that can work with any data type.",
+      "content_type": "html",
+      "section_ref": "root"
+    },
+    {
+      "slug": "what-is-nats",
+      "heading": "What is NATS?",
+      "body": "NATS is a simple, high-performance open-source messaging system for cloud-native applications, IoT, and microservices architectures. It provides a lightweight and efficient way for services to communicate.",
+      "content_type": "html",
+      "section_ref": "root"
+    },
+    {
+      "slug": "hashicorp-nomad",
+      "heading": "HashiCorp Nomad",
+      "body": "Nomad is a simple and flexible workload orchestrator to deploy and manage containers and non-containerized applications across on-prem and clouds at scale. It is an alternative to Kubernetes.",
+      "content_type": "html",
+      "section_ref": "root"
+    },
+    {
+      "slug": "kubernetes-basics",
+      "heading": "Kubernetes Basics",
+      "body": "Kubernetes, also known as K8s, is an open-source system for automating deployment, scaling, and management of containerized applications. It has become the de-facto standard for container orchestration.",
+      "content_type": "html",
+      "section_ref": "root"
+    }
+  ]
+}

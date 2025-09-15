@@ -1,0 +1,8 @@
+build/
+main
+/clio.db
+/clio.db*
+/bak/
+/tmp/
+__debug_bin*
+.env

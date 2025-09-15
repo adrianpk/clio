@@ -1,0 +1,124 @@
+{{ define "content-form-new" }}
+{{ $form := .Form }}
+{{ $headingField := "heading" }}
+{{ $bodyField := "body" }}
+<form hx-post="{{ $form.Action }}" hx-trigger="keyup changed delay:500ms, every 30s, submit" hx-target="#save-status" hx-swap="outerHTML" method="post" class="space-y-4">
+  <div id="save-status" class="text-sm text-gray-500"></div>
+  <input type="hidden" name="_method" value="{{ $form.Method }}" />
+  <input type="hidden" name="aquamarine.csrf.token" value="{{ $form.CSRF }}" />
+  <input type="hidden" name="id" value="{{ .Data.ID }}" />
+  <div>
+    <label for="section_id" class="block text-sm font-medium text-gray-700">Section:</label>
+    <select
+      id="section_id"
+      name="section_id"
+      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+      required
+    >
+      {{- range $section := .Select.sections }}
+        <option value="{{ $section.Value }}" {{ if eq $form.SectionID $section.Value }}selected{{ end }}>{{ $section.Label }}</option>
+      {{- end }}
+    </select>
+    {{ FieldMsg $form "section_id" }}
+  </div>
+  <div>
+    <label for="user_id" class="block text-sm font-medium text-gray-700">Author:</label>
+    <select
+      id="user_id"
+      name="user_id"
+      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+      required
+    >
+      {{- range $index, $user := .Select.users }}
+        <option value="{{ $user.Value }}" {{ if or (eq $form.UserID $user.Value) (and (eq $index 0) (not $form.UserID)) }}selected{{ end }}>{{ $user.Label }}</option>
+      {{- end }}
+    </select>
+    {{ FieldMsg $form "user_id" }}
+  </div>
+  <div>
+    <label for="{{$headingField}}" class="block text-sm font-medium text-gray-700">
+      Heading:
+    </label>
+    <input
+      type="text"
+      id="{{$headingField}}"
+      name="{{$headingField}}"
+      value="{{ .Data.Heading }}"
+      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+    {{ FieldMsg $form $headingField }}
+  </div>
+  {{ template "css.tmpl" . }}
+  <div class="flex w-full" style="min-height: 300px;">
+    <div id="markdown-pane" class="w-1/2 pr-2 flex flex-col">
+      <label for="{{$bodyField}}" class="block text-sm font-medium text-gray-700">Markdown:</label>
+      <textarea
+        id="{{$bodyField}}"
+        name="{{$bodyField}}"
+        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm flex-1"
+        rows="16"
+      >{{ .Data.Body }}</textarea>
+      {{ FieldMsg $form $bodyField }}
+    </div>
+    <div id="splitter" style="width: 6px; cursor: col-resize; background: #e5e7eb; border-radius: 3px; margin: 0 2px;"></div>
+    <div id="preview-pane" class="w-1/2 pl-2 flex flex-col">
+      <label class="block text-sm font-medium text-gray-700">Preview:</label>
+      <div id="preview" class="markdown-body mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white overflow-auto flex-1" style="min-height: 180px;"></div>
+    </div>
+  </div>
+  {{ template "js.tmpl" . }}
+  <div>
+    <button
+      type="submit"
+      class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+    >
+      {{ if eq $form.Action (printf "%s/create-content" .Feat.Path) }}Create{{ else
+      if eq $form.Action (printf "%s/update-content" .Feat.Path) }}Update{{ else
+      }}{{ $form.Button.Text }}{{ end }}
+    </button>
+  </div>
+</form>
+
+<script>
+  function updateSaveStatus(timestamp) {
+    const saveStatusDiv = document.getElementById('save-status');
+    if (!saveStatusDiv) return;
+
+    if (timestamp) {
+      const now = new Date();
+      const savedAt = new Date(timestamp);
+      const diffSeconds = Math.floor((now - savedAt) / 1000);
+
+      let message;
+      if (diffSeconds < 5) {
+        message = 'Last saved: just now';
+      } else if (diffSeconds < 60) {
+        message = `Last saved: ${diffSeconds} seconds ago`;
+      } else if (diffSeconds < 3600) {
+        const minutes = Math.floor(diffSeconds / 60);
+        message = `Last saved: ${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+      } else {
+        message = `Last saved: ${savedAt.toLocaleTimeString()}`;
+      }
+      saveStatusDiv.textContent = message;
+    } else {
+      saveStatusDiv.textContent = '';
+    }
+  }
+
+  const initialTimestamp = document.getElementById('save-status').dataset.timestamp;
+  if (initialTimestamp) {
+    updateSaveStatus(initialTimestamp);
+  }
+
+  document.querySelector('form').addEventListener('htmx:afterSwap', function(event) {
+    const newSaveStatusDiv = event.detail.target.querySelector('#save-status');
+    if (newSaveStatusDiv) {
+      const newTimestamp = newSaveStatusDiv.dataset.timestamp;
+      if (newTimestamp) {
+        updateSaveStatus(newTimestamp);
+      }
+    }
+  });
+</script>
+{{ end }}

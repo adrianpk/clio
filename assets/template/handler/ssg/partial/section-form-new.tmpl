@@ -1,0 +1,94 @@
+{{ define "section-form-new" }}
+{{ $form := .Form }}
+{{ $nameField := "name" }}
+{{ $descriptionField := "description" }}
+<form action="{{ $form.Action }}" method="post" class="space-y-4">
+  <input type="hidden" name="_method" value="{{ $form.Method }}" />
+  <input type="hidden" name="aquamarine.csrf.token" value="{{ $form.CSRF }}" />
+  <input type="hidden" name="id" value="{{ .Data.ID }}" />
+  <div>
+    <label for="{{$nameField}}" class="block text-sm font-medium text-gray-700">
+      Name:
+    </label>
+    <input
+      type="text"
+      id="{{$nameField}}"
+      name="{{$nameField}}"
+      value="{{ $form.Name }}"
+      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+    {{ FieldMsg $form $nameField }}
+  </div>
+  <div>
+    <label for="{{$descriptionField}}" class="block text-sm font-medium text-gray-700">Description:</label>
+    <textarea
+      id="{{$descriptionField}}"
+      name="{{$descriptionField}}"
+      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+      rows="5"
+    >{{ $form.Description }}</textarea>
+    {{ FieldMsg $form $descriptionField }}
+  </div>
+  <div>
+    <label for="path" class="block text-sm font-medium text-gray-700">Path:</label>
+    <input
+      type="text"
+      id="path"
+      name="path"
+      value="{{ $form.Path }}"
+      placeholder="/section-path"
+      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+    {{ FieldMsg $form "path" }}
+  </div>
+  <!-- TODO: An image upload mechanism will be implemented later to replace these text fields for image paths. -->
+  <div>
+    <label for="image" class="block text-sm font-medium text-gray-700">Image Path:</label>
+    <input
+      type="text"
+      id="image"
+      name="image"
+      value="{{ .Data.Image }}"
+      placeholder="img/section-image.png"
+      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+    {{ FieldMsg $form "image" }}
+  </div>
+  <div>
+    <label for="header" class="block text-sm font-medium text-gray-700">Header Image Path:</label>
+    <input
+      type="text"
+      id="header"
+      name="header"
+      value="{{ .Data.Header }}"
+      placeholder="section-header.png"
+      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+    {{ FieldMsg $form "header" }}
+  </div>
+  <div>
+    <label for="layout_id" class="block text-sm font-medium text-gray-700">Layout:</label>
+    <select
+      id="layout_id"
+      name="layout_id"
+      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    >
+      {{- range $layout := .Select.layouts }}
+        <option value="{{ $layout.Value }}" {{ if eq $form.LayoutID $layout.Value }}selected{{ end }}>{{ $layout.Label }}</option>
+      {{- end }}
+    </select>
+    {{ FieldMsg $form "layout_id" }}
+  </div>
+  {{ template "css.tmpl" . }}
+  <div>
+    <button
+      type="submit"
+      class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+    >
+      {{ if eq $form.Action (printf "%s/create-section" .Feat.Path) }}Create{{ else
+      if eq $form.Action (printf "%s/update-section" .Feat.Path) }}Update{{ else
+      }}{{ $form.Button.Text }}{{ end }}
+    </button>
+  </div>
+</form>
+{{ end }}

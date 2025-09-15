@@ -1,0 +1,96 @@
+package ssg
+
+import (
+	"github.com/google/uuid"
+
+	"github.com/adrianpk/clio/internal/am"
+)
+
+const (
+	contentType = "content"
+)
+
+// Content model.
+type Content struct {
+	ID        uuid.UUID `json:"id"`
+	ShortID   string    `json:"-"`
+	UserID    uuid.UUID `json:"user_id"`
+	SectionID uuid.UUID `json:"section_id"`
+	Heading   string    `json:"heading"`
+	Body      string    `json:"body"`
+	Status    string    `json:"status"`
+}
+
+// NewContent creates a new Content.
+func NewContent(heading, body string) Content {
+	c := Content{
+		Heading: heading,
+		Body:    body,
+	}
+
+	return c
+}
+
+// Type returns the type of the entity.
+func (c *Content) Type() string {
+	return am.DefaultType(contentType)
+}
+
+// GetID returns the unique identifier of the entity.
+func (c *Content) GetID() uuid.UUID {
+	return c.ID
+}
+
+// GenID delegates to the functional helper.
+func (c *Content) GenID() {
+	am.GenID(c)
+}
+
+// SetID sets the unique identifier of the entity.
+func (c *Content) SetID(id uuid.UUID, force ...bool) {
+	shouldForce := len(force) > 0 && force[0]
+	if c.ID == uuid.Nil || (shouldForce && id != uuid.Nil) {
+		c.ID = id
+	}
+}
+
+// ShortID returns the short ID portion of the slug.
+func (c *Content) GetShortID() string {
+	return c.ShortID
+}
+
+// GenShortID delegates to the functional helper.
+func (c *Content) GenShortID() {
+	am.GenShortID(c)
+}
+
+// SetShortID sets the short ID of the entity.
+func (c *Content) SetShortID(shortID string, force ...bool) {
+	shouldForce := len(force) > 0 && force[0]
+	if c.ShortID == "" || shouldForce {
+		c.ShortID = shortID
+	}
+}
+
+// TypeID returns a universal identifier for a specific model instance.
+func (c *Content) TypeID() string {
+	return am.Normalize(c.Type()) + "-" + c.GetShortID()
+}
+
+// IsZero returns true if the Content is uninitialized.
+func (c *Content) IsZero() bool {
+	return c.ID == uuid.Nil
+}
+
+// Slug returns the slug for the content.
+func (c *Content) Slug() string {
+	return "content"
+}
+
+func (c *Content) OptValue() string {
+	return c.GetID().String()
+}
+
+func (c *Content) OptLabel() string {
+	return c.Heading
+}

@@ -1,0 +1,22 @@
+{
+  "users": [
+    {
+      "ref": "user-superadmin",
+      "username": "superadmin",
+      "email": "superadmin@example.com",
+      "name": "Super Admin"
+    },
+    {
+      "ref": "user-admin",
+      "username": "admin",
+      "email": "admin@example.com",
+      "name": "Admin"
+    },
+    {
+      "ref": "user-johndoe",
+      "username": "johndoe",
+      "email": "john.doe@example.com",
+      "name": "John Doe"
+    }
+  ]
+}
