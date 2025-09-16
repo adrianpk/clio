@@ -27,3 +27,9 @@ Clio takes inspiration from [Hermes](https://github.com/adrianpk/hermes), a full
 - Preview of the generated site before publishing.  
 - Publication of generated content (with GitHub Pages as the first supported target).  
 - More to come.
+
+---
+
+### Changelog
+
+All notable changes to this project are documented in the [changelog file](docs/changelog.md).
