@@ -52,6 +52,7 @@
         <option value="00000000-0000-0000-0000-000000000001" {{if eq .Data.UserID "00000000-0000-0000-0000-000000000001"}}selected{{end}}>Admin User</option>
     </select>
     {{ FieldMsg $form "user_id" }}
+  <button type="button" id="zen-mode-btn" class="zen-mode-toggle">🧘</button>
   <div>
     <button
       type="submit"

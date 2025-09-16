@@ -49,7 +49,7 @@
     {{ FieldMsg $form $headingField }}
   </div>
   {{ template "css.tmpl" . }}
-  <div class="flex w-full" style="min-height: 300px;">
+  <div class="editor-container flex w-full" style="min-height: 300px;">
     <div id="markdown-pane" class="w-1/2 pr-2 flex flex-col">
       <label for="{{$bodyField}}" class="block text-sm font-medium text-gray-700">Markdown:</label>
       <textarea
@@ -79,6 +79,7 @@
   </script>
   {{ end }}
   {{ template "js.tmpl" . }}
+  <button type="button" id="zen-mode-btn" class="zen-mode-toggle">🧘</button>
   <div>
     <button
       type="submit"

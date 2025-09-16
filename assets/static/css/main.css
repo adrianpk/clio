@@ -42,3 +42,68 @@
 .table-actions {
     @apply text-center;
 }
+
+/* Zen Mode Styles */
+.zen-mode-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+    padding: 10px 15px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: 0.2; /* Always transparent unless hovered */
+    transition: background-color 0.3s, opacity 0.3s;
+}
+
+.zen-mode-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+    opacity: 1; /* Full opacity on hover */
+}
+
+/* Corrected Zen Mode Rules */
+body.zen-mode-active .main-header,
+body.zen-mode-active footer,
+body.zen-mode-active aside,
+body.zen-mode-active h1,
+body.zen-mode-active #preview-pane,
+body.zen-mode-active #splitter,
+body.zen-mode-active #save-status,
+body.zen-mode-active #markdown-pane label,
+body.zen-mode-active form > div:not(.editor-container),
+body.zen-mode-active form > button[type="submit"] {
+    display: none;
+}
+
+body.zen-mode-active .editor-container {
+    /* This container itself is not hidden, but its children are handled. */
+}
+
+body.zen-mode-active #markdown-pane {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1040;
+    padding: 2.5rem; /* Add some padding to the canvas */
+    background-color: #fff;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    display: flex; /* Use flexbox to control children */
+    flex-direction: column;
+}
+
+body.zen-mode-active #markdown-pane textarea {
+    flex-grow: 1; /* Allow textarea to fill available space */
+    border: none !important; /* Remove all borders */
+    outline: none !important; /* Remove focus outline */
+    box-shadow: none !important; /* Remove focus shadow */
+    padding: 0;
+    background-color: transparent;
+}
+
