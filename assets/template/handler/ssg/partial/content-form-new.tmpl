@@ -79,8 +79,12 @@
   </script>
   {{ end }}
   {{ template "js.tmpl" . }}
-  <button type="button" id="zen-mode-btn" class="zen-mode-toggle">🧘</button>
-  <div>
+  <div class="floating-action-buttons">
+    <button type="button" id="dark-mode-btn" class="zen-mode-toggle">🌙</button>
+    <button type="button" id="zen-mode-btn" class="zen-mode-toggle">🧘</button>
+  </div>
+
+  <div class="flex items-center justify-between gap-4">
     <button
       type="submit"
       class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -89,8 +93,11 @@
       if eq $form.Action (printf "%s/update-content" .Feat.Path) }}Update{{ else
       }}{{ $form.Button.Text }}{{ end }}
     </button>
+    <div class="static-action-buttons flex items-center gap-2">
+        <button type="button" id="zen-mode-btn-static" class="p-2 rounded-md border">🧘</button>
+    </div>
   </div>
-</form>
+  </form>
 
 <script>
   function updateSaveStatus(timestamp) {
