@@ -28,9 +28,7 @@ type App struct {
 	Router        *Router
 	APIRouter     *Router
 	APIRouters    map[string]*Router
-	ResRouter     *Router
-	ResAPIRouter  *Router
-	ResAPIRouters map[string]*Router
+	
 	deps          map[string]*Dep
 	depOrder      []string
 	depsMutex     sync.Mutex
@@ -65,18 +63,13 @@ func NewApp(name, version string, fs embed.FS, opts ...Option) *App {
 		Router:        NewWebRouter("web-router", opts...),
 		APIRouter:     NewWebRouter("api-router", opts...),
 		APIRouters:    make(map[string]*Router),
-		ResRouter:     NewWebRouter("res-router", opts...),
-		ResAPIRouter:  NewWebRouter("res-api-router", opts...),
-		ResAPIRouters: make(map[string]*Router),
+		
 		fs:            fs,
 		deps:          make(map[string]*Dep),
 		InternalToken: uuid.NewString(), // Initialize InternalToken with a new UUID
 	}
 
-	resPath := app.Cfg().StrValOrDef(Key.ServerResPath, resPath)
-
-	app.Router.Mount(resPath, app.ResRouter)
-	app.ResRouter.Mount(resPath, app.ResAPIRouter)
+	
 
 	return app
 }
@@ -257,22 +250,7 @@ func (a *App) MountAPI(version, path string, handler http.Handler) {
 	a.APIRouter.Mount("/api"+version, router)
 }
 
-func (a *App) MountRes(path string, handler http.Handler) {
-	a.ResRouter.Mount(path, handler)
-}
 
-func (a *App) MountResAPI(version, path string, handler http.Handler) {
-	version = fmt.Sprintf("/%s", version)
-	versionPath := fmt.Sprintf("%s%s", path, version)
-	router, exists := a.ResAPIRouters[version]
-	if !exists {
-		name := fmt.Sprintf("res-api-router-%s", versionPath)
-		router = NewWebRouter(name, a.opts...)
-		router.Mount(path, handler)
-		a.ResAPIRouters[versionPath] = router
-	}
-	a.ResAPIRouter.Mount(version, router)
-}
 
 func (a *App) MountFileServer(path string, fs *FileServer) {
 	a.Router.Mount(path, fs.Router)
@@ -290,9 +268,7 @@ func (app *App) MountWeb(path string, handler http.Handler) {
 	app.Router.Mount(path, handler)
 }
 
-func (app *App) MountResWeb(path string, router *Router) {
-	app.MountRes(path, router)
-}
+
 
 func (a *App) checkSetup() error {
 	if a.Log() == nil {
