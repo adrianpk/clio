@@ -50,7 +50,8 @@ func main() {
 
 	// SSG feature
 	ssgSeeder := ssg.NewSeeder(assetsFS, engine, repo)
-	ssgService := ssg.NewService(repo, opts...)
+	ssgGenerator := ssg.NewGenerator(opts...)
+	ssgService := ssg.NewService(repo, ssgGenerator, opts...)
 	ssgAPIHandler := ssg.NewAPIHandler("ssg-api-handler", ssgService)
 	ssgAPIRouter := ssg.NewAPIRouter(ssgAPIHandler, nil) // No middleware for now
 	apiRouter.Mount("/ssg", ssgAPIRouter)
@@ -74,6 +75,7 @@ func main() {
 	app.Add(ssgWebHandler)
 	app.Add(ssgWebRouter)
 	app.Add(ssgSeeder)
+	app.Add(ssgGenerator)
 	app.Add(ssgService)
 	app.Add(ssgAPIHandler)
 	app.Add(ssgAPIRouter)

@@ -50,6 +50,11 @@ runflags: build
 	@echo "Running $(APP_NAME) with command-line flags..."
 	@$(BINARY) -server.web.host=localhost -server.web.port=9080 -server.api.host=localhost -server.api.port=9081
 
+# Generate markdown files
+generate-markdown:
+	@echo "Triggering markdown generation..."
+	@./scripts/curl/ssg/generate-markdown.sh
+
 gencsrfkey:
 	@if command -v openssl >/dev/null 2>&1; then \
 		echo "CSRF Key: $$(openssl rand -base64 32)"; \
@@ -125,4 +130,4 @@ reset-db:
 	@echo "A fresh database will be created on next application start"
 
 # Phony targets
-.PHONY: all build run runflags setenv clean backup-db reset-db
+.PHONY: all build run runflags setenv clean backup-db reset-db generate-markdown

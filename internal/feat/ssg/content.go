@@ -28,6 +28,10 @@ type Content struct {
 	Status    string    `json:"status" db:"status"`
 	Tags      []Tag     `json:"tags"`
 
+	// Joined fields
+	SectionPath string `json:"section_path,omitempty" db:"section_path"`
+	SectionName string `json:"section_name,omitempty" db:"section_name"`
+
 	// Audit
 	CreatedBy uuid.UUID `json:"-" db:"created_by"`
 	UpdatedBy uuid.UUID `json:"-" db:"updated_by"`
@@ -154,7 +158,7 @@ func (c *Content) IsZero() bool {
 
 // Slug returns the slug for the content.
 func (c *Content) Slug() string {
-	return "content"
+	return am.Normalize(c.Heading) + "-" + c.GetShortID()
 }
 
 func (c *Content) OptValue() string {

@@ -8,6 +8,9 @@ func NewAPIRouter(handler *APIHandler, mw []am.Middleware, opts ...am.Option) *a
 	core := am.NewAPIRouter("api-router", opts...)
 	core.SetMiddlewares(mw)
 
+	// SSG API routes
+	core.Post("/generate-markdown", handler.GenerateMarkdown)
+
 	// Layout API routes
 	core.Get("/layouts", handler.GetAllLayouts)
 	core.Get("/layouts/{id}", handler.GetLayout)

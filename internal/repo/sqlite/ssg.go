@@ -528,4 +528,68 @@ func (repo *ClioRepo) GetContentForTag(ctx context.Context, tagID uuid.UUID) ([]
 	return contents, nil
 }
 
+func (repo *ClioRepo) GetAllContentWithTags(ctx context.Context) ([]ssg.Content, error) {
+	query, err := repo.Query().Get(featSSG, resContent, "GetAllWithTags")
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := repo.db.QueryxContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	contentMap := make(map[uuid.UUID]*ssg.Content)
+	var contentOrder []uuid.UUID
+
+	for rows.Next() {
+		var c ssg.Content
+		var t ssg.Tag
+		var sectionPath, sectionName sql.NullString
+		var tagID, tagShortID, tagCreatedBy, tagUpdatedBy sql.NullString
+		var tagName, tagSlug sql.NullString
+		var tagCreatedAt, tagUpdatedAt sql.NullTime
+
+		err := rows.Scan(
+			&c.ID, &c.UserID, &c.SectionID, &c.Heading, &c.Body, &c.Status, &c.ShortID, &sectionPath, &sectionName,
+			&c.CreatedBy, &c.UpdatedBy, &c.CreatedAt, &c.UpdatedAt,
+			&tagID, &tagShortID, &tagName, &tagSlug,
+			&tagCreatedBy, &tagUpdatedBy, &tagCreatedAt, &tagUpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		if _, ok := contentMap[c.ID]; !ok {
+			c.SetType(resContent)
+			c.SectionPath = sectionPath.String
+			c.SectionName = sectionName.String
+			contentMap[c.ID] = &c
+			contentOrder = append(contentOrder, c.ID)
+		}
+
+		if tagID.Valid {
+			t.ID, _ = uuid.Parse(tagID.String)
+			t.SetShortID(tagShortID.String)
+			t.Name = tagName.String
+			t.SlugField = tagSlug.String
+			t.SetCreatedBy(uuid.MustParse(tagCreatedBy.String))
+			t.SetUpdatedBy(uuid.MustParse(tagUpdatedBy.String))
+			t.SetCreatedAt(tagCreatedAt.Time)
+			t.SetUpdatedAt(tagUpdatedAt.Time)
+			t.SetType("tag")
+			contentMap[c.ID].Tags = append(contentMap[c.ID].Tags, t)
+		}
+	}
+
+	contents := make([]ssg.Content, len(contentOrder))
+	for i, id := range contentOrder {
+		contents[i] = *contentMap[id]
+	}
+
+	return contents, nil
+}
+
+
 	

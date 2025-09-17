@@ -680,3 +680,17 @@ func (h *APIHandler) RemoveTagFromContent(w http.ResponseWriter, r *http.Request
 	msg := fmt.Sprintf("Tag %s removed from content %s", tagID, contentID)
 	h.OK(w, msg, json.RawMessage("null"))
 }
+
+func (h *APIHandler) GenerateMarkdown(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling GenerateMarkdown", h.Name())
+
+	err := h.svc.GenerateMarkdown(r.Context())
+	if err != nil {
+		msg := fmt.Sprintf("Cannot generate markdown: %v", err)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := "Markdown generation process started successfully"
+	h.OK(w, msg, nil)
+}

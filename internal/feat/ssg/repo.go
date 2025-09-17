@@ -15,6 +15,7 @@ type Repo interface {
 	UpdateContent(ctx context.Context, content Content) error
 	DeleteContent(ctx context.Context, id uuid.UUID) error
 	GetAllContent(ctx context.Context) ([]Content, error)
+	GetAllContentWithTags(ctx context.Context) ([]Content, error)
 
 	CreateSection(ctx context.Context, section Section) error
 	GetSection(ctx context.Context, id uuid.UUID) (Section, error)
