@@ -27,7 +27,9 @@ func main() {
 	log := am.NewLogger("debug")
 	cfg := am.LoadCfg(namespace, am.Flags)
 	opts := am.DefOpts(log, cfg)
+
 	fm := am.NewFlashManager()
+	workspace := ssg.NewWorkspace(opts...)
 	app := core.NewApp(name, version, assetsFS, opts...)
 	queryManager := am.NewQueryManager(assetsFS, engine)
 	templateManager := am.NewTemplateManager(assetsFS)
@@ -62,6 +64,7 @@ func main() {
 	app.MountWeb("/ssg", ssgWebRouter)
 
 	// Add deps
+	app.Add(workspace)
 	app.Add(migrator)
 	app.Add(fm)
 	app.Add(fileServer)
