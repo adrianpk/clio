@@ -4,7 +4,7 @@ BUILD_DIR = build
 SRC_DIR = .
 MAIN_SRC = $(SRC_DIR)/main.go
 BINARY = $(BUILD_DIR)/$(APP_NAME)
-DB_FILE = clio.db
+DB_FILE = _workspace/db/clio.db
 DB_BACKUP_DIR = bak
 
 # Backup database with timestamp
@@ -64,6 +64,9 @@ gencsrfkey:
 # WIP: This is a workaround to be able to associate some styles to notifications and buttons but another approach will
 # be used at the end.
 setenv:
+	@echo "Setting app environment to development..."
+	@export CLIO_APP_ENV="dev"
+	@echo "Environment variables set."
 	@echo "Setting environment variables..."
 	@export CLIO_SERVER_WEB_HOST=localhost
 	@export CLIO_SERVER_WEB_PORT=8080
@@ -89,7 +92,6 @@ setenv:
 	@echo "Setting render errors..."
 	@export CLIO_RENDER_WEB_ERRORS="true"
 	@export CLIO_RENDER_API_ERRORS="true"
-	@echo "Environment variables set."
 
 # Run tests
 test:

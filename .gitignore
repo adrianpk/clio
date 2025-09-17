@@ -6,3 +6,4 @@ main
 /tmp/
 __debug_bin*
 .env
+_workspace/
