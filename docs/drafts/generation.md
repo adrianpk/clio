@@ -17,7 +17,7 @@ This document outlines the process of converting the content stored in the datab
 
 ### Schema Approach
 
-Considering that the primary database engine is SQLite, which lacks the native JSONB support found in databases like PostgreSQL, the application will favor a well-defined database schema with explicit columns over a flexible JSON-based field for metadata. This approach ensures type safety and data integrity across all supported database engines. The comprehensive `Meta` struct from the reference implementation will serve as a solid reference for all the fields to include in the `content` table, ensuring type safety and data integrity.
+Considering that the primary database engine is SQLite, which lacks the native JSONB support found in databases like PostgreSQL, the application will favor a well-defined database schema with explicit columns over a flexible JSON-based field for metadata. This approach ensures type safety across all supported database engines. The comprehensive `Meta` struct from the reference implementation will serve as a reference for all the fields to include in the `content` table, ensuring type safety and data integrity.
 
 This means fields like `title`, `description`, `summary`, `type`, `slug`, `layout`, `header_image`, etc., will eventually become dedicated columns in the database and fields in the Go struct.
 
@@ -41,7 +41,7 @@ To manage this metadata, a "properties editor" will be available in the content 
 
 The process of "dumping" the database content into Markdown files will follow a specific structure to ensure content is organized logically. The file paths will be derived from the `Section` and `Content` entities.
 
-### Guiding Principle: Simplicity by Default
+### Simplicity by Default
 
 While many options for content organization (Sections, Content Types, etc.) will be available, they must be implemented as ergonomically as possible. The primary goal is to provide a straightforward workflow for users who simply want to publish text online quickly.
 

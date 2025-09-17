@@ -40,19 +40,40 @@ type Service interface {
 	RemoveTagFromContent(ctx context.Context, contentID, tagID uuid.UUID) error
 	GetTagsForContent(ctx context.Context, contentID uuid.UUID) ([]Tag, error)
 	GetContentForTag(ctx context.Context, tagID uuid.UUID) ([]Content, error)
+
+	GenerateMarkdown(ctx context.Context) error
 }
 
 type BaseService struct {
 	*am.Service
 	repo Repo
+	gen  *Generator
 }
 
-func NewService(repo Repo, opts ...am.Option) *BaseService {
+func NewService(repo Repo, gen *Generator, opts ...am.Option) *BaseService {
 	return &BaseService{
 		Service: am.NewService("ssg-svc", opts...),
 		repo:    repo,
+		gen:     gen,
 	}
 }
+
+func (svc *BaseService) GenerateMarkdown(ctx context.Context) error {
+	svc.Log().Info("Service starting site generation")
+
+	contents, err := svc.repo.GetAllContentWithTags(ctx)
+	if err != nil {
+		return fmt.Errorf("cannot get all content with tags: %w", err)
+	}
+
+	if err := svc.gen.Generate(contents); err != nil {
+		return fmt.Errorf("cannot generate site: %w", err)
+	}
+
+	svc.Log().Info("Service site generation finished")
+	return nil
+}
+
 
 // Content related
 

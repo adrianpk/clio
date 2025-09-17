@@ -14,4 +14,7 @@ require (
 	golang.org/x/crypto v0.42.0
 )
 
-require github.com/gertd/go-pluralize v0.2.1 // indirect
+require (
+	github.com/gertd/go-pluralize v0.2.1 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
+)
