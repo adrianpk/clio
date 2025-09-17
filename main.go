@@ -24,7 +24,7 @@ var assetsFS embed.FS
 
 func main() {
 	ctx := context.Background()
-	log := am.NewLogger("debug")
+	log := am.NewLogger("info")
 	cfg := am.LoadCfg(namespace, am.Flags)
 	opts := am.DefOpts(log, cfg)
 

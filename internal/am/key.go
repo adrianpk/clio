@@ -1,6 +1,8 @@
 package am
 
 type Keys struct {
+	AppEnv string
+
 	ServerWebHost      string
 	ServerWebPort      string
 	ServerWebEnabled   string
@@ -36,6 +38,8 @@ type Keys struct {
 }
 
 var Key = Keys{
+	AppEnv: "app.env",
+
 	ServerWebHost:      "server.web.host",
 	ServerWebPort:      "server.web.port",
 	ServerWebEnabled:   "server.web.enabled",

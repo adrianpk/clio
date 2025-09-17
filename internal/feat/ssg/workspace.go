@@ -25,19 +25,46 @@ func (w *Workspace) Setup(ctx context.Context) error {
 }
 
 func (w *Workspace) setupDirs() error {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		w.Log().Error("Cannot get user home directory", "error", err)
-		return err
-	}
+	var dirs []string
+	env := w.Cfg().StrValOrDef(am.Key.AppEnv, "prod")
+	w.Log().Info("Read environment mode", "key", am.Key.AppEnv, "value", env)
 
-	// TODO: These paths should eventually come from a configuration file.
-	dirs := []string{
-		filepath.Join(homeDir, ".config", "clio"),
-		filepath.Join(homeDir, ".clio"),
-		filepath.Join(homeDir, "Documents", "Clio", "markdown"),
-		filepath.Join(homeDir, "Documents", "Clio", "html"),
-		filepath.Join(homeDir, "Documents", "Clio", "assets", "images"),
+	if env == "dev" {
+		w.Log().Info("Running in DEV mode, using local paths.")
+		wd, err := os.Getwd()
+		if err != nil {
+			w.Log().Error("Cannot get working directory", "error", err)
+			return err
+		}
+		base := filepath.Join(wd, "_workspace")
+		dbDir := filepath.Join(base, "db")
+		dirs = []string{
+			filepath.Join(base, "config"),
+			dbDir,
+			filepath.Join(base, "documents", "markdown"),
+			filepath.Join(base, "documents", "html"),
+			filepath.Join(base, "documents", "assets", "images"),
+		}
+
+		// Override config values for dev mode
+		devDSN := "file:" + filepath.Join(dbDir, "clio.db") + "?cache=shared&mode=rwc"
+		w.Cfg().Set(am.Key.DBSQLiteDSN, devDSN)
+		w.Log().Info("Overriding config for DEV mode", "key", am.Key.DBSQLiteDSN, "value", devDSN)
+
+	} else {
+		w.Log().Info("Running in PROD mode, using system paths.")
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			w.Log().Error("Cannot get user home directory", "error", err)
+			return err
+		}
+		dirs = []string{
+			filepath.Join(homeDir, ".config", "clio"),
+			filepath.Join(homeDir, ".clio"),
+			filepath.Join(homeDir, "Documents", "Clio", "markdown"),
+			filepath.Join(homeDir, "Documents", "Clio", "html"),
+			filepath.Join(homeDir, "Documents", "Clio", "assets", "images"),
+		}
 	}
 
 	w.Log().Info("Ensuring base directory structure exists...")
