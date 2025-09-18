@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (markdownPane.classList.contains('dark-mode-active')) {
             markdownPane.classList.remove('dark-mode-active');
             floatingDarkModeButton.textContent = '🌙';
+            floatingDarkModeButton.title = 'Dark mode (alt+d)';
         }
     }
 
