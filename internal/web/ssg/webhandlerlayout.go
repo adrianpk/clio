@@ -24,8 +24,11 @@ func (h *WebHandler) CreateLayout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := form.Validate(); err != nil || form.HasErrors() {
-		h.renderLayoutForm(w, r, form, Newlayout("", "", ""), "Validation failed", http.StatusBadRequest)
+	form.Validate()
+	if form.HasErrors() {
+		layout := ToFeatLayout(form)
+		webLayout := ToWebLayout(layout)
+		h.renderLayoutForm(w, r, form, webLayout, "Validation failed", http.StatusBadRequest)
 		return
 	}
 
@@ -78,8 +81,11 @@ func (h *WebHandler) UpdateLayout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := form.Validate(); err != nil || form.HasErrors() {
-		h.renderLayoutForm(w, r, form, Newlayout("", "", ""), "Validation failed", http.StatusBadRequest)
+	form.Validate()
+	if form.HasErrors() {
+		layout := ToFeatLayout(form)
+		webLayout := ToWebLayout(layout)
+		h.renderLayoutForm(w, r, form, webLayout, "Validation failed", http.StatusBadRequest)
 		return
 	}
 

@@ -25,8 +25,11 @@ func (h *WebHandler) CreateSection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := form.Validate(); err != nil || form.HasErrors() {
-		h.renderSectionForm(w, r, form, NewSection("", "", "", uuid.Nil), "Validation failed", http.StatusBadRequest)
+	form.Validate()
+	if form.HasErrors() {
+		section := ToFeatSection(form)
+		webSection := ToWebSection(section)
+		h.renderSectionForm(w, r, form, webSection, "Validation failed", http.StatusBadRequest)
 		return
 	}
 
@@ -79,8 +82,11 @@ func (h *WebHandler) UpdateSection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := form.Validate(); err != nil || form.HasErrors() {
-		h.renderSectionForm(w, r, form, NewSection("", "", "", uuid.Nil), "Validation failed", http.StatusBadRequest)
+	form.Validate()
+	if form.HasErrors() {
+		section := ToFeatSection(form)
+		webSection := ToWebSection(section)
+		h.renderSectionForm(w, r, form, webSection, "Validation failed", http.StatusBadRequest)
 		return
 	}
 

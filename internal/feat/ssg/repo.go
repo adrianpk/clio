@@ -4,18 +4,18 @@ import (
 	"context"
 
 	"github.com/adrianpk/clio/internal/am"
+	"github.com/adrianpk/clio/internal/feat/auth"
 	"github.com/google/uuid"
 )
 
 type Repo interface {
 	am.Repo
 
-	CreateContent(ctx context.Context, content Content) error
+	CreateContent(ctx context.Context, content *Content) error
 	GetContent(ctx context.Context, id uuid.UUID) (Content, error)
-	UpdateContent(ctx context.Context, content Content) error
+	UpdateContent(ctx context.Context, content *Content) error
 	DeleteContent(ctx context.Context, id uuid.UUID) error
-	GetAllContent(ctx context.Context) ([]Content, error)
-	GetAllContentWithTags(ctx context.Context) ([]Content, error)
+	GetAllContentWithMeta(ctx context.Context) ([]Content, error)
 
 	CreateSection(ctx context.Context, section Section) error
 	GetSection(ctx context.Context, id uuid.UUID) (Section, error)
@@ -40,4 +40,6 @@ type Repo interface {
 	RemoveTagFromContent(ctx context.Context, contentID, tagID uuid.UUID) error
 	GetTagsForContent(ctx context.Context, contentID uuid.UUID) ([]Tag, error)
 	GetContentForTag(ctx context.Context, tagID uuid.UUID) ([]Content, error)
+
+	GetUserByUsername(ctx context.Context, username string) (auth.User, error)
 }

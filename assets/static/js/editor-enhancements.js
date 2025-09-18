@@ -6,6 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const floatingZenButton = document.getElementById('zen-mode-btn-floating');
     const floatingDarkModeButton = document.getElementById('dark-mode-btn-floating');
 
+    const metaModal = document.getElementById('meta-modal');
+    const metaModalBtn = document.getElementById('meta-modal-btn');
+    const metaModalCloseBtn = document.getElementById('meta-modal-close-btn');
+
     function enterZenMode() {
         body.classList.add('zen-mode-active');
     }
@@ -37,6 +41,16 @@ document.addEventListener('DOMContentLoaded', () => {
         floatingDarkModeButton.addEventListener('click', toggleDarkMode);
     }
 
+    if (metaModal && metaModalBtn && metaModalCloseBtn) {
+        metaModalBtn.addEventListener('click', () => {
+            metaModal.classList.remove('hidden');
+        });
+
+        metaModalCloseBtn.addEventListener('click', () => {
+            metaModal.classList.add('hidden');
+        });
+    }
+
     document.addEventListener('keydown', (event) => {
         const isZen = body.classList.contains('zen-mode-active');
 
@@ -54,6 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 event.preventDefault();
                 toggleDarkMode();
             }
+        }
+
+        if (event.key === 'Escape' && metaModal && !metaModal.classList.contains('hidden')) {
+            metaModal.classList.add('hidden');
         }
     });
 });

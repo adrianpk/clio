@@ -4,31 +4,45 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/adrianpk/clio/internal/am"
-	"github.com/google/uuid"
 	feat "github.com/adrianpk/clio/internal/feat/ssg"
+	"github.com/google/uuid"
 )
 
 // ContentForm represents the form data for a content.
 type ContentForm struct {
 	*am.BaseForm
-	ID        string `json:"id"`
-	UserID    string `json:"user_id"`
-	SectionID string `json:"section_id"`
-	Heading   string `json:"heading"`
-	Body      string `json:"body"`
-	Status    string `json:"status"`
-	Tags      string `json:"tags"`
-	Errors    map[string]string
+
+	// Content fields
+	ID          string `json:"id"`
+	UserID      string `json:"user_id"`
+	SectionID   string `json:"section_id"`
+	Heading     string `json:"heading"`
+	Body        string `json:"body"`
+	Draft       bool   `json:"draft"`
+	Featured    bool   `json:"featured"`
+	PublishedAt string `json:"published_at"`
+	Tags        string `json:"tags"`
+
+	// Meta fields
+	Description     string `json:"description"`
+	Keywords        string `json:"keywords"`
+	Robots          string `json:"robots"`
+	CanonicalURL    string `json:"canonical_url"`
+	Sitemap         string `json:"sitemap"`
+	TableOfContents bool   `json:"table_of_contents"`
+	Share           bool   `json:"share"`
+	Comments        bool   `json:"comments"`
 }
 
 // NewContentForm creates a new ContentForm from a request.
 func NewContentForm(r *http.Request) ContentForm {
 	return ContentForm{
 		BaseForm: am.NewBaseForm(r),
-		Errors:   make(map[string]string),
 	}
 }
 
@@ -44,8 +58,20 @@ func ContentFormFromRequest(r *http.Request) (ContentForm, error) {
 	form.SectionID = r.Form.Get("section_id")
 	form.Heading = r.Form.Get("heading")
 	form.Body = r.Form.Get("body")
-	form.Status = r.Form.Get("status")
 	form.Tags = r.Form.Get("tags")
+	form.Draft, _ = strconv.ParseBool(r.Form.Get("draft"))
+	form.Featured, _ = strconv.ParseBool(r.Form.Get("featured"))
+	form.PublishedAt = r.Form.Get("published_at")
+
+	// Meta fields
+	form.Description = r.Form.Get("description")
+	form.Keywords = r.Form.Get("keywords")
+	form.Robots = r.Form.Get("robots")
+	form.CanonicalURL = r.Form.Get("canonical_url")
+	form.Sitemap = r.Form.Get("sitemap")
+	form.TableOfContents, _ = strconv.ParseBool(r.Form.Get("table_of_contents"))
+	form.Share, _ = strconv.ParseBool(r.Form.Get("share"))
+	form.Comments, _ = strconv.ParseBool(r.Form.Get("comments"))
 
 	return form, nil
 }
@@ -53,7 +79,6 @@ func ContentFormFromRequest(r *http.Request) (ContentForm, error) {
 // ToFeatContent converts a ContentForm to a feat.Content model.
 func ToFeatContent(form ContentForm) feat.Content {
 	content := feat.NewContent(form.Heading, form.Body)
-	content.Status = form.Status
 
 	if form.ID != "" {
 		id, err := uuid.Parse(form.ID)
@@ -76,6 +101,21 @@ func ToFeatContent(form ContentForm) feat.Content {
 		}
 	}
 
+	content.Draft = form.Draft
+	content.Featured = form.Featured
+
+	if form.PublishedAt != "" {
+		// Try parsing multiple formats, starting with RFC3339
+		formats := []string{time.RFC3339, "2006-01-02T15:04:05", "2006-01-02T15:04", "2006-01-02"}
+		for _, format := range formats {
+			pubAt, err := time.Parse(format, form.PublishedAt)
+			if err == nil {
+				content.PublishedAt = &pubAt
+				break
+			}
+		}
+	}
+
 	// New part for tags
 	if form.Tags != "" {
 		var tags []struct {
@@ -85,8 +125,28 @@ func ToFeatContent(form ContentForm) feat.Content {
 			for _, t := range tags {
 				content.Tags = append(content.Tags, feat.Tag{Name: t.Value})
 			}
+		} else {
+			// Handle plain comma-separated tags
+			tagNames := strings.Split(form.Tags, ",")
+			for _, name := range tagNames {
+				if trimmedName := strings.TrimSpace(name); trimmedName != "" {
+					content.Tags = append(content.Tags, feat.Tag{Name: trimmedName})
+				}
+			}
 		}
 	}
+
+	// Meta
+	meta := feat.NewMeta(content.ID)
+	meta.Description = form.Description
+	meta.Keywords = form.Keywords
+	meta.Robots = form.Robots
+	meta.CanonicalURL = form.CanonicalURL
+	meta.Sitemap = form.Sitemap
+	meta.TableOfContents = form.TableOfContents
+	meta.Share = form.Share
+	meta.Comments = form.Comments
+	content.Meta = meta
 
 	return content
 }
@@ -99,7 +159,11 @@ func ToContentForm(r *http.Request, content feat.Content) ContentForm {
 	form.SectionID = content.SectionID.String()
 	form.Heading = content.Heading
 	form.Body = content.Body
-	form.Status = content.Status
+	form.Draft = content.Draft
+	form.Featured = content.Featured
+	if content.PublishedAt != nil {
+		form.PublishedAt = content.PublishedAt.Format("2006-01-02T15:04:05") // Format for datetime-local input
+	}
 
 	// Create a comma-separated string of tag names
 	tagNames := make([]string, len(content.Tags))
@@ -108,23 +172,30 @@ func ToContentForm(r *http.Request, content feat.Content) ContentForm {
 	}
 	form.Tags = strings.Join(tagNames, ",")
 
+	// Meta
+	form.Description = content.Meta.Description
+	form.Keywords = content.Meta.Keywords
+	form.Robots = content.Meta.Robots
+	form.CanonicalURL = content.Meta.CanonicalURL
+	form.Sitemap = content.Meta.Sitemap
+	form.TableOfContents = content.Meta.TableOfContents
+	form.Share = content.Meta.Share
+	form.Comments = content.Meta.Comments
+
 	return form
 }
 
 // Validate validates the ContentForm.
-func (f *ContentForm) Validate() error {
+func (f *ContentForm) Validate() {
+	validation := f.Validation()
 	if f.Heading == "" {
-		f.Errors["heading"] = "Heading cannot be empty"
+		validation.AddFieldError("heading", f.Heading, "Heading cannot be empty")
 	}
 	if f.Body == "" {
-		f.Errors["body"] = "Body cannot be empty"
+		validation.AddFieldError("body", f.Body, "Body cannot be empty")
 	}
-
-	return nil
+	f.SetValidation(&validation)
 }
-
-// HasErrors returns true if the form has validation errors.
-func (f *ContentForm) HasErrors() bool { return len(f.Errors) > 0 }
 
 // LayoutForm represents the form for creating or updating a layout.
 type LayoutForm struct {
@@ -133,14 +204,12 @@ type LayoutForm struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Code        string `json:"code"`
-	Errors      map[string]string
 }
 
 // NewLayoutForm creates a new LayoutForm.
 func NewLayoutForm(r *http.Request) LayoutForm {
 	return LayoutForm{
 		BaseForm: am.NewBaseForm(r),
-		Errors:   make(map[string]string),
 	}
 }
 
@@ -183,19 +252,15 @@ func ToLayoutForm(r *http.Request, layout feat.Layout) LayoutForm {
 }
 
 // Validate validates the LayoutForm.
-func (f *LayoutForm) Validate() error {
+func (f *LayoutForm) Validate() {
+	validation := f.Validation()
 	if f.Name == "" {
-		f.Errors["name"] = "Name is required"
+		validation.AddFieldError("name", f.Name, "Name is required")
 	}
 	if f.Code == "" {
-		f.Errors["code"] = "Code is required"
+		validation.AddFieldError("code", f.Code, "Code is required")
 	}
-	return nil
-}
-
-// HasErrors returns true if the form has validation errors.
-func (f *LayoutForm) HasErrors() bool {
-	return len(f.Errors) > 0
+	f.SetValidation(&validation)
 }
 
 // SectionForm represents the form for creating or updating a section.
@@ -208,14 +273,12 @@ type SectionForm struct {
 	LayoutID    string `json:"layout_id"`
 	Image       string `json:"image"`
 	Header      string `json:"header"`
-	Errors      map[string]string
 }
 
 // NewSectionForm creates a new SectionForm.
 func NewSectionForm(r *http.Request) SectionForm {
 	return SectionForm{
 		BaseForm: am.NewBaseForm(r),
-		Errors:   make(map[string]string),
 	}
 }
 
@@ -267,39 +330,33 @@ func ToSectionForm(r *http.Request, section feat.Section) SectionForm {
 }
 
 // Validate validates the SectionForm.
-func (f *SectionForm) Validate() error {
+func (f *SectionForm) Validate() {
+	validation := f.Validation()
 	if f.Name == "" {
-		f.Errors["name"] = "Name is required"
+		validation.AddFieldError("name", f.Name, "Name is required")
 	}
 
 	if f.Path == "" {
-		f.Errors["path"] = "Path is required"
+		validation.AddFieldError("path", f.Path, "Path is required")
 	}
 
 	if f.LayoutID == "" {
-		f.Errors["layout_id"] = "Layout is required"
+		validation.AddFieldError("layout_id", f.LayoutID, "Layout is required")
 	}
-	return nil
-}
-
-// HasErrors returns true if the form has validation errors.
-func (f *SectionForm) HasErrors() bool {
-	return len(f.Errors) > 0
+	f.SetValidation(&validation)
 }
 
 // TagForm represents the form data for a tag.
 type TagForm struct {
 	*am.BaseForm
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	Errors map[string]string
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 // NewTagForm creates a new TagForm from a request.
 func NewTagForm(r *http.Request) TagForm {
 	return TagForm{
 		BaseForm: am.NewBaseForm(r),
-		Errors:   make(map[string]string),
 	}
 }
 
@@ -337,12 +394,10 @@ func ToTagForm(r *http.Request, featTag feat.Tag) TagForm {
 }
 
 // Validate validates the TagForm.
-func (f *TagForm) Validate() error {
+func (f *TagForm) Validate() {
+	validation := f.Validation()
 	if f.Name == "" {
-		f.Errors["name"] = "Name cannot be empty"
+		validation.AddFieldError("name", f.Name, "Name cannot be empty")
 	}
-	return nil
+	f.SetValidation(&validation)
 }
-
-// HasErrors returns true if the form has validation errors.
-func (f *TagForm) HasErrors() bool { return len(f.Errors) > 0 }

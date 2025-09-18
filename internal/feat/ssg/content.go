@@ -13,26 +13,24 @@ const (
 	contentType = "content"
 )
 
-// Content model.
 type Content struct {
-	// Common
 	ID      uuid.UUID `json:"id" db:"id"`
 	mType   string
 	ShortID string `json:"-" db:"short_id"`
 
-	// Content specific fields
-	UserID    uuid.UUID `json:"user_id" db:"user_id"`
-	SectionID uuid.UUID `json:"section_id" db:"section_id"`
-	Heading   string    `json:"heading" db:"heading"`
-	Body      string    `json:"body" db:"body"`
-	Status    string    `json:"status" db:"status"`
-	Tags      []Tag     `json:"tags"`
+	UserID      uuid.UUID  `json:"user_id" db:"user_id"`
+	SectionID   uuid.UUID  `json:"section_id" db:"section_id"`
+	Heading     string     `json:"heading" db:"heading"`
+	Body        string     `json:"body" db:"body"`
+	Draft       bool       `json:"draft" db:"draft"`
+	Featured    bool       `json:"featured" db:"featured"`
+	PublishedAt *time.Time `json:"published_at" db:"published_at"`
+	Tags        []Tag      `json:"tags"`
+	Meta        Meta       `json:"meta"`
 
-	// Joined fields
 	SectionPath string `json:"section_path,omitempty" db:"section_path"`
 	SectionName string `json:"section_name,omitempty" db:"section_name"`
 
-	// Audit
 	CreatedBy uuid.UUID `json:"-" db:"created_by"`
 	UpdatedBy uuid.UUID `json:"-" db:"updated_by"`
 	CreatedAt time.Time `json:"-" db:"created_at"`
@@ -45,6 +43,7 @@ func NewContent(heading, body string) Content {
 		mType:   contentType,
 		Heading: heading,
 		Body:    body,
+		Draft:   true,
 	}
 
 	return c

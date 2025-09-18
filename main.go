@@ -74,6 +74,7 @@ func main() {
 	app.Add(repo)
 	app.Add(ssgWebHandler)
 	app.Add(ssgWebRouter)
+	app.Add(authSeeder)
 	app.Add(ssgSeeder)
 	app.Add(ssgGenerator)
 	app.Add(ssgService)

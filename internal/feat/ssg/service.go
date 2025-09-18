@@ -11,10 +11,10 @@ import (
 )
 
 type Service interface {
-	CreateContent(ctx context.Context, content Content) error
-	GetAllContent(ctx context.Context) ([]Content, error)
+	CreateContent(ctx context.Context, content *Content) error
+	GetAllContentWithMeta(ctx context.Context) ([]Content, error)
 	GetContent(ctx context.Context, id uuid.UUID) (Content, error)
-	UpdateContent(ctx context.Context, content Content) error
+	UpdateContent(ctx context.Context, content *Content) error
 	DeleteContent(ctx context.Context, id uuid.UUID) error
 
 	CreateSection(ctx context.Context, section Section) error
@@ -61,9 +61,9 @@ func NewService(repo Repo, gen *Generator, opts ...am.Option) *BaseService {
 func (svc *BaseService) GenerateMarkdown(ctx context.Context) error {
 	svc.Log().Info("Service starting site generation")
 
-	contents, err := svc.repo.GetAllContentWithTags(ctx)
+	contents, err := svc.repo.GetAllContentWithMeta(ctx)
 	if err != nil {
-		return fmt.Errorf("cannot get all content with tags: %w", err)
+		return fmt.Errorf("cannot get all content with meta: %w", err)
 	}
 
 	if err := svc.gen.Generate(contents); err != nil {
@@ -77,19 +77,19 @@ func (svc *BaseService) GenerateMarkdown(ctx context.Context) error {
 
 // Content related
 
-func (svc *BaseService) CreateContent(ctx context.Context, content Content) error {
+func (svc *BaseService) CreateContent(ctx context.Context, content *Content) error {
 	return svc.repo.CreateContent(ctx, content)
 }
 
-func (svc *BaseService) GetAllContent(ctx context.Context) ([]Content, error) {
-	return svc.repo.GetAllContent(ctx)
+func (svc *BaseService) GetAllContentWithMeta(ctx context.Context) ([]Content, error) {
+	return svc.repo.GetAllContentWithMeta(ctx)
 }
 
 func (svc *BaseService) GetContent(ctx context.Context, id uuid.UUID) (Content, error) {
 	return svc.repo.GetContent(ctx, id)
 }
 
-func (svc *BaseService) UpdateContent(ctx context.Context, content Content) error {
+func (svc *BaseService) UpdateContent(ctx context.Context, content *Content) error {
 	return svc.repo.UpdateContent(ctx, content)
 }
 

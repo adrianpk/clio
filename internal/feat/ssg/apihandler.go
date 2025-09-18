@@ -303,23 +303,13 @@ func (h *APIHandler) DeleteSection(w http.ResponseWriter, r *http.Request) {
 // Content related API handlers
 
 func (h *APIHandler) GetAllContent(w http.ResponseWriter, r *http.Request) {
-	h.Log().Debugf("%s: Handling GetAllContent", h.Name())
+	h.Log().Debugf("%s: Handling GetAllContentWithMeta", h.Name())
 
-	contents, err := h.svc.GetAllContent(r.Context())
+	contents, err := h.svc.GetAllContentWithMeta(r.Context())
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrCannotGetResources, resContentName)
 		h.Err(w, http.StatusInternalServerError, msg, err)
 		return
-	}
-
-	for i, content := range contents {
-		tags, err := h.svc.GetTagsForContent(r.Context(), content.ID)
-		if err != nil {
-			msg := fmt.Sprintf("Cannot get tags for content %s", content.ID)
-			h.Err(w, http.StatusInternalServerError, msg, err)
-			return
-		}
-		contents[i].Tags = tags
 	}
 
 	msg := fmt.Sprintf(am.MsgGetAllItems, resContentNameCap)
@@ -343,13 +333,17 @@ func (h *APIHandler) GetContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tags, err := h.svc.GetTagsForContent(r.Context(), id)
-	if err != nil {
-		msg := fmt.Sprintf("Cannot get tags for content %s", id)
-		h.Err(w, http.StatusInternalServerError, msg, err)
-		return
+	// The new GetContent service method should already include tags.
+	// If not, this logic is a fallback.
+	if len(content.Tags) == 0 {
+		tags, err := h.svc.GetTagsForContent(r.Context(), id)
+		if err != nil {
+			msg := fmt.Sprintf("Cannot get tags for content %s", id)
+			h.Err(w, http.StatusInternalServerError, msg, err)
+			return
+		}
+		content.Tags = tags
 	}
-	content.Tags = tags
 
 	msg := fmt.Sprintf(am.MsgGetItem, resContentNameCap)
 	h.OK(w, msg, content)
@@ -367,7 +361,7 @@ func (h *APIHandler) CreateContent(w http.ResponseWriter, r *http.Request) {
 
 	content.GenCreateValues()
 
-	err = h.svc.CreateContent(r.Context(), content)
+	err = h.svc.CreateContent(r.Context(), &content)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrCannotCreateResource, resContentName)
 		h.Err(w, http.StatusInternalServerError, msg, err)
@@ -407,7 +401,7 @@ func (h *APIHandler) UpdateContent(w http.ResponseWriter, r *http.Request) {
 	content.SetID(id, true)   // Set the ID from the URL on the decoded content
 	content.GenUpdateValues() // Generate audit values
 
-	err = h.svc.UpdateContent(r.Context(), content)
+	err = h.svc.UpdateContent(r.Context(), &content)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrCannotUpdateResource, resContentName)
 		h.Err(w, http.StatusInternalServerError, msg, err)

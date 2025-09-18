@@ -11,7 +11,8 @@ DB_BACKUP_DIR = bak
 define backup_db
 	@if [ -f "$(DB_FILE)" ]; then \
 		TIMESTAMP=$$(date +%Y%m%d%H%M%S); \
-		NEW_NAME="$(1)/$${TIMESTAMP}-$(DB_FILE)"; \
+		DB_FILENAME=$$(basename $(DB_FILE)); \
+		NEW_NAME="$(1)/$${TIMESTAMP}-$${DB_FILENAME}"; \
 		echo "Moving $(DB_FILE) to $${NEW_NAME}..."; \
 		mv "$(DB_FILE)" "$${NEW_NAME}"; \
 		echo "Database moved to $${NEW_NAME}"; \

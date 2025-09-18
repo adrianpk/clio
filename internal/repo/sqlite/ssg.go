@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/adrianpk/clio/internal/feat/ssg"
@@ -14,134 +15,101 @@ var (
 	featSSG    = "ssg"
 	resLayout  = "layout"
 	resContent = "content"
+	resMeta    = "meta"
 	resSection = "section"
 	resTag     = "tag"
 )
 
 // Content related
 
-func (repo *ClioRepo) CreateContent(ctx context.Context, content ssg.Content) error {
-	query, err := repo.Query().Get(featSSG, resContent, "Create")
+func (repo *ClioRepo) CreateContent(ctx context.Context, c *ssg.Content) (err error) {
+	tx, err := repo.db.BeginTxx(ctx, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot begin transaction: %w", err)
 	}
-
-	_, err = repo.db.NamedExecContext(ctx, query, content)
-	return err
-}
-
-func (repo *ClioRepo) GetAllContent(ctx context.Context) ([]ssg.Content, error) {
-	query, err := repo.Query().Get(featSSG, resContent, "GetAll")
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := repo.db.QueryxContext(ctx, query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var contents []ssg.Content
-	for rows.Next() {
-		var (
-			id        uuid.UUID
-			userID    uuid.UUID
-			sectionID uuid.UUID
-			heading   string
-			body      string
-			status    string
-			shortID   string
-			createdBy uuid.UUID
-			updatedBy uuid.UUID
-			createdAt time.Time
-			updatedAt time.Time
-		)
-
-		err := rows.Scan(
-			&id, &userID, &sectionID, &heading, &body, &status, &shortID,
-			&createdBy, &updatedBy, &createdAt, &updatedAt,
-		)
+	defer func() {
 		if err != nil {
-			return nil, err
+			if rbErr := tx.Rollback(); rbErr != nil {
+				err = fmt.Errorf("cannot rollback transaction: %v (original error: %w)", rbErr, err)
+			}
+			return
 		}
+		err = tx.Commit()
+	}()
 
-		content := ssg.NewContent(heading, body)
-		content.SetID(id)
-		content.UserID = userID
-		content.SectionID = sectionID
-		content.Status = status
-		content.SetShortID(shortID)
-		content.SetCreatedBy(createdBy)
-		content.SetUpdatedBy(updatedBy)
-		content.SetCreatedAt(createdAt)
-		content.SetUpdatedAt(updatedAt)
-		content.SetType(resContent) // Set mType manually
-
-		contents = append(contents, content)
+	// Create Content
+	contentQuery, err := repo.Query().Get(featSSG, resContent, "Create")
+	if err != nil {
+		return fmt.Errorf("cannot get create content query: %w", err)
+	}
+	if _, err = tx.NamedExecContext(ctx, contentQuery, c); err != nil {
+		return fmt.Errorf("cannot create content: %w", err)
 	}
 
-	return contents, nil
+	// Create Meta
+	c.Meta.ContentID = c.ID
+	c.Meta.GenID()
+	c.Meta.GenCreateValues(c.CreatedBy)
+	metaQuery, err := repo.Query().Get(featSSG, resMeta, "Create")
+	if err != nil {
+		return fmt.Errorf("cannot get create meta query: %w", err)
+	}
+	if _, err = tx.NamedExecContext(ctx, metaQuery, c.Meta); err != nil {
+		return fmt.Errorf("cannot create meta: %w", err)
+	}
 
-	return contents, nil
+	return nil
 }
 
 func (repo *ClioRepo) GetContent(ctx context.Context, id uuid.UUID) (ssg.Content, error) {
-	query, err := repo.Query().Get(featSSG, resContent, "Get")
+	// This is a placeholder. A specific query "GetWithMeta" is needed for optimal performance.
+	// For now, we will filter from the large GetAll query.
+	contents, err := repo.GetAllContentWithMeta(ctx)
 	if err != nil {
 		return ssg.Content{}, err
 	}
-
-	row := repo.db.QueryRowxContext(ctx, query, id)
-
-	var (
-		contentID uuid.UUID
-		userID    uuid.UUID
-		sectionID uuid.UUID
-		heading   string
-		body      string
-		status    string
-		shortID   string
-		createdBy uuid.UUID
-		updatedBy uuid.UUID
-		createdAt time.Time
-		updatedAt time.Time
-	)
-
-	err = row.Scan(
-		&contentID, &userID, &sectionID, &heading, &body, &status, &shortID,
-		&createdBy, &updatedBy, &createdAt, &updatedAt,
-	)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return ssg.Content{}, errors.New("content not found")
+	for _, content := range contents {
+		if content.ID == id {
+			return content, nil
 		}
-		return ssg.Content{}, err
 	}
-
-	content := ssg.NewContent(heading, body)
-	content.SetID(contentID)
-	content.UserID = userID
-	content.SectionID = sectionID
-	content.Status = status
-	content.SetShortID(shortID)
-	content.SetCreatedBy(createdBy)
-	content.SetUpdatedBy(updatedBy)
-	content.SetCreatedAt(createdAt)
-	content.SetUpdatedAt(updatedAt)
-	content.SetType(resContent) // Set mType manually
-
-	return content, nil
+	return ssg.Content{}, errors.New("content not found")
 }
 
-func (repo *ClioRepo) UpdateContent(ctx context.Context, content ssg.Content) error {
-	query, err := repo.Query().Get(featSSG, resContent, "Update")
+func (repo *ClioRepo) UpdateContent(ctx context.Context, c *ssg.Content) (err error) {
+	tx, err := repo.db.BeginTxx(ctx, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot begin transaction: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			if rbErr := tx.Rollback(); rbErr != nil {
+				err = fmt.Errorf("cannot rollback transaction: %v (original error: %w)", rbErr, err)
+			}
+			return
+		}
+		err = tx.Commit()
+	}()
+
+	// Update Content
+	contentQuery, err := repo.Query().Get(featSSG, resContent, "Update")
+	if err != nil {
+		return fmt.Errorf("cannot get update content query: %w", err)
+	}
+	if _, err = tx.NamedExecContext(ctx, contentQuery, c); err != nil {
+		return fmt.Errorf("cannot update content: %w", err)
 	}
 
-	_, err = repo.db.NamedExecContext(ctx, query, content)
-	return err
+	// Update Meta
+	metaQuery, err := repo.Query().Get(featSSG, resMeta, "Update")
+	if err != nil {
+		return fmt.Errorf("cannot get update meta query: %w", err)
+	}
+	if _, err = tx.NamedExecContext(ctx, metaQuery, c.Meta); err != nil {
+		return fmt.Errorf("cannot update meta: %w", err)
+	}
+
+	return nil
 }
 
 func (repo *ClioRepo) DeleteContent(ctx context.Context, id uuid.UUID) error {
@@ -152,6 +120,89 @@ func (repo *ClioRepo) DeleteContent(ctx context.Context, id uuid.UUID) error {
 
 	_, err = repo.db.ExecContext(ctx, query, id)
 	return err
+}
+
+func (repo *ClioRepo) GetAllContentWithMeta(ctx context.Context) ([]ssg.Content, error) {
+	query, err := repo.Query().Get(featSSG, resContent, "GetAllContentWithMeta")
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := repo.db.QueryxContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	contentMap := make(map[uuid.UUID]*ssg.Content)
+	var contentOrder []uuid.UUID
+
+	for rows.Next() {
+		var c ssg.Content
+		var m ssg.Meta
+		var t ssg.Tag
+		var sectionPath, sectionName sql.NullString
+		var publishedAt sql.NullTime
+
+		var metaID sql.NullString
+		var description, keywords, robots, canonicalURL, sitemap sql.NullString
+		var tableOfContents, share, comments sql.NullBool
+
+		var tagID, tagShortID, tagName, tagSlug sql.NullString
+
+		err := rows.Scan(
+			&c.ID, &c.UserID, &c.SectionID, &c.Heading, &c.Body, &c.Draft, &c.Featured, &publishedAt, &c.ShortID,
+			&c.CreatedBy, &c.UpdatedBy, &c.CreatedAt, &c.UpdatedAt,
+			&sectionPath, &sectionName,
+			&metaID, &description, &keywords, &robots, &canonicalURL, &sitemap, &tableOfContents, &share, &comments,
+			&tagID, &tagShortID, &tagName, &tagSlug,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning row: %w", err)
+		}
+
+		if _, ok := contentMap[c.ID]; !ok {
+			c.SetType(resContent)
+			c.SectionPath = sectionPath.String
+			c.SectionName = sectionName.String
+			if publishedAt.Valid {
+				c.PublishedAt = &publishedAt.Time
+			}
+
+			if metaID.Valid {
+				m.ID, _ = uuid.Parse(metaID.String)
+				m.ContentID = c.ID
+				m.Description = description.String
+				m.Keywords = keywords.String
+				m.Robots = robots.String
+				m.CanonicalURL = canonicalURL.String
+				m.Sitemap = sitemap.String
+				m.TableOfContents = tableOfContents.Bool
+				m.Share = share.Bool
+				m.Comments = comments.Bool
+				c.Meta = m
+			}
+
+			contentMap[c.ID] = &c
+			contentOrder = append(contentOrder, c.ID)
+		}
+
+		if tagID.Valid {
+			t.ID, _ = uuid.Parse(tagID.String)
+			t.SetShortID(tagShortID.String)
+			t.Name = tagName.String
+			t.SlugField = tagSlug.String
+			t.SetType("tag")
+			contentMap[c.ID].Tags = append(contentMap[c.ID].Tags, t)
+		}
+	}
+
+	contents := make([]ssg.Content, len(contentOrder))
+	for i, id := range contentOrder {
+		contents[i] = *contentMap[id]
+	}
+
+	return contents, nil
 }
 
 // Section related
@@ -527,69 +578,3 @@ func (repo *ClioRepo) GetContentForTag(ctx context.Context, tagID uuid.UUID) ([]
 
 	return contents, nil
 }
-
-func (repo *ClioRepo) GetAllContentWithTags(ctx context.Context) ([]ssg.Content, error) {
-	query, err := repo.Query().Get(featSSG, resContent, "GetAllWithTags")
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := repo.db.QueryxContext(ctx, query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	contentMap := make(map[uuid.UUID]*ssg.Content)
-	var contentOrder []uuid.UUID
-
-	for rows.Next() {
-		var c ssg.Content
-		var t ssg.Tag
-		var sectionPath, sectionName sql.NullString
-		var tagID, tagShortID, tagCreatedBy, tagUpdatedBy sql.NullString
-		var tagName, tagSlug sql.NullString
-		var tagCreatedAt, tagUpdatedAt sql.NullTime
-
-		err := rows.Scan(
-			&c.ID, &c.UserID, &c.SectionID, &c.Heading, &c.Body, &c.Status, &c.ShortID, &sectionPath, &sectionName,
-			&c.CreatedBy, &c.UpdatedBy, &c.CreatedAt, &c.UpdatedAt,
-			&tagID, &tagShortID, &tagName, &tagSlug,
-			&tagCreatedBy, &tagUpdatedBy, &tagCreatedAt, &tagUpdatedAt,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		if _, ok := contentMap[c.ID]; !ok {
-			c.SetType(resContent)
-			c.SectionPath = sectionPath.String
-			c.SectionName = sectionName.String
-			contentMap[c.ID] = &c
-			contentOrder = append(contentOrder, c.ID)
-		}
-
-		if tagID.Valid {
-			t.ID, _ = uuid.Parse(tagID.String)
-			t.SetShortID(tagShortID.String)
-			t.Name = tagName.String
-			t.SlugField = tagSlug.String
-			t.SetCreatedBy(uuid.MustParse(tagCreatedBy.String))
-			t.SetUpdatedBy(uuid.MustParse(tagUpdatedBy.String))
-			t.SetCreatedAt(tagCreatedAt.Time)
-			t.SetUpdatedAt(tagUpdatedAt.Time)
-			t.SetType("tag")
-			contentMap[c.ID].Tags = append(contentMap[c.ID].Tags, t)
-		}
-	}
-
-	contents := make([]ssg.Content, len(contentOrder))
-	for i, id := range contentOrder {
-		contents[i] = *contentMap[id]
-	}
-
-	return contents, nil
-}
-
-
-	

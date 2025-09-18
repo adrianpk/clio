@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2025-09-18]
+
+### Added
+- Implemented a comprehensive metadata system for content.
+- The web UI now includes a modal for managing various metadata fields, including publishing status, SEO attributes (description, keywords, robots), and content features (ToC, sharing, comments).
+- The static site generator now marshals all metadata into YAML frontmatter for each generated markdown file.
+
 ## [2025-09-16]
 
 ### Added
@@ -18,7 +25,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Refactored editor enhancement logic into a single `editor-enhancements.js` file.
 - Refined button positioning and styles for a cleaner user experience.
-
-### Fixed
-- Resolved multiple CSS and HTML issues related to layout, element visibility, and button clickability during the implementation of Zen and Dark modes.
-
