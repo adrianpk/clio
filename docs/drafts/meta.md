@@ -59,12 +59,13 @@ This section outlines the implementation plan for the metadata feature.
 
 - **Metadata Form:** A "Meta" button in the content editor will trigger a full-screen modal to edit all metadata fields. This approach avoids cluttering the main editor interface.
 
-- **Data Flow:** The modal will submit the metadata to a dedicated API handler. The handler will process and persist the data.
+- **Data Flow:** The modal will submit the metadata to a dedicated API handler. The handler will process and persist the data to the appropriate tables.
 
 - **Database:**
-  - A new `meta` table will be created to store the metadata fields.
-  - This table will have a one-to-one relationship with the `content` table.
-  - A new database migration will be created to reflect this change.
+  - The `content` table will be modified to include core operational fields: `published_at` (timestamp), `draft` (boolean), and `featured` (boolean).
+  - A new `meta` table will be created to store descriptive metadata (e.g., `description`, `keywords`, `robots`, `canonical-url`, etc.).
+  - The `meta` table will have a one-to-one relationship with the `content` table.
+  - Database migrations will be updated to reflect these changes.
 
 - **Data Access:**
   - The `GetAllContentWithTags` function will be renamed to `GetAllContentWithMeta`.
