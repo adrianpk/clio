@@ -25,7 +25,8 @@ func (h *WebHandler) CreateContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := form.Validate(); err != nil || form.HasErrors() {
+	form.Validate()
+	if form.HasErrors() {
 		content := ToFeatContent(form)
 		webContent := ToWebContent(content)
 		h.renderContentForm(w, r, form, webContent, "Validation failed", http.StatusBadRequest)
@@ -89,7 +90,8 @@ func (h *WebHandler) UpdateContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := form.Validate(); err != nil || form.HasErrors() {
+	form.Validate()
+	if form.HasErrors() {
 		content := ToFeatContent(form)
 		webContent := ToWebContent(content)
 		h.renderContentForm(w, r, form, webContent, "Validation failed", http.StatusBadRequest)

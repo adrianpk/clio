@@ -16,43 +16,124 @@
       "layout_ref": "alt",
       "image": "",
       "header": ""
+    },
+    {
+      "ref": "news-section",
+      "name": "news",
+      "description": "News and announcements.",
+      "path": "/news",
+      "layout_ref": "alt",
+      "image": "",
+      "header": ""
     }
   ],
   "contents": [
     {
-      "slug": "intro-to-golang",
+      "ref": "intro-to-golang",
+      "user_ref": "user-superadmin",
       "heading": "Introduction to Golang",
-      "body": "Go, also known as Golang, is a statically typed, compiled programming language designed at Google. It is known for its simplicity, efficiency, and strong support for concurrent programming.",
-      "content_type": "html",
-      "section_ref": "root"
+      "body": "# An Introduction to Golang\n\nGo, also known as Golang, is a statically typed, compiled programming language designed at Google. It is known for its simplicity, efficiency, and strong support for concurrent programming.\n\n## Key Features\n\nHere are some of the key features of Go:\n\n- **Simplicity:** The language is designed to be simple and easy to learn, with a clean syntax.\n- **Concurrency:** Go has built-in support for concurrent programming using goroutines and channels.\n- **Performance:** Being a compiled language, Go offers excellent performance.\n- **Static Typing:** Go is a statically typed language, which helps in catching errors at compile time.\n\nThis article provides a basic overview. For more detailed information, you can visit the official Go website: [https://go.dev/](https://go.dev/).",
+      "section_ref": "root",
+      "draft": false,
+      "featured": true,
+      "published_at": "2025-09-18T10:00:00Z"
     },
     {
-      "slug": "go-generics",
+      "ref": "go-generics",
+      "user_ref": "user-superadmin",
       "heading": "Generics in Go",
       "body": "Go introduced generics in version 1.18, allowing developers to write more flexible and reusable code. Generics enable writing functions and data structures that can work with any data type.",
-      "content_type": "html",
-      "section_ref": "root"
+      "section_ref": "root",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-17T10:00:00Z"
     },
     {
-      "slug": "what-is-nats",
+      "ref": "what-is-nats",
+      "user_ref": "user-superadmin",
       "heading": "What is NATS?",
       "body": "NATS is a simple, high-performance open-source messaging system for cloud-native applications, IoT, and microservices architectures. It provides a lightweight and efficient way for services to communicate.",
-      "content_type": "html",
-      "section_ref": "root"
+      "section_ref": "root",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-16T10:00:00Z"
     },
     {
-      "slug": "hashicorp-nomad",
+      "ref": "hashicorp-nomad",
+      "user_ref": "user-johndoe",
       "heading": "HashiCorp Nomad",
-      "body": "Nomad is a simple and flexible workload orchestrator to deploy and manage containers and non-containerized applications across on-prem and clouds at scale. It is an alternative to Kubernetes.",
-      "content_type": "html",
-      "section_ref": "root"
+      "body": "# Exploring HashiCorp Nomad\n\nNomad is a simple and flexible workload orchestrator to deploy and manage containers and non-containerized applications across on-prem and clouds at scale.\n\n## Why Choose Nomad?\n\n- **Simplicity:** Nomad is a single binary that is easy to deploy and manage.\n- **Flexibility:** It can orchestrate containers, VMs, and standalone applications.\n- **Scalability:** Proven to scale to clusters of 10,000+ nodes.\n\nFor more details, see the [official Nomad documentation](https://www.nomadproject.io/docs).",
+      "section_ref": "news-section",
+      "draft": true,
+      "featured": false,
+      "published_at": null
     },
     {
-      "slug": "kubernetes-basics",
+      "ref": "kubernetes-basics",
+      "user_ref": "user-superadmin",
       "heading": "Kubernetes Basics",
       "body": "Kubernetes, also known as K8s, is an open-source system for automating deployment, scaling, and management of containerized applications. It has become the de-facto standard for container orchestration.",
-      "content_type": "html",
-      "section_ref": "root"
+      "section_ref": "root",
+      "draft": false,
+      "featured": true,
+      "published_at": "2025-09-15T10:00:00Z"
+    }
+  ],
+  "metas": [
+    {
+      "content_ref": "intro-to-golang",
+      "description": "A beginner's guide to the Go programming language, covering the basics and core concepts.",
+      "keywords": "golang, programming, introduction, google",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.9, \"changefreq\": \"monthly\"}",
+      "table_of_contents": true,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "go-generics",
+      "description": "An overview of how to use generics in Go (Golang) since version 1.18.",
+      "keywords": "golang, programming, generics",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"yearly\"}",
+      "table_of_contents": true,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "what-is-nats",
+      "description": "A primer on the NATS messaging system for cloud-native architectures.",
+      "keywords": "nats, messaging, cloud-native, microservices",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
+      "table_of_contents": false,
+      "share": true,
+      "comments": false
+    },
+    {
+      "content_ref": "hashicorp-nomad",
+      "description": "Understanding the basics of HashiCorp Nomad for workload orchestration.",
+      "keywords": "nomad, hashicorp, orchestration, containers",
+      "robots": "noindex, nofollow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.5, \"changefreq\": \"yearly\"}",
+      "table_of_contents": true,
+      "share": false,
+      "comments": false
+    },
+    {
+      "content_ref": "kubernetes-basics",
+      "description": "A foundational look at Kubernetes (K8s) for container orchestration.",
+      "keywords": "kubernetes, k8s, orchestration, containers, cloud-native",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.9, \"changefreq\": \"weekly\"}",
+      "table_of_contents": true,
+      "share": true,
+      "comments": true
     }
   ],
   "tags": [

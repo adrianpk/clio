@@ -1,6 +1,8 @@
 package ssg
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 
 	"github.com/adrianpk/clio/internal/am"
@@ -13,13 +15,19 @@ const (
 
 // Content model.
 type Content struct {
-	ID        uuid.UUID `json:"id"`
-	ShortID   string    `json:"-"`
-	UserID    uuid.UUID `json:"user_id"`
-	SectionID uuid.UUID `json:"section_id"`
-	Heading   string    `json:"heading"`
-	Body      string    `json:"body"`
-	Status    string    `json:"status"`
+	ID          uuid.UUID    `json:"id"`
+	ShortID     string       `json:"-"`
+	UserID      uuid.UUID    `json:"user_id"`
+	SectionID   uuid.UUID    `json:"section_id"`
+	Heading     string       `json:"heading"`
+	Body        string       `json:"body"`
+	Draft       bool         `json:"draft"`
+	Featured    bool         `json:"featured"`
+	PublishedAt *time.Time   `json:"published_at"`
+	Tags        []feat.Tag   `json:"tags"`
+	Meta        feat.Meta    `json:"meta"`
+	SectionPath string       `json:"section_path,omitempty"`
+	SectionName string       `json:"section_name,omitempty"`
 }
 
 // NewContent creates a new Content.
@@ -99,13 +107,19 @@ func (c *Content) OptLabel() string {
 // ToWebContent converts a feat.Content model to a web.Content model.
 func ToWebContent(featContent feat.Content) Content {
 	return Content{
-		ID:        featContent.ID,
-		ShortID:   featContent.ShortID,
-		UserID:    featContent.UserID,
-		SectionID: featContent.SectionID,
-		Heading:   featContent.Heading,
-		Body:      featContent.Body,
-		Status:    featContent.Status,
+		ID:          featContent.ID,
+		ShortID:     featContent.ShortID,
+		UserID:      featContent.UserID,
+		SectionID:   featContent.SectionID,
+		Heading:     featContent.Heading,
+		Body:        featContent.Body,
+		Draft:       featContent.Draft,
+		Featured:    featContent.Featured,
+		PublishedAt: featContent.PublishedAt,
+		Tags:        featContent.Tags,
+		Meta:        featContent.Meta,
+		SectionPath: featContent.SectionPath,
+		SectionName: featContent.SectionName,
 	}
 }
 

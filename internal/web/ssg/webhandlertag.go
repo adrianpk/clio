@@ -24,8 +24,11 @@ func (h *WebHandler) CreateTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := form.Validate(); err != nil || form.HasErrors() {
-		h.renderTagForm(w, r, form, NewTag(""), "Validation failed", http.StatusBadRequest)
+	form.Validate()
+	if form.HasErrors() {
+		tag := ToFeatTag(form)
+		webTag := ToWebTag(tag)
+		h.renderTagForm(w, r, form, webTag, "Validation failed", http.StatusBadRequest)
 		return
 	}
 
@@ -85,8 +88,11 @@ func (h *WebHandler) UpdateTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := form.Validate(); err != nil || form.HasErrors() {
-		h.renderTagForm(w, r, form, NewTag(""), "Validation failed", http.StatusBadRequest)
+	form.Validate()
+	if form.HasErrors() {
+		tag := ToFeatTag(form)
+		webTag := ToWebTag(tag)
+		h.renderTagForm(w, r, form, webTag, "Validation failed", http.StatusBadRequest)
 		return
 	}
 
