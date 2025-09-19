@@ -511,7 +511,7 @@ func (h *APIHandler) GetTagByName(w http.ResponseWriter, r *http.Request) {
 
 	name, err := h.Param(w, r, "name")
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidParam, "name", resTagNameCap)
+		msg := fmt.Sprintf("%s: %s", am.ErrInvalidParam, "name")
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}

@@ -102,7 +102,7 @@ setenv:
 # Run tests
 test:
 	@echo "Running tests..."
-	@echo "No tests configured yet."
+	@go test -v ./...
 
 # Generate migration
 new-migration:
@@ -131,4 +131,4 @@ reset-db:
 	@echo "A fresh database will be created on next application start"
 
 # Phony targets
-.PHONY: all build run runflags setenv clean backup-db reset-db generate-markdown
+.PHONY: all build run runflags setenv clean backup-db reset-db generate-markdown test
