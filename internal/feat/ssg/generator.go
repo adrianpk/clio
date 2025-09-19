@@ -31,42 +31,12 @@ func (g *Generator) Generate(contents []Content) error {
 		fileName := content.Slug() + ".md"
 		filePath := filepath.Join(basePath, content.SectionPath, fileName)
 
-		// --- Frontmatter Generation ---
-		frontMatter := make(map[string]interface{})
+		// --- Frontmatter Generation (Ordered) ---
+		var frontMatter yaml.MapSlice
 
-		// Core Identity & Content
-		frontMatter["slug"] = content.Slug()
-		frontMatter["permalink"] = "" // TODO: Construct full permalink
-		frontMatter["excerpt"] = content.Meta.Description // Using description as a stand-in
-		frontMatter["summary"] = "" // TODO: Add a summary field if needed
-
-		// Presentation & Layout
-		frontMatter["image"] = "" // TODO: Add image field to a model
-		frontMatter["social-image"] = "" // TODO: Add social-image field
-		frontMatter["layout"] = content.SectionName // Assuming layout is related to section
-		frontMatter["table-of-contents"] = content.Meta.TableOfContents
-
-		// SEO & Discovery
-		frontMatter["title"] = content.Heading
-		frontMatter["description"] = content.Meta.Description
-		frontMatter["keywords"] = content.Meta.Keywords
-		frontMatter["robots"] = content.Meta.Robots
-		frontMatter["canonical-url"] = content.Meta.CanonicalURL
-		frontMatter["sitemap"] = content.Meta.Sitemap
-
-		// Features & Engagement
-		frontMatter["featured"] = content.Featured
-		frontMatter["share"] = content.Meta.Share
-		frontMatter["comments"] = content.Meta.Comments
-
-		// Localization
-		frontMatter["locale"] = "" // TODO: Add locale field
-
-		// Timestamps & Status
-		frontMatter["draft"] = content.Draft
-		frontMatter["published-at"] = content.PublishedAt
-		frontMatter["created-at"] = content.CreatedAt
-		frontMatter["updated-at"] = content.UpdatedAt
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "title", Value: content.Heading})
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "slug", Value: content.Slug()})
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "permalink", Value: ""}) // TODO: Construct full permalink
 
 		// Taxonomy
 		var tags []string
@@ -74,8 +44,42 @@ func (g *Generator) Generate(contents []Content) error {
 			tags = append(tags, t.Name)
 		}
 		if len(tags) > 0 {
-			frontMatter["tags"] = tags
+			frontMatter = append(frontMatter, yaml.MapItem{Key: "tags", Value: tags})
 		}
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "layout", Value: content.SectionName}) // Assuming layout is related to section
+
+		// Status
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "draft", Value: content.Draft})
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "featured", Value: content.Featured})
+
+		// Content
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "excerpt", Value: content.Meta.Description}) // Using description as a stand-in
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "summary", Value: ""})                       // TODO: Add a summary field if needed
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "description", Value: content.Meta.Description})
+
+		// Media
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "image", Value: ""})        // TODO: Add image field to a model
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "social-image", Value: ""}) // TODO: Add social-image field
+
+		// Timestamps
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "published-at", Value: content.PublishedAt})
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "created-at", Value: content.CreatedAt})
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "updated-at", Value: content.UpdatedAt})
+
+		// SEO
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "robots", Value: content.Meta.Robots})
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "keywords", Value: content.Meta.Keywords})
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "canonical-url", Value: content.Meta.CanonicalURL})
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "sitemap", Value: content.Meta.Sitemap})
+
+		// Page Config
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "table-of-contents", Value: content.Meta.TableOfContents})
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "comments", Value: content.Meta.Comments})
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "share", Value: content.Meta.Share})
+
+		// Localization
+		frontMatter = append(frontMatter, yaml.MapItem{Key: "locale", Value: ""}) // TODO: Add locale field
+
 		// --- End of Frontmatter ---
 
 		yamlBytes, err := yaml.Marshal(frontMatter)
