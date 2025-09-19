@@ -10,6 +10,7 @@ func NewAPIRouter(handler *APIHandler, mw []am.Middleware, opts ...am.Option) *a
 
 	// SSG API routes
 	core.Post("/generate-markdown", handler.GenerateMarkdown)
+	core.Post("/generate-html", handler.GenerateHTML)
 
 	// Layout API routes
 	core.Get("/layouts", handler.GetAllLayouts)

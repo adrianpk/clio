@@ -17,5 +17,6 @@ require (
 require (
 	github.com/gertd/go-pluralize v0.2.1 // indirect
 	github.com/gorilla/schema v1.4.1 // indirect
+	github.com/yuin/goldmark v1.7.13 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

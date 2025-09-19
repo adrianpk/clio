@@ -688,3 +688,17 @@ func (h *APIHandler) GenerateMarkdown(w http.ResponseWriter, r *http.Request) {
 	msg := "Markdown generation process started successfully"
 	h.OK(w, msg, nil)
 }
+
+func (h *APIHandler) GenerateHTML(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling GenerateHTML", h.Name())
+
+	err := h.svc.GenerateHTMLFromContent(r.Context())
+	if err != nil {
+		msg := fmt.Sprintf("Cannot generate HTML: %v", err)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := "HTML generation process started successfully"
+	h.OK(w, msg, nil)
+}
