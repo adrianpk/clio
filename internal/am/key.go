@@ -35,6 +35,13 @@ type Keys struct {
 
 	RenderWebErrors string
 	RenderAPIErrors string
+
+	SSGWorkspacePath string
+	SSGDocsPath      string
+	SSGMarkdownPath  string
+	SSGHTMLPath      string
+	SSGAssetsPath    string
+	SSGImagesPath    string
 }
 
 var Key = Keys{
@@ -72,4 +79,11 @@ var Key = Keys{
 
 	RenderWebErrors: "render.web.errors",
 	RenderAPIErrors: "render.api.errors",
+
+	SSGWorkspacePath: "ssg.workspace.path",
+	SSGDocsPath:      "ssg.docs.path",
+	SSGMarkdownPath:  "ssg.markdown.path",
+	SSGHTMLPath:      "ssg.html.path",
+	SSGAssetsPath:    "ssg.assets.path",
+	SSGImagesPath:    "ssg.images.path",
 }

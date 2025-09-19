@@ -8,6 +8,8 @@ import (
 	"github.com/adrianpk/clio/internal/am"
 )
 
+var key = am.Key
+
 type Workspace struct {
 	am.Core
 }
@@ -26,8 +28,8 @@ func (w *Workspace) Setup(ctx context.Context) error {
 
 func (w *Workspace) setupDirs() error {
 	var dirs []string
-	env := w.Cfg().StrValOrDef(am.Key.AppEnv, "prod")
-	w.Log().Info("Read environment mode", "key", am.Key.AppEnv, "value", env)
+	env := w.Cfg().StrValOrDef(key.AppEnv, "prod")
+	w.Log().Info("Read environment mode", "key", key.AppEnv, "value", env)
 
 	if env == "dev" {
 		w.Log().Info("Running in DEV mode, using local paths.")
@@ -48,8 +50,16 @@ func (w *Workspace) setupDirs() error {
 
 		// Override config values for dev mode
 		devDSN := "file:" + filepath.Join(dbDir, "clio.db") + "?cache=shared&mode=rwc"
-		w.Cfg().Set(am.Key.DBSQLiteDSN, devDSN)
-		w.Log().Info("Overriding config for DEV mode", "key", am.Key.DBSQLiteDSN, "value", devDSN)
+		w.Cfg().Set(key.DBSQLiteDSN, devDSN)
+
+		w.Cfg().Set(key.SSGWorkspacePath, base)
+		w.Cfg().Set(key.SSGDocsPath, filepath.Join(base, "documents"))
+		w.Cfg().Set(key.SSGMarkdownPath, filepath.Join(base, "documents", "markdown"))
+		w.Cfg().Set(key.SSGHTMLPath, filepath.Join(base, "documents", "html"))
+		w.Cfg().Set(key.SSGAssetsPath, filepath.Join(base, "documents", "assets"))
+		w.Cfg().Set(key.SSGImagesPath, filepath.Join(base, "documents", "assets", "images"))
+
+		w.Log().Info("Overriding config for DEV mode", "key", key.DBSQLiteDSN, "value", devDSN)
 
 	} else {
 		w.Log().Info("Running in PROD mode, using system paths.")
@@ -58,13 +68,28 @@ func (w *Workspace) setupDirs() error {
 			w.Log().Error("Cannot get user home directory", "error", err)
 			return err
 		}
+
+		basePath := filepath.Join(homeDir, ".clio")
+		docsPath := filepath.Join(homeDir, "Documents", "Clio")
+		markdownPath := filepath.Join(docsPath, "markdown")
+		htmlPath := filepath.Join(docsPath, "html")
+		assetsPath := filepath.Join(docsPath, "assets")
+		imagesPath := filepath.Join(assetsPath, "images")
+
 		dirs = []string{
 			filepath.Join(homeDir, ".config", "clio"),
-			filepath.Join(homeDir, ".clio"),
-			filepath.Join(homeDir, "Documents", "Clio", "markdown"),
-			filepath.Join(homeDir, "Documents", "Clio", "html"),
-			filepath.Join(homeDir, "Documents", "Clio", "assets", "images"),
+			basePath,
+			markdownPath,
+			htmlPath,
+			imagesPath,
 		}
+
+		w.Cfg().Set(key.SSGWorkspacePath, basePath)
+		w.Cfg().Set(key.SSGDocsPath, docsPath)
+		w.Cfg().Set(key.SSGMarkdownPath, markdownPath)
+		w.Cfg().Set(key.SSGHTMLPath, htmlPath)
+		w.Cfg().Set(key.SSGAssetsPath, assetsPath)
+		w.Cfg().Set(key.SSGImagesPath, imagesPath)
 	}
 
 	w.Log().Info("Ensuring base directory structure exists...")

@@ -25,12 +25,7 @@ func NewGenerator(opts ...am.Option) *Generator {
 func (g *Generator) Generate(contents []Content) error {
 	g.Log().Info("Starting markdown generation")
 
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	basePath := filepath.Join(wd, "_workspace", "documents", "markdown")
+	basePath := g.Cfg().StrValOrDef(am.Key.SSGMarkdownPath, "_workspace/documents/markdown")
 
 	for _, content := range contents {
 		fileName := content.Slug() + ".md"
