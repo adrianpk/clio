@@ -5,11 +5,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/adrianpk/clio/internal/am"
 	"github.com/google/uuid"
 )
 
+// Service defines the interface for the ssg service.
 type Service interface {
 	CreateContent(ctx context.Context, content *Content) error
 	GetAllContentWithMeta(ctx context.Context) ([]Content, error)
@@ -42,14 +45,17 @@ type Service interface {
 	GetContentForTag(ctx context.Context, tagID uuid.UUID) ([]Content, error)
 
 	GenerateMarkdown(ctx context.Context) error
+	GenerateHTMLFromContent(ctx context.Context) error
 }
 
+// BaseService is the concrete implementation of the Service interface.
 type BaseService struct {
 	*am.Service
 	repo Repo
 	gen  *Generator
 }
 
+// NewService creates a new BaseService.
 func NewService(repo Repo, gen *Generator, opts ...am.Option) *BaseService {
 	return &BaseService{
 		Service: am.NewService("ssg-svc", opts...),
@@ -58,8 +64,9 @@ func NewService(repo Repo, gen *Generator, opts ...am.Option) *BaseService {
 	}
 }
 
+// GenerateMarkdown generates markdown files from the content in the database.
 func (svc *BaseService) GenerateMarkdown(ctx context.Context) error {
-	svc.Log().Info("Service starting site generation")
+	svc.Log().Info("Service starting markdown generation")
 
 	contents, err := svc.repo.GetAllContentWithMeta(ctx)
 	if err != nil {
@@ -67,10 +74,52 @@ func (svc *BaseService) GenerateMarkdown(ctx context.Context) error {
 	}
 
 	if err := svc.gen.Generate(contents); err != nil {
-		return fmt.Errorf("cannot generate site: %w", err)
+		return fmt.Errorf("cannot generate markdown: %w", err)
 	}
 
-	svc.Log().Info("Service site generation finished")
+	svc.Log().Info("Service markdown generation finished")
+	return nil
+}
+
+// GenerateHTMLFromContent generates HTML files from the content in the database.
+func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
+	svc.Log().Info("Service starting HTML generation")
+
+	contents, err := svc.repo.GetAllContentWithMeta(ctx)
+	if err != nil {
+		return fmt.Errorf("cannot get all content with meta: %w", err)
+	}
+
+	processor := NewMarkdownProcessor()
+	htmlPath := svc.Cfg().StrValOrDef(am.Key.SSGHTMLPath, "_workspace/documents/html")
+
+	for _, content := range contents {
+		if content.Draft {
+			svc.Log().Debug("Skipping draft content", "slug", content.Slug())
+			continue
+		}
+
+		htmlBody, err := processor.ToHTML([]byte(content.Body))
+		if err != nil {
+			svc.Log().Error("Error converting markdown to HTML", "slug", content.Slug(), "error", err)
+			continue // or return err, depending on desired behavior
+		}
+
+		// This is a simplified pathing logic. We will need to replicate the logic from the drafts for content types.
+		outputPath := filepath.Join(htmlPath, content.SectionPath, content.Slug()+".html")
+
+		if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
+			svc.Log().Error("Error creating directory for HTML file", "path", outputPath, "error", err)
+			continue
+		}
+
+		if err := os.WriteFile(outputPath, []byte(htmlBody), 0644); err != nil {
+			svc.Log().Error("Error writing HTML file", "path", outputPath, "error", err)
+			continue
+		}
+	}
+
+	svc.Log().Info("Service HTML generation finished")
 	return nil
 }
 

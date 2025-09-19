@@ -56,6 +56,11 @@ generate-markdown:
 	@echo "Triggering markdown generation..."
 	@./scripts/curl/ssg/generate-markdown.sh
 
+# Generate html files
+generate-html:
+	@echo "Triggering HTML generation..."
+	@./scripts/curl/ssg/generate-html.sh
+
 gencsrfkey:
 	@if command -v openssl >/dev/null 2>&1; then \
 		echo "CSRF Key: $$(openssl rand -base64 32)"; \
@@ -131,4 +136,4 @@ reset-db:
 	@echo "A fresh database will be created on next application start"
 
 # Phony targets
-.PHONY: all build run runflags setenv clean backup-db reset-db generate-markdown test
+.PHONY: all build run runflags setenv clean backup-db reset-db generate-markdown generate-html test
