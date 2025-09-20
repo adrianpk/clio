@@ -19,9 +19,27 @@
     },
     {
       "ref": "news-section",
-      "name": "news",
+      "name": "News",
       "description": "News and announcements.",
       "path": "/news",
+      "layout_ref": "alt",
+      "image": "",
+      "header": ""
+    },
+    {
+      "ref": "articles-section",
+      "name": "Articles",
+      "description": "A collection of articles.",
+      "path": "/articles",
+      "layout_ref": "alt",
+      "image": "",
+      "header": ""
+    },
+    {
+      "ref": "projects-section",
+      "name": "Projects",
+      "description": "A list of projects.",
+      "path": "/projects",
       "layout_ref": "alt",
       "image": "",
       "header": ""
