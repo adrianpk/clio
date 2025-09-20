@@ -4,6 +4,7 @@ CREATE TABLE content (
     short_id TEXT NOT NULL DEFAULT '',
     user_id TEXT NOT NULL,
     section_id TEXT NOT NULL,
+    image TEXT NOT NULL DEFAULT '',
     heading TEXT NOT NULL,
     body TEXT NOT NULL DEFAULT '',
     draft INTEGER NOT NULL DEFAULT 1,

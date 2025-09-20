@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"embed"
 	"errors"
 	"fmt"
 	"html/template"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/adrianpk/clio/internal/am"
 	"github.com/google/uuid"
@@ -53,16 +55,18 @@ type Service interface {
 // BaseService is the concrete implementation of the Service interface.
 type BaseService struct {
 	*am.Service
-	repo Repo
-	gen  *Generator
+	assetsFS embed.FS
+	repo     Repo
+	gen      *Generator
 }
 
 // NewService creates a new BaseService.
-func NewService(repo Repo, gen *Generator, opts ...am.Option) *BaseService {
+func NewService(assetsFS embed.FS, repo Repo, gen *Generator, opts ...am.Option) *BaseService {
 	return &BaseService{
-		Service: am.NewService("ssg-svc", opts...),
-		repo:    repo,
-		gen:     gen,
+		Service:  am.NewService("ssg-svc", opts...),
+		assetsFS: assetsFS,
+		repo:     repo,
+		gen:      gen,
 	}
 }
 
@@ -112,11 +116,64 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 	processor := NewMarkdownProcessor()
 	htmlPath := svc.Cfg().StrValOrDef(am.Key.SSGHTMLPath, "_workspace/documents/html")
 
+	if err := CopyStaticAssets(svc.assetsFS, htmlPath); err != nil {
+		return fmt.Errorf("cannot copy static assets: %w", err)
+	}
+
+	headerStyle := svc.Cfg().StrValOrDef(am.Key.SSGHeaderStyle, "separate")
+	imageExtensions := []string{".png", ".jpg", ".jpeg", ".webp"}
+
 	for _, content := range contents {
 		svc.Log().Debug("Processing content for HTML generation", "slug", content.Slug(), "section_path", content.SectionPath)
 		if content.Draft {
 			svc.Log().Debug("Skipping draft content", "slug", content.Slug())
 			continue
+		}
+
+		// Paths and Asset Logic
+		contentDir := filepath.Join(htmlPath, content.SectionPath, content.Slug())
+		contentImgDir := filepath.Join(contentDir, "img")
+		headerImagePath := ""
+
+		foundSpecificHeader := false
+		for _, ext := range imageExtensions {
+			checkPath := filepath.Join("assets", "content", content.SectionPath, content.Slug(), "img", "header"+ext)
+			if f, err := svc.assetsFS.Open(checkPath); err == nil {
+				f.Close()
+				if err := os.MkdirAll(contentImgDir, 0755); err != nil {
+					return fmt.Errorf("cannot create img directory: %w", err)
+				}
+				dst := filepath.Join(contentImgDir, "header"+ext)
+				if err := copyFile(svc.assetsFS, checkPath, dst); err != nil {
+					return fmt.Errorf("cannot copy specific header: %w", err)
+				}
+				headerImagePath = "img/header" + ext
+				foundSpecificHeader = true
+				break
+			}
+		}
+
+		if !foundSpecificHeader {
+			if err := os.MkdirAll(contentImgDir, 0755); err != nil {
+				return fmt.Errorf("cannot create img directory for placeholder: %w", err)
+			}
+			placeholderSrc := "assets/static/img/header-v1.png"
+			placeholderDst := filepath.Join(contentImgDir, "header.png")
+			if err := copyFile(svc.assetsFS, placeholderSrc, placeholderDst); err != nil {
+				return fmt.Errorf("cannot copy placeholder header: %w", err)
+			}
+			headerImagePath = "img/header.png"
+		}
+
+		// Calculate asset path for relative links
+		pagePath := filepath.Join(content.SectionPath, content.Slug())
+		depth := strings.Count(strings.Trim(pagePath, "/"), "/")
+		assetPath := "./"
+		if pagePath != "" && pagePath != "/" {
+			depth++
+		}
+		if depth > 0 {
+			assetPath = strings.Repeat("../", depth)
 		}
 
 		htmlBody, err := processor.ToHTML([]byte(content.Body))
@@ -126,13 +183,16 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		}
 
 		pageContent := PageContent{
-			Heading: content.Heading,
-			Body:    template.HTML(htmlBody),
+			Heading:     content.Heading,
+			HeaderImage: headerImagePath,
+			Body:        template.HTML(htmlBody),
 		}
 
 		data := PageData{
-			Menu:    menuSections,
-			Content: pageContent,
+			HeaderStyle: headerStyle,
+			AssetPath:   assetPath,
+			Menu:        menuSections,
+			Content:     pageContent,
 		}
 
 		var buf bytes.Buffer
@@ -141,7 +201,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 			continue
 		}
 
-		outputPath := filepath.Join(htmlPath, content.SectionPath, content.Slug()+".html")
+				outputPath := filepath.Join(contentDir, "index.html")
 
 		if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
 			svc.Log().Error("Error creating directory for HTML file", "path", outputPath, "error", err)

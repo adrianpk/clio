@@ -116,6 +116,45 @@ The blocks displayed are specific to the type of content being viewed.
         -   Articles that come before the current one are prefixed with `<-`.
         -   Articles that come after the current one are suffixed with `->`.
 
+## Header and Hero Image Strategy
+
+To ensure visual consistency and address the common design challenge of placing text over images, the site employs a global (site-wide) strategy for rendering header images and titles. The desired style is set via a single application configuration key (e.g., `ssg.header.style`). This approach prevents visual fragmentation where different sections might use conflicting styles.
+
+The following styles are supported:
+
+### 1. `separate` (Default)
+
+This is the default, minimalist style, prioritizing maximum clarity and readability.
+
+-   **Layout:** The header image is displayed as a distinct block. The page title (`<h1>`) is rendered immediately below it, with no overlap.
+-   **Pros:** Guarantees perfect text legibility regardless of the image content.
+-   **Cons:** Presents a more traditional, stacked layout which may feel less modern than integrated "hero" designs.
+
+### 2. `overlay`
+
+This style achieves a modern "hero" look by placing the title directly over the image while ensuring legibility.
+
+-   **Layout:** The header image serves as a full-width background for the hero section. A semi-transparent dark overlay is applied on top of the entire image. The page title is then rendered over this overlay.
+-   **Pros:** Creates a cohesive, immersive hero unit. Text contrast is maintained against a darkened background.
+-   **Cons:** The overall brightness and color vibrancy of the source image are slightly reduced.
+
+### 3. `boxed-text`
+
+This is a sophisticated hybrid approach that preserves the integrity of the main image while ensuring title legibility.
+
+-   **Layout:** The header image is displayed in its entirety in the hero area. The page title is placed inside a "box" positioned at the bottom of the image, floating slightly above the edge.
+-   **Functionality:**
+    -   The background of this text box is not a solid color, but a `blur` effect applied to the portion of the image directly behind it. This creates a frosted-glass effect that isolates the text.
+    -   The main focal point of the image remains sharp and unaffected.
+-   **Customization:** This style is controlled by several metadata properties to adapt to different images:
+    -   `header_text_align`: Aligns the text within the box (`left`, `center`, `right`).
+    -   `header_text_color`: Sets the title's font color (`light` or `dark`).
+    -   `header_blur_style`: Determines if the blur effect behind the text is light-toned or dark-toned (`light` or `dark`) to best suit the text color.
+
+#### Default Placeholder Image
+
+To ensure design consistency, the system utilizes a default placeholder image for any content that does not have a specific `header_image` defined. This placeholder is a subtle, high-quality image embedded within the application binary, ensuring that every page can be rendered with a complete header, even without user-provided images.
+
 ## Phased Implementation
 
 *   **Phase 1 – Raw HTML:** Convert Markdown from the database to HTML and save to `html/` directory. Ignore layouts.
