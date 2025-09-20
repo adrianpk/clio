@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2025-09-20]
+
+### Added
+- Implemented HTML generation from Markdown, rendering content within a template layout to create full pages.
+- Added a dynamic navigation menu to the layout, generated from site sections.
+- Implemented an asset pipeline for the static site generator:
+    - Copies the embedded placeholder header image to the output directory.
+    - Handles post-specific header images, copying them to the correct per-post directory.
+    - Generates relative paths for assets to ensure links work on both local filesystems and web servers.
+
+
 ## [2025-09-18]
 
 ### Added
