@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{.Heading}}</title>
+    <title>{{.Content.Heading}}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
@@ -12,25 +12,44 @@
             font-family: 'Montserrat', sans-serif;
             line-height: 1.6;
             margin: 0;
-            padding: 2rem;
+            padding: 0;
             background-color: #fdfdfd;
             color: #333;
         }
         .container {
             max-width: 800px;
             margin: 0 auto;
+            padding: 2rem;
         }
         h1 {
+            font-weight: 700;
+        }
+        nav {
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #eee;
+        }
+        nav a {
+            margin-right: 1rem;
+            text-decoration: none;
+            color: #333;
             font-weight: 700;
         }
     </style>
 </head>
 <body>
+    <nav>
+        <div class="container">
+            <a href="/">Home</a>
+            {{range .Menu}}
+            <a href="/{{.Path}}">{{.Name}}</a>
+            {{end}}
+        </div>
+    </nav>
     <div class="container">
-        <h1>{{.Heading}}</h1>
+        <h1>{{.Content.Heading}}</h1>
         <hr>
         <main>
-            {{.Body}}
+            {{.Content.Body}}
         </main>
     </div>
 </body>

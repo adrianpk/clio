@@ -87,15 +87,22 @@ func (svc *BaseService) GenerateMarkdown(ctx context.Context) error {
 func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 	svc.Log().Info("Service starting HTML generation")
 
-	// Get all content
 	contents, err := svc.repo.GetAllContentWithMeta(ctx)
 	if err != nil {
 		return fmt.Errorf("cannot get all content with meta: %w", err)
 	}
+	sections, err := svc.repo.GetSections(ctx)
+	if err != nil {
+		return fmt.Errorf("cannot get sections: %w", err)
+	}
 
-	// Get default layout
-	// For now, we are using a single layout file.
-	// In the future, we will implement the logic to select the layout based on the section.
+	var menuSections []Section
+	for _, s := range sections {
+		if s.Name != "root" {
+			menuSections = append(menuSections, s)
+		}
+	}
+
 	tmplPath := svc.Cfg().StrValOrDef(am.Key.SSGLayoutPath, "assets/template/layout/layout.tmpl")
 	tmpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
@@ -115,18 +122,17 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		htmlBody, err := processor.ToHTML([]byte(content.Body))
 		if err != nil {
 			svc.Log().Error("Error converting markdown to HTML", "slug", content.Slug(), "error", err)
-			continue // or return err, depending on desired behavior
+			continue
 		}
 
-		// Prepare data for template
-		// We use a temporary struct to pass data to the template.
-		// The Body field is of type template.HTML to prevent Go's template engine from escaping the HTML.
-		data := struct {
-			Heading string
-			Body    template.HTML
-		}{
+		pageContent := PageContent{
 			Heading: content.Heading,
 			Body:    template.HTML(htmlBody),
+		}
+
+		data := PageData{
+			Menu:    menuSections,
+			Content: pageContent,
 		}
 
 		var buf bytes.Buffer
