@@ -9,6 +9,9 @@ var Flags = map[string]interface{}{
 	Key.ServerAPIEnabled: true,
 	Key.ServerResPath:    "/res",
 
+	// SSG
+	Key.SSGHeaderStyle: "stacked",
+
 	// NOTE: These values should be overridden in production with secure values.
 	Key.SecHashKey:  "0123456789abcdef0123456789abcdef",
 	Key.SecBlockKey: "0123456789abcdef0123456789abcdef",
