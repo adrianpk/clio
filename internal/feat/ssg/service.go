@@ -1,10 +1,12 @@
 package ssg
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
+	"html/template"
 	"os"
 	"path/filepath"
 
@@ -85,15 +87,26 @@ func (svc *BaseService) GenerateMarkdown(ctx context.Context) error {
 func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 	svc.Log().Info("Service starting HTML generation")
 
+	// Get all content
 	contents, err := svc.repo.GetAllContentWithMeta(ctx)
 	if err != nil {
 		return fmt.Errorf("cannot get all content with meta: %w", err)
+	}
+
+	// Get default layout
+	// For now, we are using a single layout file.
+	// In the future, we will implement the logic to select the layout based on the section.
+	tmplPath := svc.Cfg().StrValOrDef(am.Key.SSGLayoutPath, "assets/template/layout/layout.tmpl")
+	tmpl, err := template.ParseFiles(tmplPath)
+	if err != nil {
+		return fmt.Errorf("cannot parse template: %w", err)
 	}
 
 	processor := NewMarkdownProcessor()
 	htmlPath := svc.Cfg().StrValOrDef(am.Key.SSGHTMLPath, "_workspace/documents/html")
 
 	for _, content := range contents {
+		svc.Log().Debug("Processing content for HTML generation", "slug", content.Slug(), "section_path", content.SectionPath)
 		if content.Draft {
 			svc.Log().Debug("Skipping draft content", "slug", content.Slug())
 			continue
@@ -105,7 +118,23 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 			continue // or return err, depending on desired behavior
 		}
 
-		// This is a simplified pathing logic. We will need to replicate the logic from the drafts for content types.
+		// Prepare data for template
+		// We use a temporary struct to pass data to the template.
+		// The Body field is of type template.HTML to prevent Go's template engine from escaping the HTML.
+		data := struct {
+			Heading string
+			Body    template.HTML
+		}{
+			Heading: content.Heading,
+			Body:    template.HTML(htmlBody),
+		}
+
+		var buf bytes.Buffer
+		if err := tmpl.Execute(&buf, data); err != nil {
+			svc.Log().Error("Error executing template", "slug", content.Slug(), "error", err)
+			continue
+		}
+
 		outputPath := filepath.Join(htmlPath, content.SectionPath, content.Slug()+".html")
 
 		if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
@@ -113,7 +142,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 			continue
 		}
 
-		if err := os.WriteFile(outputPath, []byte(htmlBody), 0644); err != nil {
+		if err := os.WriteFile(outputPath, buf.Bytes(), 0644); err != nil {
 			svc.Log().Error("Error writing HTML file", "path", outputPath, "error", err)
 			continue
 		}

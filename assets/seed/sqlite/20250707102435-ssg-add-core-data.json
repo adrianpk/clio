@@ -64,9 +64,9 @@
       "heading": "HashiCorp Nomad",
       "body": "# Exploring HashiCorp Nomad\n\nNomad is a simple and flexible workload orchestrator to deploy and manage containers and non-containerized applications across on-prem and clouds at scale.\n\n## Why Choose Nomad?\n\n- **Simplicity:** Nomad is a single binary that is easy to deploy and manage.\n- **Flexibility:** It can orchestrate containers, VMs, and standalone applications.\n- **Scalability:** Proven to scale to clusters of 10,000+ nodes.\n\nFor more details, see the [official Nomad documentation](https://www.nomadproject.io/docs).",
       "section_ref": "news-section",
-      "draft": true,
+      "draft": false,
       "featured": false,
-      "published_at": null
+      "published_at": "2025-09-01T10:00:00Z"
     },
     {
       "ref": "kubernetes-basics",
