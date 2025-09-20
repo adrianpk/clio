@@ -31,3 +31,9 @@ A distraction-free writing environment that focuses solely on the markdown edito
 An example of a generated markdown file, including the YAML frontmatter created from the content's metadata.
 
 ![Generated Markdown](../img/generated-markdown.png)
+
+## Generated HTML
+
+The first version of a generated HTML page, using a minimalist layout. This view is a clean first step, but it's still missing the main navigation menu and the companion blocks for further navigation.
+
+![Generated HTML](../img/generated-html.png)
