@@ -34,17 +34,25 @@
             color: #333;
             font-weight: 700;
         }
+        .hero-image {
+            width: 100%;
+            max-height: 450px;
+            object-fit: cover;
+            object-position: center;
+            margin-bottom: 2rem;
+        }
     </style>
 </head>
 <body>
     <nav>
         <div class="container">
-            <a href="/">Home</a>
+            <a href="{{.AssetPath}}index.html">Home</a>
             {{range .Menu}}
-            <a href="/{{.Path}}">{{.Name}}</a>
+            <a href="{{$.AssetPath}}{{.Path}}/index.html">{{.Name}}</a>
             {{end}}
         </div>
     </nav>
+    <img class="hero-image" src="{{.Content.HeaderImage}}" alt="Header Image">
     <div class="container">
         <h1>{{.Content.Heading}}</h1>
         <hr>

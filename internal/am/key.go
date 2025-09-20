@@ -41,6 +41,7 @@ type Keys struct {
 	SSGMarkdownPath  string
 	SSGHTMLPath      string
 	SSGLayoutPath    string
+	SSGHeaderStyle   string
 	SSGAssetsPath    string
 	SSGImagesPath    string
 }
@@ -86,6 +87,7 @@ var Key = Keys{
 	SSGMarkdownPath:  "ssg.markdown.path",
 	SSGHTMLPath:      "ssg.html.path",
 	SSGLayoutPath:    "ssg.layout.path",
+	SSGHeaderStyle:   "ssg.header.style",
 	SSGAssetsPath:    "ssg.assets.path",
 	SSGImagesPath:    "ssg.images.path",
 }
