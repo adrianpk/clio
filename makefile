@@ -51,6 +51,23 @@ runflags: build
 	@echo "Running $(APP_NAME) with command-line flags..."
 	@$(BINARY) -server.web.host=localhost -server.web.port=9080 -server.api.host=localhost -server.api.port=9081
 
+# Run with specific header styles
+run-stacked:
+	@echo "Running with style: stacked"
+	@$(BINARY) -ssg.header.style=stacked
+
+run-overlay:
+	@echo "Running with style: overlay"
+	@$(BINARY) -ssg.header.style=overlay
+
+run-boxed:
+	@echo "Running with style: boxed"
+	@$(BINARY) -ssg.header.style=boxed
+
+run-text-only:
+	@echo "Running with style: text-only"
+	@$(BINARY) -ssg.header.style=text-only
+
 # Generate markdown files
 generate-markdown:
 	@echo "Triggering markdown generation..."
@@ -136,4 +153,4 @@ reset-db:
 	@echo "A fresh database will be created on next application start"
 
 # Phony targets
-.PHONY: all build run runflags setenv clean backup-db reset-db generate-markdown generate-html test
+.PHONY: all build run runflags setenv clean backup-db reset-db generate-markdown generate-html test run-stacked run-overlay run-boxed run-text-only

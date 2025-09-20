@@ -32,8 +32,38 @@ An example of a generated markdown file, including the YAML frontmatter created 
 
 ![Generated Markdown](../img/generated-markdown.png)
 
-## Generated HTML
+---
 
-The first version of a generated HTML page, using a minimalist layout. This view is a clean first step, but it's still missing the main navigation menu and the companion blocks for further navigation.
+# Header Styles Gallery
 
-![Generated HTML](../img/generated-html.png)
+This section showcases the different header styles available in Clio.
+
+## "Stacked" Style
+
+The default style. The title is rendered below the image.
+
+![Stacked Style](../img/generated-html-stacked.png)
+
+---
+
+## "Overlay" Style
+
+The title is rendered in white text centered directly on top of the image, with a dark scrim to ensure contrast.
+
+![Overlay Style](../img/generated-html-overlay.png)
+
+---
+
+## "Boxed" Style (Frosted Glass)
+
+The title is rendered inside a frosted-glass effect stripe at the bottom of the image.
+
+![Boxed Style](../img/generated-html-boxed.png)
+
+---
+
+## "Text-Only" Style
+
+A minimalist style with no header image, showing only the title.
+
+![Text-Only Style](../img/generated-html-text-only.png)

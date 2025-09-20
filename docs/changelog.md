@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Copies the embedded placeholder header image to the output directory.
     - Handles post-specific header images, copying them to the correct per-post directory.
     - Generates relative paths for assets to ensure links work on both local filesystems and web servers.
+- Added a global configuration (`ssg.header.style`) to control the header layout style.
+- Added support for four header styles: `stacked` (default), `overlay`, `text-only`, and `boxed` (which uses a full-width frosted-glass effect).
+
+### Docs
+- Updated the gallery with screenshots and descriptions of the new header styles.
 
 
 ## [2025-09-18]

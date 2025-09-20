@@ -120,7 +120,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		return fmt.Errorf("cannot copy static assets: %w", err)
 	}
 
-	headerStyle := svc.Cfg().StrValOrDef(am.Key.SSGHeaderStyle, "separate")
+	headerStyle := svc.Cfg().StrValOrDef(am.Key.SSGHeaderStyle, "stacked")
 	imageExtensions := []string{".png", ".jpg", ".jpeg", ".webp"}
 
 	for _, content := range contents {
