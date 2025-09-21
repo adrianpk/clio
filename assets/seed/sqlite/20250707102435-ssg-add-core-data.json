@@ -4,7 +4,7 @@
       "ref": "alt",
       "name": "alt",
       "description": "Alternative editable layout, copy of the default layout from the filesystem.",
-      "code": "{{ define \"layout\" }}\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>{{ block \"title\" . }}Title{{ end }}</title>\n    <link href=\"https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css\" rel=\"stylesheet\">\n</head>\n<body class=\"bg-gray-100 text-gray-900\">\n{{ block \"header\" . }}Header{{ end }}\n{{ block \"flash\" . }}\n{{ end }}\n<main class=\"p-4\">\n    {{ block \"content\" . }}Content{{ end }}\n</main>\n<aside class=\"p-4\">\n    {{ block \"submenu\" . }}{{ end }}\n</aside>\n<footer class=\"bg-gray-200 text-center p-4 mt-4\">\n    <p>&copy; 2025 clio</p>\n</footer>\n</body>\n</html>\n{{ end }}"
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>{{.Content.Heading}}</title>\n    <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n    <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n    <link href=\"https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap\" rel=\"stylesheet\">\n    <style>\n        body {\n            font-family: 'Montserrat', sans-serif;\n            line-height: 1.6;\n            margin: 0;\n            padding: 0;\n            background-color: #fdfdfd;\n            color: #333;\n        }\n        .container {\n            max-width: 800px;\n            margin: 0 auto;\n            padding: 2rem;\n        }\n        h1 {\n            font-weight: 700;\n        }\n        nav {\n            padding: 1rem 2rem;\n            border-bottom: 1px solid #eee;\n        }\n        nav a {\n            margin-right: 1rem;\n            text-decoration: none;\n            color: #333;\n            font-weight: 700;\n        }\n\n        /* Hero Styles */\n        .hero-wrapper {\n            position: relative;\n            width: 100%;\n        }\n        .hero-image {\n            width: 100%;\n            max-height: 450px;\n            object-fit: cover;\n            object-position: center;\n            display: block; /* Removes bottom space */\n        }\n\n        /* Stacked Style Specific */\n        .hero-stacked-image {\n             margin-bottom: 2rem;\n        }\n\n        /* Overlay Style */\n        .hero-wrapper.overlay::before {\n            content: '';\n            position: absolute;\n            top: 0;\n            left: 0;\n            right: 0;\n            bottom: 0;\n            background-color: rgba(0, 0, 0, 0.4);\n            z-index: 1;\n        }\n        .hero-wrapper.overlay .hero-title {\n            position: absolute;\n            top: 50%;\n            left: 50%;\n            transform: translate(-50%, -50%);\n            color: white;\n            z-index: 2;\n            text-align: center;\n            width: 90%;\n        }\n\n        /* Boxed Style - Frosted Glass */\n        .hero-wrapper.boxed .hero-title-box {\n            position: absolute;\n            bottom: 0;\n            left: 0;\n            width: 100%;\n            background-color: rgba(255, 255, 255, 0.3); /* Light, translucent background */\n            backdrop-filter: blur(8px); /* The \"frosted glass\" effect */\n            -webkit-backdrop-filter: blur(8px); /* Safari support */\n            padding: 1.5rem 0;\n            z-index: 2;\n            border-top: 1px solid rgba(255, 255, 255, 0.5); /* Subtle top border */\n        }\n         .hero-wrapper.boxed .hero-title {\n            color: #333; /* Dark text for contrast against the light blur */\n            margin: 0;\n            text-align: center;\n        }\n\n    </style>\n</head>\n<body>\n    <nav>\n        <div class=\"container\">\n            <a href=\"{{.AssetPath}}index.html\">Home</a>\n            {{range .Menu}}\n            <a href=\"{{$.AssetPath}}{{.Path}}/index.html\">{{.Name}}</a>\n            {{end}}\n        </div>\n    </nav>\n\n    {{if eq .HeaderStyle \"text-only\"}}\n        <div class=\"container\">\n            <h1>{{.Content.Heading}}</h1>\n        </div>\n    {{else if eq .HeaderStyle \"overlay\"}}\n        <div class=\"hero-wrapper overlay\">\n            <img class=\"hero-image\" src=\"{{.Content.HeaderImage}}\" alt=\"Header Image\">\n            <h1 class=\"hero-title\">{{.Content.Heading}}</h1>\n        </div>\n    {{else if eq .HeaderStyle \"boxed\"}}\n        <div class=\"hero-wrapper boxed\">\n            <img class=\"hero-image\" src=\"{{.Content.HeaderImage}}\" alt=\"Header Image\">\n            <div class=\"hero-title-box\">\n                <h1 class=\"hero-title\">{{.Content.Heading}}</h1>\n            </div>\n        </div>\n    {{else}} {{/* Default to stacked */}}\n        <img class=\"hero-image hero-stacked-image\" src=\"{{.Content.HeaderImage}}\" alt=\"Header Image\">\n        <div class=\"container\">\n            <h1>{{.Content.Heading}}</h1>\n        </div>\n    {{end}}\n\n    <div class=\"container\">\n        <hr>\n        <main>\n            {{.Content.Body}}\n        </main>\n    </div>\n</body>\n</html>"
     }
   ],
   "sections": [
@@ -18,28 +18,28 @@
       "header": ""
     },
     {
-      "ref": "news-section",
-      "name": "News",
-      "description": "News and announcements.",
-      "path": "/news",
+      "ref": "tech",
+      "name": "Tech",
+      "description": "Technology related content.",
+      "path": "/tech",
       "layout_ref": "alt",
       "image": "",
       "header": ""
     },
     {
-      "ref": "articles-section",
-      "name": "Articles",
-      "description": "A collection of articles.",
-      "path": "/articles",
+      "ref": "philosophy",
+      "name": "Philosophy",
+      "description": "Content about philosophy.",
+      "path": "/philosophy",
       "layout_ref": "alt",
       "image": "",
       "header": ""
     },
     {
-      "ref": "projects-section",
-      "name": "Projects",
-      "description": "A list of projects.",
-      "path": "/projects",
+      "ref": "food",
+      "name": "Food",
+      "description": "Content about food.",
+      "path": "/food",
       "layout_ref": "alt",
       "image": "",
       "header": ""
@@ -100,6 +100,314 @@
       "draft": false,
       "featured": true,
       "published_at": "2025-09-15T10:00:00Z"
+    },
+    {
+      "ref": "page-root",
+      "user_ref": "user-johndoe",
+      "kind": "page",
+      "heading": "About the Root Section",
+      "body": "This is a page about the Root section.",
+      "section_ref": "root",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452010Z"
+    },
+    {
+      "ref": "article-root-1",
+      "user_ref": "user-superadmin",
+      "kind": "article",
+      "heading": "Article 1 about Root",
+      "body": "This is article 1 about Root.",
+      "section_ref": "root",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452027Z"
+    },
+    {
+      "ref": "article-root-2",
+      "user_ref": "user-admin",
+      "kind": "article",
+      "heading": "Article 2 about Root",
+      "body": "This is article 2 about Root.",
+      "section_ref": "root",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452035Z"
+    },
+    {
+      "ref": "article-root-3",
+      "user_ref": "user-admin",
+      "kind": "article",
+      "heading": "Article 3 about Root",
+      "body": "This is article 3 about Root.",
+      "section_ref": "root",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452042Z"
+    },
+    {
+      "ref": "blog-root-1",
+      "user_ref": "user-johndoe",
+      "kind": "blog",
+      "heading": "Blog Post 1 about Root",
+      "body": "This is blog post 1 about Root.",
+      "section_ref": "root",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452051Z"
+    },
+    {
+      "ref": "blog-root-2",
+      "user_ref": "user-johndoe",
+      "kind": "blog",
+      "heading": "Blog Post 2 about Root",
+      "body": "This is blog post 2 about Root.",
+      "section_ref": "root",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452057Z"
+    },
+    {
+      "ref": "blog-root-3",
+      "user_ref": "user-superadmin",
+      "kind": "blog",
+      "heading": "Blog Post 3 about Root",
+      "body": "This is blog post 3 about Root.",
+      "section_ref": "root",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452064Z"
+    },
+    {
+      "ref": "page-tech",
+      "user_ref": "user-admin",
+      "kind": "page",
+      "heading": "About the Tech Section",
+      "body": "This is a page about the Tech section.",
+      "section_ref": "tech",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452070Z"
+    },
+    {
+      "ref": "article-tech-1",
+      "user_ref": "user-johndoe",
+      "kind": "article",
+      "heading": "Article 1 about Tech",
+      "body": "This is article 1 about Tech.",
+      "section_ref": "tech",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452076Z"
+    },
+    {
+      "ref": "article-tech-2",
+      "user_ref": "user-admin",
+      "kind": "article",
+      "heading": "Article 2 about Tech",
+      "body": "This is article 2 about Tech.",
+      "section_ref": "tech",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452116Z"
+    },
+    {
+      "ref": "article-tech-3",
+      "user_ref": "user-johndoe",
+      "kind": "article",
+      "heading": "Article 3 about Tech",
+      "body": "This is article 3 about Tech.",
+      "section_ref": "tech",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452132Z"
+    },
+    {
+      "ref": "blog-tech-1",
+      "user_ref": "user-superadmin",
+      "kind": "blog",
+      "heading": "Blog Post 1 about Tech",
+      "body": "This is blog post 1 about Tech.",
+      "section_ref": "tech",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452144Z"
+    },
+    {
+      "ref": "blog-tech-2",
+      "user_ref": "user-johndoe",
+      "kind": "blog",
+      "heading": "Blog Post 2 about Tech",
+      "body": "This is blog post 2 about Tech.",
+      "section_ref": "tech",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452153Z"
+    },
+    {
+      "ref": "blog-tech-3",
+      "user_ref": "user-johndoe",
+      "kind": "blog",
+      "heading": "Blog Post 3 about Tech",
+      "body": "This is blog post 3 about Tech.",
+      "section_ref": "tech",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452164Z"
+    },
+    {
+      "ref": "page-philosophy",
+      "user_ref": "user-superadmin",
+      "kind": "page",
+      "heading": "About the Philosophy Section",
+      "body": "This is a page about the Philosophy section.",
+      "section_ref": "philosophy",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452172Z"
+    },
+    {
+      "ref": "article-philosophy-1",
+      "user_ref": "user-admin",
+      "kind": "article",
+      "heading": "Article 1 about Philosophy",
+      "body": "This is article 1 about Philosophy.",
+      "section_ref": "philosophy",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452177Z"
+    },
+    {
+      "ref": "article-philosophy-2",
+      "user_ref": "user-admin",
+      "kind": "article",
+      "heading": "Article 2 about Philosophy",
+      "body": "This is article 2 about Philosophy.",
+      "section_ref": "philosophy",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452189Z"
+    },
+    {
+      "ref": "article-philosophy-3",
+      "user_ref": "user-johndoe",
+      "kind": "article",
+      "heading": "Article 3 about Philosophy",
+      "body": "This is article 3 about Philosophy.",
+      "section_ref": "philosophy",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452200Z"
+    },
+    {
+      "ref": "blog-philosophy-1",
+      "user_ref": "user-superadmin",
+      "kind": "blog",
+      "heading": "Blog Post 1 about Philosophy",
+      "body": "This is blog post 1 about Philosophy.",
+      "section_ref": "philosophy",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452207Z"
+    },
+    {
+      "ref": "blog-philosophy-2",
+      "user_ref": "user-superadmin",
+      "kind": "blog",
+      "heading": "Blog Post 2 about Philosophy",
+      "body": "This is blog post 2 about Philosophy.",
+      "section_ref": "philosophy",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452217Z"
+    },
+    {
+      "ref": "blog-philosophy-3",
+      "user_ref": "user-johndoe",
+      "kind": "blog",
+      "heading": "Blog Post 3 about Philosophy",
+      "body": "This is blog post 3 about Philosophy.",
+      "section_ref": "philosophy",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452227Z"
+    },
+    {
+      "ref": "page-food",
+      "user_ref": "user-superadmin",
+      "kind": "page",
+      "heading": "About the Food Section",
+      "body": "This is a page about the Food section.",
+      "section_ref": "food",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452236Z"
+    },
+    {
+      "ref": "article-food-1",
+      "user_ref": "user-johndoe",
+      "kind": "article",
+      "heading": "Article 1 about Food",
+      "body": "This is article 1 about Food.",
+      "section_ref": "food",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452240Z"
+    },
+    {
+      "ref": "article-food-2",
+      "user_ref": "user-johndoe",
+      "kind": "article",
+      "heading": "Article 2 about Food",
+      "body": "This is article 2 about Food.",
+      "section_ref": "food",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452248Z"
+    },
+    {
+      "ref": "article-food-3",
+      "user_ref": "user-admin",
+      "kind": "article",
+      "heading": "Article 3 about Food",
+      "body": "This is article 3 about Food.",
+      "section_ref": "food",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452256Z"
+    },
+    {
+      "ref": "blog-food-1",
+      "user_ref": "user-johndoe",
+      "kind": "blog",
+      "heading": "Blog Post 1 about Food",
+      "body": "This is blog post 1 about Food.",
+      "section_ref": "food",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452267Z"
+    },
+    {
+      "ref": "blog-food-2",
+      "user_ref": "user-admin",
+      "kind": "blog",
+      "heading": "Blog Post 2 about Food",
+      "body": "This is blog post 2 about Food.",
+      "section_ref": "food",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452277Z"
+    },
+    {
+      "ref": "blog-food-3",
+      "user_ref": "user-johndoe",
+      "kind": "blog",
+      "heading": "Blog Post 3 about Food",
+      "body": "This is blog post 3 about Food.",
+      "section_ref": "food",
+      "draft": false,
+      "featured": false,
+      "published_at": "2025-09-21T23:03:25.452284Z"
     }
   ],
   "metas": [
@@ -157,30 +465,317 @@
       "table_of_contents": true,
       "share": true,
       "comments": true
+    },
+    {
+      "content_ref": "page-root",
+      "description": "A page about the Root section.",
+      "keywords": "root, page",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.5, \"changefreq\": \"yearly\"}",
+      "table_of_contents": false,
+      "share": false,
+      "comments": false
+    },
+    {
+      "content_ref": "article-root-1",
+      "description": "Article 1 about the Root section.",
+      "keywords": "root, article, article 1",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
+      "table_of_contents": true,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "article-root-2",
+      "description": "Article 2 about the Root section.",
+      "keywords": "root, article, article 2",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
+      "table_of_contents": true,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "article-root-3",
+      "description": "Article 3 about the Root section.",
+      "keywords": "root, article, article 3",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
+      "table_of_contents": true,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "blog-root-1",
+      "description": "Blog post 1 about the Root section.",
+      "keywords": "root, blog, blog post 1",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
+      "table_of_contents": false,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "blog-root-2",
+      "description": "Blog post 2 about the Root section.",
+      "keywords": "root, blog, blog post 2",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
+      "table_of_contents": false,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "blog-root-3",
+      "description": "Blog post 3 about the Root section.",
+      "keywords": "root, blog, blog post 3",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
+      "table_of_contents": false,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "page-tech",
+      "description": "A page about the Tech section.",
+      "keywords": "tech, page",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.5, \"changefreq\": \"yearly\"}",
+      "table_of_contents": false,
+      "share": false,
+      "comments": false
+    },
+    {
+      "content_ref": "article-tech-1",
+      "description": "Article 1 about the Tech section.",
+      "keywords": "tech, article, article 1",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
+      "table_of_contents": true,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "article-tech-2",
+      "description": "Article 2 about the Tech section.",
+      "keywords": "tech, article, article 2",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
+      "table_of_contents": true,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "article-tech-3",
+      "description": "Article 3 about the Tech section.",
+      "keywords": "tech, article, article 3",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
+      "table_of_contents": true,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "blog-tech-1",
+      "description": "Blog post 1 about the Tech section.",
+      "keywords": "tech, blog, blog post 1",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
+      "table_of_contents": false,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "blog-tech-2",
+      "description": "Blog post 2 about the Tech section.",
+      "keywords": "tech, blog, blog post 2",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
+      "table_of_contents": false,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "blog-tech-3",
+      "description": "Blog post 3 about the Tech section.",
+      "keywords": "tech, blog, blog post 3",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
+      "table_of_contents": false,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "page-philosophy",
+      "description": "A page about the Philosophy section.",
+      "keywords": "philosophy, page",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.5, \"changefreq\": \"yearly\"}",
+      "table_of_contents": false,
+      "share": false,
+      "comments": false
+    },
+    {
+      "content_ref": "article-philosophy-1",
+      "description": "Article 1 about the Philosophy section.",
+      "keywords": "philosophy, article, article 1",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
+      "table_of_contents": true,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "article-philosophy-2",
+      "description": "Article 2 about the Philosophy section.",
+      "keywords": "philosophy, article, article 2",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
+      "table_of_contents": true,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "article-philosophy-3",
+      "description": "Article 3 about the Philosophy section.",
+      "keywords": "philosophy, article, article 3",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
+      "table_of_contents": true,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "blog-philosophy-1",
+      "description": "Blog post 1 about the Philosophy section.",
+      "keywords": "philosophy, blog, blog post 1",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
+      "table_of_contents": false,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "blog-philosophy-2",
+      "description": "Blog post 2 about the Philosophy section.",
+      "keywords": "philosophy, blog, blog post 2",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
+      "table_of_contents": false,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "blog-philosophy-3",
+      "description": "Blog post 3 about the Philosophy section.",
+      "keywords": "philosophy, blog, blog post 3",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
+      "table_of_contents": false,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "page-food",
+      "description": "A page about the Food section.",
+      "keywords": "food, page",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.5, \"changefreq\": \"yearly\"}",
+      "table_of_contents": false,
+      "share": false,
+      "comments": false
+    },
+    {
+      "content_ref": "article-food-1",
+      "description": "Article 1 about the Food section.",
+      "keywords": "food, article, article 1",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
+      "table_of_contents": true,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "article-food-2",
+      "description": "Article 2 about the Food section.",
+      "keywords": "food, article, article 2",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
+      "table_of_contents": true,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "article-food-3",
+      "description": "Article 3 about the Food section.",
+      "keywords": "food, article, article 3",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
+      "table_of_contents": true,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "blog-food-1",
+      "description": "Blog post 1 about the Food section.",
+      "keywords": "food, blog, blog post 1",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
+      "table_of_contents": false,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "blog-food-2",
+      "description": "Blog post 2 about the Food section.",
+      "keywords": "food, blog, blog post 2",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
+      "table_of_contents": false,
+      "share": true,
+      "comments": true
+    },
+    {
+      "content_ref": "blog-food-3",
+      "description": "Blog post 3 about the Food section.",
+      "keywords": "food, blog, blog post 3",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
+      "table_of_contents": false,
+      "share": true,
+      "comments": true
     }
   ],
-  "tags": [
-    {
-      "ref": "programming",
-      "name": "Programming"
-    },
-    {
-      "ref": "go",
-      "name": "Go"
-    },
-    {
-      "ref": "messaging",
-      "name": "Messaging"
-    },
-    {
-      "ref": "orchestration",
-      "name": "Orchestration"
-    },
-    {
-      "ref": "cloud-native",
-      "name": "Cloud Native"
-    }
-  ],
+  "tags": [],
   "content_tags": [
     {
       "content_ref": "intro-to-golang",
@@ -221,6 +816,226 @@
     {
       "content_ref": "kubernetes-basics",
       "tag_ref": "cloud-native"
+    },
+    {
+      "content_ref": "article-tech-1",
+      "tag_ref": "tag-python"
+    },
+    {
+      "content_ref": "article-tech-1",
+      "tag_ref": "tag-go"
+    },
+    {
+      "content_ref": "article-tech-2",
+      "tag_ref": "tag-python"
+    },
+    {
+      "content_ref": "article-tech-2",
+      "tag_ref": "tag-ai"
+    },
+    {
+      "content_ref": "article-tech-3",
+      "tag_ref": "tag-ml"
+    },
+    {
+      "content_ref": "article-tech-3",
+      "tag_ref": "tag-microservices"
+    },
+    {
+      "content_ref": "article-tech-3",
+      "tag_ref": "tag-kubernetes"
+    },
+    {
+      "content_ref": "blog-tech-1",
+      "tag_ref": "tag-go"
+    },
+    {
+      "content_ref": "blog-tech-2",
+      "tag_ref": "tag-microservices"
+    },
+    {
+      "content_ref": "blog-tech-2",
+      "tag_ref": "tag-ai"
+    },
+    {
+      "content_ref": "blog-tech-2",
+      "tag_ref": "tag-docker"
+    },
+    {
+      "content_ref": "blog-tech-3",
+      "tag_ref": "tag-serverless"
+    },
+    {
+      "content_ref": "article-philosophy-1",
+      "tag_ref": "tag-stoicism"
+    },
+    {
+      "content_ref": "article-philosophy-1",
+      "tag_ref": "tag-ethics"
+    },
+    {
+      "content_ref": "article-philosophy-1",
+      "tag_ref": "tag-logic"
+    },
+    {
+      "content_ref": "article-philosophy-2",
+      "tag_ref": "tag-realism"
+    },
+    {
+      "content_ref": "article-philosophy-2",
+      "tag_ref": "tag-existentialism"
+    },
+    {
+      "content_ref": "article-philosophy-3",
+      "tag_ref": "tag-logic"
+    },
+    {
+      "content_ref": "blog-philosophy-1",
+      "tag_ref": "tag-existentialism"
+    },
+    {
+      "content_ref": "blog-philosophy-1",
+      "tag_ref": "tag-logic"
+    },
+    {
+      "content_ref": "blog-philosophy-2",
+      "tag_ref": "tag-ethics"
+    },
+    {
+      "content_ref": "blog-philosophy-2",
+      "tag_ref": "tag-idealism"
+    },
+    {
+      "content_ref": "blog-philosophy-3",
+      "tag_ref": "tag-realism"
+    },
+    {
+      "content_ref": "blog-philosophy-3",
+      "tag_ref": "tag-stoicism"
+    },
+    {
+      "content_ref": "article-food-1",
+      "tag_ref": "tag-japanese"
+    },
+    {
+      "content_ref": "article-food-1",
+      "tag_ref": "tag-vegan"
+    },
+    {
+      "content_ref": "article-food-1",
+      "tag_ref": "tag-mexican"
+    },
+    {
+      "content_ref": "article-food-2",
+      "tag_ref": "tag-italian"
+    },
+    {
+      "content_ref": "article-food-2",
+      "tag_ref": "tag-vegan"
+    },
+    {
+      "content_ref": "article-food-2",
+      "tag_ref": "tag-japanese"
+    },
+    {
+      "content_ref": "article-food-3",
+      "tag_ref": "tag-thai"
+    },
+    {
+      "content_ref": "article-food-3",
+      "tag_ref": "tag-italian"
+    },
+    {
+      "content_ref": "blog-food-1",
+      "tag_ref": "tag-mexican"
+    },
+    {
+      "content_ref": "blog-food-1",
+      "tag_ref": "tag-vegetarian"
+    },
+    {
+      "content_ref": "blog-food-1",
+      "tag_ref": "tag-italian"
+    },
+    {
+      "content_ref": "blog-food-2",
+      "tag_ref": "tag-japanese"
+    },
+    {
+      "content_ref": "blog-food-3",
+      "tag_ref": "tag-dessert"
+    },
+    {
+      "content_ref": "blog-food-3",
+      "tag_ref": "tag-vegan"
+    },
+    {
+      "content_ref": "blog-food-3",
+      "tag_ref": "tag-indian"
+    },
+    {
+      "content_ref": "article-tech-1",
+      "tag_ref": "tag-realism"
+    },
+    {
+      "content_ref": "blog-tech-2",
+      "tag_ref": "tag-realism"
+    },
+    {
+      "content_ref": "article-philosophy-3",
+      "tag_ref": "tag-vegetarian"
+    },
+    {
+      "content_ref": "blog-philosophy-3",
+      "tag_ref": "tag-vegetarian"
+    },
+    {
+      "content_ref": "article-food-2",
+      "tag_ref": "tag-ml"
+    },
+    {
+      "content_ref": "blog-food-2",
+      "tag_ref": "tag-ml"
+    },
+    {
+      "content_ref": "blog-food-3",
+      "tag_ref": "tag-movies"
+    },
+    {
+      "content_ref": "blog-philosophy-2",
+      "tag_ref": "tag-movies"
+    },
+    {
+      "content_ref": "page-food",
+      "tag_ref": "tag-life"
+    },
+    {
+      "content_ref": "blog-philosophy-3",
+      "tag_ref": "tag-life"
+    },
+    {
+      "content_ref": "blog-food-3",
+      "tag_ref": "tag-work"
+    },
+    {
+      "content_ref": "article-tech-1",
+      "tag_ref": "tag-work"
+    },
+    {
+      "content_ref": "blog-food-1",
+      "tag_ref": "tag-books"
+    },
+    {
+      "content_ref": "article-tech-3",
+      "tag_ref": "tag-books"
+    },
+    {
+      "content_ref": "article-philosophy-1",
+      "tag_ref": "tag-movies"
+    },
+    {
+      "content_ref": "blog-tech-2",
+      "tag_ref": "tag-movies"
     }
   ]
 }
