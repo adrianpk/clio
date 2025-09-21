@@ -2,6 +2,8 @@ package ssg
 
 import (
 	"sort"
+
+	"github.com/google/uuid"
 )
 
 // GeneratedBlocks holds all the pre-processed content lists for the blocks.
@@ -41,22 +43,39 @@ func BuildBlocks(current Content, allContent []Content) *GeneratedBlocks {
 }
 
 func buildArticleBlocks(blocks *GeneratedBlocks, current Content, allContent []Content) {
+	added := make(map[uuid.UUID]bool)
+	added[current.ID] = true
+
+	// Tag-Related Content (Same Section)
 	for _, c := range allContent {
-		if c.ID == current.ID || c.Kind != "article" {
-			continue
+		if c.Kind == "article" && c.SectionID == current.SectionID && hasCommonTags(current, c) && !added[c.ID] {
+			blocks.ArticleTagRelatedSameSection = append(blocks.ArticleTagRelatedSameSection, c)
+			added[c.ID] = true
 		}
+	}
 
-		if c.SectionID == current.SectionID {
-			if hasCommonTags(current, c) {
-				blocks.ArticleTagRelatedSameSection = append(blocks.ArticleTagRelatedSameSection, c)
-			}
+	// Recent Content (Same Section)
+	for _, c := range allContent {
+		if c.Kind == "article" && c.SectionID == current.SectionID && !added[c.ID] {
 			blocks.ArticleRecentSameSection = append(blocks.ArticleRecentSameSection, c)
+			added[c.ID] = true
 		}
+	}
 
-		if hasCommonTags(current, c) {
+	// Tag-Related Content (All Sections)
+	for _, c := range allContent {
+		if c.Kind == "article" && c.SectionID != current.SectionID && hasCommonTags(current, c) && !added[c.ID] {
 			blocks.ArticleTagRelatedAllSections = append(blocks.ArticleTagRelatedAllSections, c)
+			added[c.ID] = true
 		}
-		blocks.ArticleRecentAllSections = append(blocks.ArticleRecentAllSections, c)
+	}
+
+	// Recent Content (All Sections)
+	for _, c := range allContent {
+		if c.Kind == "article" && c.SectionID != current.SectionID && !added[c.ID] {
+			blocks.ArticleRecentAllSections = append(blocks.ArticleRecentAllSections, c)
+			added[c.ID] = true
+		}
 	}
 
 	// Sort recent blocks by date
