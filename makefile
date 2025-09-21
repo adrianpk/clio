@@ -78,6 +78,23 @@ generate-html:
 	@echo "Triggering HTML generation..."
 	@./scripts/curl/ssg/generate-html.sh
 
+# Generate html files with specific header styles
+generate-html-stacked:
+	@echo "Generating with style: stacked"
+	@$(BINARY) -ssg.header.style=stacked generate-html
+
+generate-html-overlay:
+	@echo "Generating with style: overlay"
+	@$(BINARY) -ssg.header.style=overlay generate-html
+
+generate-html-boxed:
+	@echo "Generating with style: boxed"
+	@$(BINARY) -ssg.header.style=boxed generate-html
+
+generate-html-text-only:
+	@echo "Generating with style: text-only"
+	@$(BINARY) -ssg.header.style=text-only generate-html
+
 gencsrfkey:
 	@if command -v openssl >/dev/null 2>&1; then \
 		echo "CSRF Key: $$(openssl rand -base64 32)"; \
@@ -153,4 +170,4 @@ reset-db:
 	@echo "A fresh database will be created on next application start"
 
 # Phony targets
-.PHONY: all build run runflags setenv clean backup-db reset-db generate-markdown generate-html test run-stacked run-overlay run-boxed run-text-only
+.PHONY: all build run runflags setenv clean backup-db reset-db generate-markdown generate-html test run-stacked run-overlay run-boxed run-text-only generate-html-stacked generate-html-overlay generate-html-boxed generate-html-text-only
