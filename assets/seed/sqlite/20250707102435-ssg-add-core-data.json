@@ -49,6 +49,7 @@
     {
       "ref": "intro-to-golang",
       "user_ref": "user-superadmin",
+      "kind": "article",
       "heading": "Introduction to Golang",
       "body": "# An Introduction to Golang\n\nGo, also known as Golang, is a statically typed, compiled programming language designed at Google. It is known for its simplicity, efficiency, and strong support for concurrent programming.\n\n## Key Features\n\nHere are some of the key features of Go:\n\n- **Simplicity:** The language is designed to be simple and easy to learn, with a clean syntax.\n- **Concurrency:** Go has built-in support for concurrent programming using goroutines and channels.\n- **Performance:** Being a compiled language, Go offers excellent performance.\n- **Static Typing:** Go is a statically typed language, which helps in catching errors at compile time.\n\nThis article provides a basic overview. For more detailed information, you can visit the official Go website: [https://go.dev/](https://go.dev/).",
       "section_ref": "root",
@@ -59,6 +60,7 @@
     {
       "ref": "go-generics",
       "user_ref": "user-superadmin",
+      "kind": "article",
       "heading": "Generics in Go",
       "body": "Go introduced generics in version 1.18, allowing developers to write more flexible and reusable code. Generics enable writing functions and data structures that can work with any data type.",
       "section_ref": "root",
@@ -69,6 +71,7 @@
     {
       "ref": "what-is-nats",
       "user_ref": "user-superadmin",
+      "kind": "article",
       "heading": "What is NATS?",
       "body": "NATS is a simple, high-performance open-source messaging system for cloud-native applications, IoT, and microservices architectures. It provides a lightweight and efficient way for services to communicate.",
       "section_ref": "root",
@@ -79,6 +82,7 @@
     {
       "ref": "hashicorp-nomad",
       "user_ref": "user-johndoe",
+      "kind": "article",
       "heading": "HashiCorp Nomad",
       "body": "# Exploring HashiCorp Nomad\n\nNomad is a simple and flexible workload orchestrator to deploy and manage containers and non-containerized applications across on-prem and clouds at scale.\n\n## Why Choose Nomad?\n\n- **Simplicity:** Nomad is a single binary that is easy to deploy and manage.\n- **Flexibility:** It can orchestrate containers, VMs, and standalone applications.\n- **Scalability:** Proven to scale to clusters of 10,000+ nodes.\n\nFor more details, see the [official Nomad documentation](https://www.nomadproject.io/docs).",
       "section_ref": "news-section",
@@ -89,6 +93,7 @@
     {
       "ref": "kubernetes-basics",
       "user_ref": "user-superadmin",
+      "kind": "article",
       "heading": "Kubernetes Basics",
       "body": "Kubernetes, also known as K8s, is an open-source system for automating deployment, scaling, and management of containerized applications. It has become the de-facto standard for container orchestration.",
       "section_ref": "root",

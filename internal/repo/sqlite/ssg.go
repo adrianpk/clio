@@ -151,7 +151,7 @@ func (repo *ClioRepo) GetAllContentWithMeta(ctx context.Context) ([]ssg.Content,
 		var tagID, tagShortID, tagName, tagSlug sql.NullString
 
 		err := rows.Scan(
-			&c.ID, &c.UserID, &c.SectionID, &c.Heading, &c.Body, &c.Draft, &c.Featured, &publishedAt, &c.ShortID,
+			&c.ID, &c.UserID, &c.SectionID, &c.Kind, &c.Heading, &c.Body, &c.Draft, &c.Featured, &publishedAt, &c.ShortID,
 			&c.CreatedBy, &c.UpdatedBy, &c.CreatedAt, &c.UpdatedAt,
 			&sectionPath, &sectionName,
 			&metaID, &description, &keywords, &robots, &canonicalURL, &sitemap, &tableOfContents, &share, &comments,

@@ -20,11 +20,14 @@ type Content struct {
 
 	UserID      uuid.UUID  `json:"user_id" db:"user_id"`
 	SectionID   uuid.UUID  `json:"section_id" db:"section_id"`
+	Kind        string     `json:"kind" db:"kind"`
 	Image       string     `json:"image,omitempty" db:"image"`
 	Heading     string     `json:"heading" db:"heading"`
 	Body        string     `json:"body" db:"body"`
 	Draft       bool       `json:"draft" db:"draft"`
 	Featured    bool       `json:"featured" db:"featured"`
+	Series      string     `json:"series,omitempty" db:"series"`
+	SeriesOrder int        `json:"series_order,omitempty" db:"series_order"`
 	PublishedAt *time.Time `json:"published_at" db:"published_at"`
 	Tags        []Tag      `json:"tags"`
 	Meta        Meta       `json:"meta"`

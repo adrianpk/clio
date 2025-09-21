@@ -107,10 +107,10 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		}
 	}
 
-	tmplPath := svc.Cfg().StrValOrDef(am.Key.SSGLayoutPath, "assets/template/layout/layout.tmpl")
-	tmpl, err := template.ParseFiles(tmplPath)
+	tmplPath := svc.Cfg().StrValOrDef(am.Key.SSGLayoutPath, "assets/ssg/layout/layout.html")
+	tmpl, err := template.ParseFiles(tmplPath, "assets/ssg/partial/blocks.tmpl", "assets/ssg/partial/article-blocks.tmpl", "assets/ssg/partial/blog-blocks.tmpl", "assets/ssg/partial/series-blocks.tmpl")
 	if err != nil {
-		return fmt.Errorf("cannot parse template: %w", err)
+		return fmt.Errorf("cannot parse template from file: %w", err)
 	}
 
 	processor := NewMarkdownProcessor()
@@ -186,13 +186,17 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 			Heading:     content.Heading,
 			HeaderImage: headerImagePath,
 			Body:        template.HTML(htmlBody),
+			Kind:        content.Kind,
 		}
+
+		blocks := BuildBlocks(content, contents)
 
 		data := PageData{
 			HeaderStyle: headerStyle,
 			AssetPath:   assetPath,
 			Menu:        menuSections,
 			Content:     pageContent,
+			Blocks:      blocks,
 		}
 
 		var buf bytes.Buffer
@@ -201,7 +205,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 			continue
 		}
 
-				outputPath := filepath.Join(contentDir, "index.html")
+		outputPath := filepath.Join(htmlPath, content.SectionPath, content.Slug(), "index.html")
 
 		if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
 			svc.Log().Error("Error creating directory for HTML file", "path", outputPath, "error", err)

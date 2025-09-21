@@ -32,7 +32,7 @@ DELETE FROM content WHERE id = :id;
 
 -- GetAllContentWithMeta
 SELECT
-    c.id, c.user_id, c.section_id, c.heading, c.body, c.draft, c.featured, c.published_at, c.short_id,
+    c.id, c.user_id, c.section_id, c.kind, c.heading, c.body, c.draft, c.featured, c.published_at, c.short_id,
     c.created_by, c.updated_by, c.created_at, c.updated_at,
     s.path AS section_path, s.name AS section_name,
     m.id AS meta_id, m.description, m.keywords, m.robots, m.canonical_url, m.sitemap, m.table_of_contents, m.share, m.comments,

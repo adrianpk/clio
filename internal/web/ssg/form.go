@@ -21,6 +21,7 @@ type ContentForm struct {
 	ID          string `json:"id"`
 	UserID      string `json:"user_id"`
 	SectionID   string `json:"section_id"`
+	Kind        string `json:"kind"`
 	Heading     string `json:"heading"`
 	Body        string `json:"body"`
 	Draft       bool   `json:"draft"`
@@ -56,6 +57,7 @@ func ContentFormFromRequest(r *http.Request) (ContentForm, error) {
 	form.ID = r.Form.Get("id")
 	form.UserID = r.Form.Get("user_id")
 	form.SectionID = r.Form.Get("section_id")
+	form.Kind = r.Form.Get("kind")
 	form.Heading = r.Form.Get("heading")
 	form.Body = r.Form.Get("body")
 	form.Tags = r.Form.Get("tags")
@@ -101,6 +103,7 @@ func ToFeatContent(form ContentForm) feat.Content {
 		}
 	}
 
+	content.Kind = form.Kind
 	content.Draft = form.Draft
 	content.Featured = form.Featured
 
@@ -157,6 +160,7 @@ func ToContentForm(r *http.Request, content feat.Content) ContentForm {
 	form.ID = content.GetID().String()
 	form.UserID = content.UserID.String()
 	form.SectionID = content.SectionID.String()
+	form.Kind = content.Kind
 	form.Heading = content.Heading
 	form.Body = content.Body
 	form.Draft = content.Draft

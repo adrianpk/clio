@@ -1,0 +1,24 @@
+{{define "blog-blocks"}}
+    <div class="space-y-8">
+        {{if .Blocks.BlogTagRelated}}
+            <div>
+                <h3 class="text-lg font-bold mb-2">Related in this blog</h3>
+                <ul>
+                    {{range .Blocks.BlogTagRelated}}
+                        <li><a href="../{{.Slug}}/index.html">{{.Heading}}</a></li>
+                    {{end}}
+                </ul>
+            </div>
+        {{end}}
+        {{if .Blocks.BlogRecent}}
+            <div>
+                <h3 class="text-lg font-bold mb-2">Recent in this blog</h3>
+                <ul>
+                    {{range .Blocks.BlogRecent}}
+                        <li><a href="../{{.Slug}}/index.html">{{.Heading}}</a></li>
+                    {{end}}
+                </ul>
+            </div>
+        {{end}}
+    </div>
+{{end}}
