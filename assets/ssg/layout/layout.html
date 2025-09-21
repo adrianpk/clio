@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Content.Heading}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #fdfdfd;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        h1 {
+            font-weight: 700;
+        }
+        nav {
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #eee;
+        }
+        nav a {
+            margin-right: 1rem;
+            text-decoration: none;
+            color: #333;
+            font-weight: 700;
+        }
+
+        /* Hero Styles */
+        .hero-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .hero-image {
+            width: 100%;
+            max-height: 450px;
+            object-fit: cover;
+            object-position: center;
+            display: block; /* Removes bottom space */
+        }
+
+        /* Stacked Style Specific */
+        .hero-stacked-image {
+             margin-bottom: 2rem;
+        }
+
+        /* Overlay Style */
+        .hero-wrapper.overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 1;
+        }
+        .hero-wrapper.overlay .hero-title {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            z-index: 2;
+            text-align: center;
+            width: 90%;
+        }
+
+        /* Boxed Style - Frosted Glass */
+        .hero-wrapper.boxed .hero-title-box {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.3); /* Light, translucent background */
+            backdrop-filter: blur(8px); /* The "frosted glass" effect */
+            -webkit-backdrop-filter: blur(8px); /* Safari support */
+            padding: 1.5rem 0;
+            z-index: 2;
+            border-top: 1px solid rgba(255, 255, 255, 0.5); /* Subtle top border */
+        }
+         .hero-wrapper.boxed .hero-title {
+            color: #333; /* Dark text for contrast against the light blur */
+            margin: 0;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="{{.AssetPath}}index.html">Home</a>
+            {{range .Menu}}
+            <a href="{{$.AssetPath}}{{.Path}}/index.html">{{.Name}}</a>
+            {{end}}
+        </div>
+    </nav>
+
+    {{if eq .HeaderStyle "text-only"}}
+        <div class="container">
+            <h1>{{.Content.Heading}}</h1>
+        </div>
+    {{else if eq .HeaderStyle "overlay"}}
+        <div class="hero-wrapper overlay">
+            <img class="hero-image" src="{{.Content.HeaderImage}}" alt="Header Image">
+            <h1 class="hero-title">{{.Content.Heading}}</h1>
+        </div>
+    {{else if eq .HeaderStyle "boxed"}}
+        <div class="hero-wrapper boxed">
+            <img class="hero-image" src="{{.Content.HeaderImage}}" alt="Header Image">
+            <div class="hero-title-box">
+                <h1 class="hero-title">{{.Content.Heading}}</h1>
+            </div>
+        </div>
+    {{else}} {{/* Default to stacked */}}
+        <img class="hero-image hero-stacked-image" src="{{.Content.HeaderImage}}" alt="Header Image">
+        <div class="container">
+            <h1>{{.Content.Heading}}</h1>
+        </div>
+    {{end}}
+
+    <div class="container">
+        <hr>
+        <main>
+            {{.Content.Body}}
+        </main>
+    </div>
+
+    <div class="container">
+        {{template "blocks" .}}
+    </div>
+</body>
+</html>

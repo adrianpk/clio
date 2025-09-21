@@ -1,0 +1,13 @@
+{{define "blocks"}}
+    {{if .Blocks}}
+        <div class="mt-8">
+            {{if eq .Content.Kind "article"}}
+                {{template "article-blocks" .}}
+            {{else if eq .Content.Kind "blog"}}
+                {{template "blog-blocks" .}}
+            {{else if eq .Content.Kind "series"}}
+                {{template "series-blocks" .}}
+            {{end}}
+        </div>
+    {{end}}
+{{end}}

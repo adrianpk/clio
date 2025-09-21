@@ -269,11 +269,19 @@ func (h *WebHandler) renderContentForm(w http.ResponseWriter, r *http.Request, f
 	tags := tagsResponse.Tags
 	h.Log().Debugf("Tags received: %+v", tags)
 
+	kinds := []am.SelectOpt{
+		{Value: "article", Label: "Article"},
+		{Value: "page", Label: "Page"},
+		{Value: "blog", Label: "Blog"},
+		{Value: "series", Label: "Series"},
+	}
+
 	page := am.NewPage(r, content)
 	page.SetForm(&form)
 	page.AddSelect("sections", am.ToSelectOpt(am.ToPtrSlice(sections)))
 	page.AddSelect("users", am.ToSelectOpt(am.ToPtrSlice(users)))
 	page.AddSelect("tags", am.ToSelectOpt(am.ToPtrSlice(tags)))
+	page.AddSelect("kinds", kinds)
 
 	if content.IsZero() {
 		page.Name = "New Content"

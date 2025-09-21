@@ -8,6 +8,7 @@ type PageData struct {
 	AssetPath   string
 	Menu        []Section
 	Content     PageContent
+	Blocks      *GeneratedBlocks
 }
 
 // PageContent holds the specific content to be rendered in the template.
@@ -15,4 +16,5 @@ type PageContent struct {
 	Heading     string
 	HeaderImage string
 	Body        template.HTML
+	Kind        string
 }

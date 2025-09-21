@@ -1,0 +1,31 @@
+{{define "series-blocks"}}
+    <div class="space-y-8">
+        {{if or .Blocks.SeriesPrev .Blocks.SeriesNext}}
+            <div>
+                <h3 class="text-lg font-bold mb-2">Series Navigation</h3>
+                <div class="flex justify-between">
+                    {{if .Blocks.SeriesPrev}}
+                        <a href="../{{.Blocks.SeriesPrev.Slug}}/index.html">&lt;- {{.Blocks.SeriesPrev.Heading}}</a>
+                    {{end}}
+                    {{if .Blocks.SeriesNext}}
+                        <a href="../{{.Blocks.SeriesNext.Slug}}/index.html">{{.Blocks.SeriesNext.Heading}} -&gt;</a>
+                    {{end}}
+                </div>
+            </div>
+        {{end}}
+        {{if or .Blocks.SeriesIndexForward .Blocks.SeriesIndexBackward}}
+            <div>
+                <h3 class="text-lg font-bold mb-2">Series Index</h3>
+                <ul>
+                    {{range .Blocks.SeriesIndexBackward}}
+                        <li><a href="../{{.Slug}}/index.html">&lt;- {{.Heading}}</a></li>
+                    {{end}}
+                    <li class="font-bold">{{.Content.Heading}}</li>
+                    {{range .Blocks.SeriesIndexForward}}
+                        <li><a href="../{{.Slug}}/index.html">{{.Heading}} -&gt;</a></li>
+                    {{end}}
+                </ul>
+            </div>
+        {{end}}
+    </div>
+{{end}}

@@ -189,7 +189,13 @@ func (tm *TemplateManager) Setup(ctx context.Context) error {
 // RegisterFuncs registers custom template functions.
 func RegisterFuncs(tmpl *template.Template) *template.Template {
 	return tmpl.Funcs(template.FuncMap{
-		"FieldMsg": FieldMsg,
+		"FieldMsg":   FieldMsg,
+		"EditPath":   EditPath,
+		"ListPath":   ListPath,
+		"CreatePath": CreatePath,
+		"UpdatePath": UpdatePath,
+		"ShowPath":   ShowPath,
+		"DeletePath": DeletePath,
 	})
 }
 
