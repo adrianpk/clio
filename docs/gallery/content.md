@@ -30,7 +30,7 @@ A distraction-free writing environment that focuses solely on the markdown edito
 
 An example of a generated markdown file, including the YAML frontmatter created from the content's metadata.
 
-![Generated Markdown](../img/generated-markdown.png)
+![Generated Markdown](../img/generated-html-blocks.png)
 
 ---
 
