@@ -53,7 +53,7 @@ type Service interface {
 }
 
 // BaseService is the concrete implementation of the Service interface.
-type BaseService struct {
+	type BaseService struct {
 	*am.Service
 	assetsFS embed.FS
 	repo     Repo
@@ -189,7 +189,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 			Kind:        content.Kind,
 		}
 
-		blocks := BuildBlocks(content, contents)
+		blocks := BuildBlocks(content, contents, int(svc.Cfg().IntVal(am.Key.SSGBlocksMaxItems, 5)))
 
 		data := PageData{
 			HeaderStyle: headerStyle,

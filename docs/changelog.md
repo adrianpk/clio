@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **SSG:** Implement a configurable limit (`CLIO_SSG_BLOCKS_MAXITEMS`) for the maximum number of items displayed in content blocks.
+- **SSG:** Enforce a cascading hierarchy in block generation to ensure content appears only in the most relevant block.
+
 ## [2025-09-20]
 
 ### Added

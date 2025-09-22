@@ -137,6 +137,7 @@ setenv:
 	@echo "Setting render errors..."
 	@export CLIO_RENDER_WEB_ERRORS="true"
 	@export CLIO_RENDER_API_ERRORS="true"
+	@export CLIO_SSG_BLOCKS_MAXITEMS=5
 
 # Run tests
 test:

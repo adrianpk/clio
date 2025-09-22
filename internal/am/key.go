@@ -42,8 +42,9 @@ type Keys struct {
 	SSGHTMLPath      string
 	SSGLayoutPath    string
 	SSGHeaderStyle   string
-	SSGAssetsPath    string
-	SSGImagesPath    string
+	SSGAssetsPath     string
+	SSGImagesPath     string
+	SSGBlocksMaxItems string
 }
 
 var Key = Keys{
@@ -90,4 +91,5 @@ var Key = Keys{
 	SSGHeaderStyle:   "ssg.header.style",
 	SSGAssetsPath:    "ssg.assets.path",
 	SSGImagesPath:    "ssg.images.path",
+	SSGBlocksMaxItems: "ssg.blocks.maxitems",
 }
