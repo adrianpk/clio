@@ -23,6 +23,7 @@ type Content struct {
 	Kind        string     `json:"kind" db:"kind"`
 	Image       string     `json:"image,omitempty" db:"image"`
 	Heading     string     `json:"heading" db:"heading"`
+	Summary     string     `json:"summary" db:"summary"`
 	Body        string     `json:"body" db:"body"`
 	Draft       bool       `json:"draft" db:"draft"`
 	Featured    bool       `json:"featured" db:"featured"`

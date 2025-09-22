@@ -45,6 +45,7 @@ type Keys struct {
 	SSGAssetsPath     string
 	SSGImagesPath     string
 	SSGBlocksMaxItems string
+	SSGPostsPerPage   string
 }
 
 var Key = Keys{
@@ -92,4 +93,5 @@ var Key = Keys{
 	SSGAssetsPath:    "ssg.assets.path",
 	SSGImagesPath:    "ssg.images.path",
 	SSGBlocksMaxItems: "ssg.blocks.maxitems",
+	SSGPostsPerPage:   "ssg.posts.per.page",
 }

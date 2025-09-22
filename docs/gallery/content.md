@@ -32,6 +32,12 @@ An example of a generated markdown file, including the YAML frontmatter created 
 
 ![Generated Markdown](../img/generated-html-blocks.png)
 
+## Section Index (WIP)
+
+A draft of the section index page. The content shown is algorithmically generated, and a placeholder is shown as the image.
+
+![Section Index Draft](../img/section-index-draft.png)
+
 ---
 
 # Header Styles Gallery
