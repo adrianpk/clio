@@ -96,3 +96,9 @@ Index pages are generated with the following URL structure:
 -   **Paginated Index:** `/<section-name>/page/2/index.html`
 
 ---
+
+## Prototyping with Tailwind CSS
+
+For rapid prototyping, the default templates are styled using Tailwind CSS, loaded via a CDN. This allows for quick iteration on the visual presentation of the index pages.
+
+For production, we should consider a more minimalist, custom CSS approach or a pruned build of Tailwind to reduce dependencies and improve performance. The default templates may be updated in the future to reflect this, or alternative templates may be provided.

@@ -2,6 +2,8 @@
 CREATE TABLE meta (
     id TEXT PRIMARY KEY,
     content_id TEXT NOT NULL UNIQUE,
+    summary TEXT NOT NULL DEFAULT '',
+    excerpt TEXT NOT NULL DEFAULT '',
     description TEXT NOT NULL DEFAULT '',
     keywords TEXT NOT NULL DEFAULT '',
     robots TEXT NOT NULL DEFAULT '',

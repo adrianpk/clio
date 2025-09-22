@@ -414,6 +414,8 @@
     {
       "content_ref": "intro-to-golang",
       "description": "A beginner's guide to the Go programming language, covering the basics and core concepts.",
+      "summary": "A beginner's guide to the Go programming language.",
+      "excerpt": "Go is a statically typed, compiled programming language designed at Google.",
       "keywords": "golang, programming, introduction, google",
       "robots": "index, follow",
       "canonical_url": "",
@@ -425,6 +427,8 @@
     {
       "content_ref": "go-generics",
       "description": "An overview of how to use generics in Go (Golang) since version 1.18.",
+      "summary": "An overview of how to use generics in Go.",
+      "excerpt": "Go introduced generics in version 1.18.",
       "keywords": "golang, programming, generics",
       "robots": "index, follow",
       "canonical_url": "",
@@ -436,6 +440,8 @@
     {
       "content_ref": "what-is-nats",
       "description": "A primer on the NATS messaging system for cloud-native architectures.",
+      "summary": "A primer on the NATS messaging system.",
+      "excerpt": "NATS is a simple, high-performance open-source messaging system.",
       "keywords": "nats, messaging, cloud-native, microservices",
       "robots": "index, follow",
       "canonical_url": "",
@@ -447,6 +453,8 @@
     {
       "content_ref": "hashicorp-nomad",
       "description": "Understanding the basics of HashiCorp Nomad for workload orchestration.",
+      "summary": "Understanding the basics of HashiCorp Nomad.",
+      "excerpt": "Nomad is a simple and flexible workload orchestrator.",
       "keywords": "nomad, hashicorp, orchestration, containers",
       "robots": "noindex, nofollow",
       "canonical_url": "",
@@ -458,6 +466,8 @@
     {
       "content_ref": "kubernetes-basics",
       "description": "A foundational look at Kubernetes (K8s) for container orchestration.",
+      "summary": "A foundational look at Kubernetes (K8s).",
+      "excerpt": "Kubernetes, also known as K8s, is an open-source system for automating deployment, scaling, and management of containerized applications.",
       "keywords": "kubernetes, k8s, orchestration, containers, cloud-native",
       "robots": "index, follow",
       "canonical_url": "",
@@ -469,6 +479,8 @@
     {
       "content_ref": "page-root",
       "description": "A page about the Root section.",
+      "summary": "A page about the Root section.",
+      "excerpt": "This is a page about the Root section.",
       "keywords": "root, page",
       "robots": "index, follow",
       "canonical_url": "",
@@ -480,6 +492,8 @@
     {
       "content_ref": "article-root-1",
       "description": "Article 1 about the Root section.",
+      "summary": "Article 1 about the Root section.",
+      "excerpt": "This is article 1 about Root.",
       "keywords": "root, article, article 1",
       "robots": "index, follow",
       "canonical_url": "",
@@ -491,6 +505,8 @@
     {
       "content_ref": "article-root-2",
       "description": "Article 2 about the Root section.",
+      "summary": "Article 2 about the Root section.",
+      "excerpt": "This is article 2 about Root.",
       "keywords": "root, article, article 2",
       "robots": "index, follow",
       "canonical_url": "",
@@ -502,6 +518,8 @@
     {
       "content_ref": "article-root-3",
       "description": "Article 3 about the Root section.",
+      "summary": "Article 3 about the Root section.",
+      "excerpt": "This is article 3 about Root.",
       "keywords": "root, article, article 3",
       "robots": "index, follow",
       "canonical_url": "",
@@ -513,6 +531,8 @@
     {
       "content_ref": "blog-root-1",
       "description": "Blog post 1 about the Root section.",
+      "summary": "Blog post 1 about the Root section.",
+      "excerpt": "This is blog post 1 about Root.",
       "keywords": "root, blog, blog post 1",
       "robots": "index, follow",
       "canonical_url": "",
@@ -524,6 +544,8 @@
     {
       "content_ref": "blog-root-2",
       "description": "Blog post 2 about the Root section.",
+      "summary": "Blog post 2 about the Root section.",
+      "excerpt": "This is blog post 2 about Root.",
       "keywords": "root, blog, blog post 2",
       "robots": "index, follow",
       "canonical_url": "",
@@ -535,6 +557,8 @@
     {
       "content_ref": "blog-root-3",
       "description": "Blog post 3 about the Root section.",
+      "summary": "Blog post 3 about the Root section.",
+      "excerpt": "This is blog post 3 about Root.",
       "keywords": "root, blog, blog post 3",
       "robots": "index, follow",
       "canonical_url": "",
@@ -546,6 +570,8 @@
     {
       "content_ref": "page-tech",
       "description": "A page about the Tech section.",
+      "summary": "A page about the Tech section.",
+      "excerpt": "This is a page about the Tech section.",
       "keywords": "tech, page",
       "robots": "index, follow",
       "canonical_url": "",
@@ -557,6 +583,8 @@
     {
       "content_ref": "article-tech-1",
       "description": "Article 1 about the Tech section.",
+      "summary": "Article 1 about the Tech section.",
+      "excerpt": "This is article 1 about Tech.",
       "keywords": "tech, article, article 1",
       "robots": "index, follow",
       "canonical_url": "",
@@ -568,6 +596,8 @@
     {
       "content_ref": "article-tech-2",
       "description": "Article 2 about the Tech section.",
+      "summary": "Article 2 about the Tech section.",
+      "excerpt": "This is article 2 about Tech.",
       "keywords": "tech, article, article 2",
       "robots": "index, follow",
       "canonical_url": "",
@@ -579,6 +609,8 @@
     {
       "content_ref": "article-tech-3",
       "description": "Article 3 about the Tech section.",
+      "summary": "Article 3 about the Tech section.",
+      "excerpt": "This is article 3 about Tech.",
       "keywords": "tech, article, article 3",
       "robots": "index, follow",
       "canonical_url": "",
@@ -590,6 +622,8 @@
     {
       "content_ref": "blog-tech-1",
       "description": "Blog post 1 about the Tech section.",
+      "summary": "Blog post 1 about the Tech section.",
+      "excerpt": "This is blog post 1 about Tech.",
       "keywords": "tech, blog, blog post 1",
       "robots": "index, follow",
       "canonical_url": "",
@@ -601,6 +635,8 @@
     {
       "content_ref": "blog-tech-2",
       "description": "Blog post 2 about the Tech section.",
+      "summary": "Blog post 2 about the Tech section.",
+      "excerpt": "This is blog post 2 about Tech.",
       "keywords": "tech, blog, blog post 2",
       "robots": "index, follow",
       "canonical_url": "",
@@ -612,6 +648,8 @@
     {
       "content_ref": "blog-tech-3",
       "description": "Blog post 3 about the Tech section.",
+      "summary": "Blog post 3 about the Tech section.",
+      "excerpt": "This is blog post 3 about Tech.",
       "keywords": "tech, blog, blog post 3",
       "robots": "index, follow",
       "canonical_url": "",
@@ -623,6 +661,8 @@
     {
       "content_ref": "page-philosophy",
       "description": "A page about the Philosophy section.",
+      "summary": "A page about the Philosophy section.",
+      "excerpt": "This is a page about the Philosophy section.",
       "keywords": "philosophy, page",
       "robots": "index, follow",
       "canonical_url": "",
@@ -634,6 +674,8 @@
     {
       "content_ref": "article-philosophy-1",
       "description": "Article 1 about the Philosophy section.",
+      "summary": "Article 1 about the Philosophy section.",
+      "excerpt": "This is article 1 about Philosophy.",
       "keywords": "philosophy, article, article 1",
       "robots": "index, follow",
       "canonical_url": "",
@@ -645,6 +687,8 @@
     {
       "content_ref": "article-philosophy-2",
       "description": "Article 2 about the Philosophy section.",
+      "summary": "Article 2 about the Philosophy section.",
+      "excerpt": "This is article 2 about Philosophy.",
       "keywords": "philosophy, article, article 2",
       "robots": "index, follow",
       "canonical_url": "",
@@ -656,6 +700,8 @@
     {
       "content_ref": "article-philosophy-3",
       "description": "Article 3 about the Philosophy section.",
+      "summary": "Article 3 about the Philosophy section.",
+      "excerpt": "This is article 3 about Philosophy.",
       "keywords": "philosophy, article, article 3",
       "robots": "index, follow",
       "canonical_url": "",
@@ -667,6 +713,8 @@
     {
       "content_ref": "blog-philosophy-1",
       "description": "Blog post 1 about the Philosophy section.",
+      "summary": "Blog post 1 about the Philosophy section.",
+      "excerpt": "This is blog post 1 about Philosophy.",
       "keywords": "philosophy, blog, blog post 1",
       "robots": "index, follow",
       "canonical_url": "",
@@ -678,6 +726,8 @@
     {
       "content_ref": "blog-philosophy-2",
       "description": "Blog post 2 about the Philosophy section.",
+      "summary": "Blog post 2 about the Philosophy section.",
+      "excerpt": "This is blog post 2 about Philosophy.",
       "keywords": "philosophy, blog, blog post 2",
       "robots": "index, follow",
       "canonical_url": "",
@@ -689,6 +739,8 @@
     {
       "content_ref": "blog-philosophy-3",
       "description": "Blog post 3 about the Philosophy section.",
+      "summary": "Blog post 3 about the Philosophy section.",
+      "excerpt": "This is blog post 3 about Philosophy.",
       "keywords": "philosophy, blog, blog post 3",
       "robots": "index, follow",
       "canonical_url": "",
@@ -700,6 +752,8 @@
     {
       "content_ref": "page-food",
       "description": "A page about the Food section.",
+      "summary": "A page about the Food section.",
+      "excerpt": "This is a page about the Food section.",
       "keywords": "food, page",
       "robots": "index, follow",
       "canonical_url": "",
@@ -711,6 +765,8 @@
     {
       "content_ref": "article-food-1",
       "description": "Article 1 about the Food section.",
+      "summary": "Article 1 about the Food section.",
+      "excerpt": "This is article 1 about Food.",
       "keywords": "food, article, article 1",
       "robots": "index, follow",
       "canonical_url": "",
@@ -722,6 +778,8 @@
     {
       "content_ref": "article-food-2",
       "description": "Article 2 about the Food section.",
+      "summary": "Article 2 about the Food section.",
+      "excerpt": "This is article 2 about Food.",
       "keywords": "food, article, article 2",
       "robots": "index, follow",
       "canonical_url": "",
@@ -733,6 +791,8 @@
     {
       "content_ref": "article-food-3",
       "description": "Article 3 about the Food section.",
+      "summary": "Article 3 about the Food section.",
+      "excerpt": "This is article 3 about Food.",
       "keywords": "food, article, article 3",
       "robots": "index, follow",
       "canonical_url": "",
@@ -744,6 +804,8 @@
     {
       "content_ref": "blog-food-1",
       "description": "Blog post 1 about the Food section.",
+      "summary": "Blog post 1 about the Food section.",
+      "excerpt": "This is blog post 1 about Food.",
       "keywords": "food, blog, blog post 1",
       "robots": "index, follow",
       "canonical_url": "",
@@ -755,6 +817,8 @@
     {
       "content_ref": "blog-food-2",
       "description": "Blog post 2 about the Food section.",
+      "summary": "Blog post 2 about the Food section.",
+      "excerpt": "This is blog post 2 about Food.",
       "keywords": "food, blog, blog post 2",
       "robots": "index, follow",
       "canonical_url": "",
@@ -766,6 +830,8 @@
     {
       "content_ref": "blog-food-3",
       "description": "Blog post 3 about the Food section.",
+      "summary": "Blog post 3 about the Food section.",
+      "excerpt": "This is blog post 3 about Food.",
       "keywords": "food, blog, blog post 3",
       "robots": "index, follow",
       "canonical_url": "",

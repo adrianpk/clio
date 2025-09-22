@@ -53,7 +53,7 @@ type Service interface {
 }
 
 // BaseService is the concrete implementation of the Service interface.
-	type BaseService struct {
+type BaseService struct {
 	*am.Service
 	assetsFS embed.FS
 	repo     Repo
@@ -100,6 +100,8 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		return fmt.Errorf("cannot get sections: %w", err)
 	}
 
+	
+
 	var menuSections []Section
 	for _, s := range sections {
 		if s.Name != "root" {
@@ -107,10 +109,17 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		}
 	}
 
-	tmplPath := svc.Cfg().StrValOrDef(am.Key.SSGLayoutPath, "assets/ssg/layout/layout.html")
-	tmpl, err := template.ParseFiles(tmplPath, "assets/ssg/partial/blocks.tmpl", "assets/ssg/partial/article-blocks.tmpl", "assets/ssg/partial/blog-blocks.tmpl", "assets/ssg/partial/series-blocks.tmpl")
+	layoutPath := svc.Cfg().StrValOrDef(am.Key.SSGLayoutPath, "assets/ssg/layout/layout.html")
+	tmpl, err := template.ParseFS(svc.assetsFS,
+		layoutPath,
+		"assets/ssg/partial/list.tmpl",
+		"assets/ssg/partial/blocks.tmpl",
+		"assets/ssg/partial/article-blocks.tmpl",
+		"assets/ssg/partial/blog-blocks.tmpl",
+		"assets/ssg/partial/series-blocks.tmpl",
+	)
 	if err != nil {
-		return fmt.Errorf("cannot parse template from file: %w", err)
+		return fmt.Errorf("cannot parse template from embedded fs: %w", err)
 	}
 
 	processor := NewMarkdownProcessor()
@@ -213,15 +222,137 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		}
 
 		if err := os.WriteFile(outputPath, buf.Bytes(), 0644); err != nil {
-			svc.Log().Error("Error writing HTML file", "path", outputPath, "error", err)
+				svc.Log().Error("Error writing HTML file", "path", outputPath, "error", err)
+				continue
+			}
+	}
+
+	// Generate index pages
+	svc.Log().Info("Building site indexes...")
+	indexes := BuildIndexes(contents, sections)
+
+	// Create a lookup map for manual index pages
+	manualIndexPages := make(map[string]bool)
+	for _, c := range contents {
+		if strings.ToLower(c.Kind) == "page" && c.Slug() == "index" {
+			manualIndexPages[c.SectionPath] = true
+		}
+	}
+
+	postsPerPage := int(svc.Cfg().IntVal(am.Key.SSGPostsPerPage, 10))
+
+	for _, index := range indexes {
+		// Check if a manual index page exists for this path
+		if manualIndexPages[index.Path] {
+			svc.Log().Info(fmt.Sprintf("Skipping index generation for '%s': manual index page found.", index.Path))
 			continue
+		}
+
+		// Paginate the content
+		totalContent := len(index.Content)
+		if totalContent == 0 {
+			continue
+		}
+		totalPages := (totalContent + postsPerPage - 1) / postsPerPage
+
+		for page := 1; page <= totalPages; page++ {
+			start := (page - 1) * postsPerPage
+			end := start + postsPerPage
+			if end > totalContent {
+				end = totalContent
+			}
+			pageContent := index.Content[start:end]
+
+			// Determine output path for the index page
+			var outputPath string
+			if page == 1 {
+				outputPath = filepath.Join(htmlPath, index.Path, "index.html")
+			} else {
+				outputPath = filepath.Join(htmlPath, index.Path, "page", fmt.Sprintf("%d", page), "index.html")
+			}
+
+			// Calculate asset path for relative links
+			pagePath := strings.TrimPrefix(filepath.Dir(outputPath), htmlPath)
+			depth := strings.Count(strings.Trim(pagePath, "/"), "/")
+			assetPath := "./"
+			if pagePath != "" && pagePath != "/" {
+				depth++
+			}
+			if depth > 0 {
+				assetPath = strings.Repeat("../", depth)
+			}
+
+			// Create img directory and copy placeholder
+			imgDir := filepath.Join(filepath.Dir(outputPath), "img")
+			if err := os.MkdirAll(imgDir, 0755); err != nil {
+				return fmt.Errorf("cannot create img directory for placeholder: %w", err)
+			}
+			placeholderSrc := "assets/static/img/placeholder.png"
+			placeholderDst := filepath.Join(imgDir, "placeholder.png")
+			if err := copyFile(svc.assetsFS, placeholderSrc, placeholderDst); err != nil {
+				return fmt.Errorf("cannot copy placeholder image: %w", err)
+			}
+
+			// Set placeholder for content without image
+			for i := range pageContent {
+				if pageContent[i].Image == "" {
+					pageContent[i].Image = "img/placeholder.png"
+				}
+			}
+
+			// Set placeholder for content without image
+			for i := range pageContent {
+				if pageContent[i].Image == "" {
+					pageContent[i].Image = "/static/img/placeholder.png"
+				}
+			}
+
+			// Prepare pagination data
+			pagination := &PaginationData{
+				CurrentPage: page,
+				TotalPages:  totalPages,
+			}
+			if page > 1 {
+				if page == 2 {
+					pagination.PrevPageURL = assetPath + strings.TrimSuffix(index.Path, "/")
+			} else {
+					pagination.PrevPageURL = fmt.Sprintf("%spage/%d", assetPath, page-1)
+			}
+			}
+			if page < totalPages {
+				pagination.NextPageURL = fmt.Sprintf("%spage/%d", assetPath, page+1)
+			}
+
+			data := PageData{
+				HeaderStyle:     headerStyle,
+				AssetPath:       assetPath,
+				Menu:            menuSections,
+				IsIndex:         true,
+				ListPageContent: pageContent,
+				Pagination:      pagination,
+			}
+
+			var buf bytes.Buffer
+			if err := tmpl.Execute(&buf, data); err != nil {
+				svc.Log().Error("Error executing template for index", "path", index.Path, "error", err)
+				continue
+			}
+
+			if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
+				svc.Log().Error("Error creating directory for index file", "path", outputPath, "error", err)
+				continue
+			}
+
+			if err := os.WriteFile(outputPath, buf.Bytes(), 0644); err != nil {
+				svc.Log().Error("Error writing index HTML file", "path", outputPath, "error", err)
+				continue
+			}
 		}
 	}
 
 	svc.Log().Info("Service HTML generation finished")
 	return nil
 }
-
 
 // Content related
 

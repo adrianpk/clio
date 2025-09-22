@@ -18,6 +18,8 @@ type Meta struct {
 	mType           string
 	ShortID         string    `json:"-" db:"short_id"`
 	ContentID       uuid.UUID `json:"content_id" db:"content_id"`
+	Summary         string    `json:"summary" db:"summary"`
+	Excerpt         string    `json:"excerpt" db:"excerpt"`
 	Description     string    `json:"description" db:"description"`
 	Keywords        string    `json:"keywords" db:"keywords"`
 	Robots          string    `json:"robots" db:"robots"`

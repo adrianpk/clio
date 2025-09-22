@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{.Content.Heading}}</title>
+    <title>{{if .IsIndex}}Index{{else}}{{.Content.Heading}}{{end}}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
@@ -95,8 +95,15 @@
         }
 
     </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!--
+        NOTE: Tailwind CSS is used for prototyping purposes.
+        For production, we should consider a more minimalist approach
+        or a custom build of Tailwind CSS.
+    -->
 </head>
 <body>
+    <!-- DIAGNOSTIC: IsIndex = {{.IsIndex}} -->
     <nav>
         <div class="container">
             <a href="{{.AssetPath}}index.html">Home</a>
@@ -106,35 +113,48 @@
         </div>
     </nav>
 
-    {{if eq .HeaderStyle "text-only"}}
+    {{if .IsIndex}}
+        <!-- Index Page View -->
         <div class="container">
-            <h1>{{.Content.Heading}}</h1>
+            <h1>Index</h1>
         </div>
-    {{else if eq .HeaderStyle "overlay"}}
-        <div class="hero-wrapper overlay">
-            <img class="hero-image" src="{{.Content.HeaderImage}}" alt="Header Image">
-            <h1 class="hero-title">{{.Content.Heading}}</h1>
+        <div class="container">
+            <main>
+                {{template "list.tmpl" .ListPageContent}}
+            </main>
         </div>
-    {{else if eq .HeaderStyle "boxed"}}
-        <div class="hero-wrapper boxed">
-            <img class="hero-image" src="{{.Content.HeaderImage}}" alt="Header Image">
-            <div class="hero-title-box">
+    {{else}}
+        <!-- Single Content Page View -->
+        {{if eq .HeaderStyle "text-only"}}
+            <div class="container">
+                <h1>{{.Content.Heading}}</h1>
+            </div>
+        {{else if eq .HeaderStyle "overlay"}}
+            <div class="hero-wrapper overlay">
+                <img class="hero-image" src="{{.Content.HeaderImage}}" alt="Header Image">
                 <h1 class="hero-title">{{.Content.Heading}}</h1>
             </div>
-        </div>
-    {{else}} {{/* Default to stacked */}}
-        <img class="hero-image hero-stacked-image" src="{{.Content.HeaderImage}}" alt="Header Image">
+        {{else if eq .HeaderStyle "boxed"}}
+            <div class="hero-wrapper boxed">
+                <img class="hero-image" src="{{.Content.HeaderImage}}" alt="Header Image">
+                <div class="hero-title-box">
+                    <h1 class="hero-title">{{.Content.Heading}}</h1>
+                </div>
+            </div>
+        {{else}} {{/* Default to stacked */}}
+            <img class="hero-image hero-stacked-image" src="{{.Content.HeaderImage}}" alt="Header Image">
+            <div class="container">
+                <h1>{{.Content.Heading}}</h1>
+            </div>
+        {{end}}
+
         <div class="container">
-            <h1>{{.Content.Heading}}</h1>
+            <hr>
+            <main>
+                {{.Content.Body}}
+            </main>
         </div>
     {{end}}
-
-    <div class="container">
-        <hr>
-        <main>
-            {{.Content.Body}}
-        </main>
-    </div>
 
     <div class="container">
         {{template "blocks" .}}
