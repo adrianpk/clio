@@ -27,22 +27,29 @@ type GeneratedBlocks struct {
 
 // BuildBlocks takes the current content and a list of all other content,
 // and returns a GeneratedBlocks struct with all potential blocks pre-calculated.
-func BuildBlocks(current Content, allContent []Content) *GeneratedBlocks {
+func BuildBlocks(current Content, allContent []Content, maxItems int) *GeneratedBlocks {
 	blocks := &GeneratedBlocks{}
 
 	switch current.Kind {
 	case "article":
-		buildArticleBlocks(blocks, current, allContent)
+		buildArticleBlocks(blocks, current, allContent, maxItems)
 	case "blog":
-		buildBlogBlocks(blocks, current, allContent)
+		buildBlogBlocks(blocks, current, allContent, maxItems)
 	case "series":
-		buildSeriesBlocks(blocks, current, allContent)
+		buildSeriesBlocks(blocks, current, allContent, maxItems)
 	}
 
 	return blocks
 }
 
-func buildArticleBlocks(blocks *GeneratedBlocks, current Content, allContent []Content) {
+func limit(content []Content, max int) []Content {
+	if len(content) > max {
+		return content[:max]
+	}
+	return content
+}
+
+func buildArticleBlocks(blocks *GeneratedBlocks, current Content, allContent []Content, maxItems int) {
 	added := make(map[uuid.UUID]bool)
 	added[current.ID] = true
 
@@ -85,6 +92,12 @@ func buildArticleBlocks(blocks *GeneratedBlocks, current Content, allContent []C
 	sort.Slice(blocks.ArticleRecentAllSections, func(i, j int) bool {
 		return blocks.ArticleRecentAllSections[i].PublishedAt.After(*blocks.ArticleRecentAllSections[j].PublishedAt)
 	})
+
+	// Apply limits
+	blocks.ArticleTagRelatedSameSection = limit(blocks.ArticleTagRelatedSameSection, maxItems)
+	blocks.ArticleRecentSameSection = limit(blocks.ArticleRecentSameSection, maxItems)
+	blocks.ArticleTagRelatedAllSections = limit(blocks.ArticleTagRelatedAllSections, maxItems)
+	blocks.ArticleRecentAllSections = limit(blocks.ArticleRecentAllSections, maxItems)
 }
 
 func hasCommonTags(c1, c2 Content) bool {
@@ -98,25 +111,35 @@ func hasCommonTags(c1, c2 Content) bool {
 	return false
 }
 
-func buildBlogBlocks(blocks *GeneratedBlocks, current Content, allContent []Content) {
-	for _, c := range allContent {
-		if c.ID == current.ID || c.Kind != "blog" || c.SectionID != current.SectionID {
-			continue
-		}
+func buildBlogBlocks(blocks *GeneratedBlocks, current Content, allContent []Content, maxItems int) {
+	added := make(map[uuid.UUID]bool)
+	added[current.ID] = true
 
-		if hasCommonTags(current, c) {
+	for _, c := range allContent {
+		if c.Kind == "blog" && c.SectionID == current.SectionID && hasCommonTags(current, c) && !added[c.ID] {
 			blocks.BlogTagRelated = append(blocks.BlogTagRelated, c)
+			added[c.ID] = true
 		}
-		blocks.BlogRecent = append(blocks.BlogRecent, c)
+	}
+
+	for _, c := range allContent {
+		if c.Kind == "blog" && c.SectionID == current.SectionID && !added[c.ID] {
+			blocks.BlogRecent = append(blocks.BlogRecent, c)
+			added[c.ID] = true
+		}
 	}
 
 	// Sort recent block by date
 	sort.Slice(blocks.BlogRecent, func(i, j int) bool {
 		return blocks.BlogRecent[i].PublishedAt.After(*blocks.BlogRecent[j].PublishedAt)
 	})
+
+	// Apply limits
+	blocks.BlogTagRelated = limit(blocks.BlogTagRelated, maxItems)
+	blocks.BlogRecent = limit(blocks.BlogRecent, maxItems)
 }
 
-func buildSeriesBlocks(blocks *GeneratedBlocks, current Content, allContent []Content) {
+func buildSeriesBlocks(blocks *GeneratedBlocks, current Content, allContent []Content, maxItems int) {
 	if current.Kind != "series" || current.Series == "" {
 		return // Not part of a series
 	}
@@ -177,4 +200,8 @@ func buildSeriesBlocks(blocks *GeneratedBlocks, current Content, allContent []Co
 		}
 		blocks.SeriesIndexBackward = backwardContent
 	}
+
+	// Apply limits
+	blocks.SeriesIndexForward = limit(blocks.SeriesIndexForward, maxItems)
+	blocks.SeriesIndexBackward = limit(blocks.SeriesIndexBackward, maxItems)
 }
