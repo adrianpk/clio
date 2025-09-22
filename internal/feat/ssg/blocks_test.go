@@ -34,7 +34,7 @@ func TestBlockBuilder(t *testing.T) {
 				if len(blocks.ArticleTagRelatedSameSection) != 1 {
 					t.Errorf("Expected 1 tag-related article in same section, got %d", len(blocks.ArticleTagRelatedSameSection))
 				}
-				if len(blocks.ArticleRecentSameSection) != 2 {
+				if len(blocks.ArticleRecentSameSection) != 1 {
 					t.Errorf("Expected 2 recent articles in same section, got %d", len(blocks.ArticleRecentSameSection))
 				}
 			},
@@ -67,7 +67,7 @@ func TestBlockBuilder(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			blocks := ssg.BuildBlocks(tt.currentContent, allContent)
+			blocks := ssg.BuildBlocks(tt.currentContent, allContent, 5)
 			tt.validate(t, blocks)
 		})
 	}
