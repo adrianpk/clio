@@ -12,6 +12,10 @@ type Keys struct {
 	ServerResPath      string
 	ServerIndexEnabled string
 
+	ServerPreviewHost    string
+	ServerPreviewPort    string
+	ServerPreviewEnabled string
+
 	DBSQLiteDSN string
 
 	SecCSRFKey       string
@@ -59,6 +63,10 @@ var Key = Keys{
 	ServerAPIEnabled:   "server.api.enabled",
 	ServerResPath:      "server.res.path",
 	ServerIndexEnabled: "server.index.enabled",
+
+	ServerPreviewHost:    "server.preview.host",
+	ServerPreviewPort:    "server.preview.port",
+	ServerPreviewEnabled: "server.preview.enabled",
 
 	DBSQLiteDSN: "db.sqlite.dsn",
 

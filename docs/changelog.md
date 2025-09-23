@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Preview Server:** A new web server running on port 8082 by default now serves the generated static site from `_workspace/documents/html`. This allows for a more realistic preview of the site with correct asset paths, without requiring a server restart for content changes.
 - **SSG:** Implement a configurable limit (`CLIO_SSG_BLOCKS_MAXITEMS`) for the maximum number of items displayed in content blocks.
 - **SSG:** Enforce a cascading hierarchy in block generation to ensure content appears only in the most relevant block.
 

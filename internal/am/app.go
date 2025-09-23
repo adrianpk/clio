@@ -208,6 +208,14 @@ func (a *App) Start(ctx context.Context) error {
 		go a.StartServer(apiServer, apiServer.Addr)
 	}
 
+	if a.Cfg().BoolVal(Key.ServerPreviewEnabled, true) {
+		previewServer := &http.Server{
+			Addr:    a.Cfg().PreviewAddr(),
+			Handler: http.FileServer(http.Dir(a.Cfg().StrValOrDef(Key.SSGHTMLPath, "_workspace/documents/html"))),
+		}
+		go a.StartServer(previewServer, previewServer.Addr)
+	}
+
 	return nil
 }
 

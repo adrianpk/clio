@@ -7,6 +7,9 @@ var Flags = map[string]interface{}{
 	Key.ServerAPIHost:    "localhost",
 	Key.ServerAPIPort:    "8081",
 	Key.ServerAPIEnabled: true,
+	Key.ServerPreviewHost:    "localhost",
+	Key.ServerPreviewPort:    "8082",
+	Key.ServerPreviewEnabled: true,
 	Key.ServerResPath:    "/res",
 
 	// SSG
