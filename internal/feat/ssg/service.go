@@ -10,6 +10,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/adrianpk/clio/internal/am"
@@ -135,7 +136,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		return fmt.Errorf("cannot copy static assets: %w", err)
 	}
 
-	headerStyle := svc.Cfg().StrValOrDef(am.Key.SSGHeaderStyle, "stacked")
+	headerStyle := svc.Cfg().StrValOrDef(am.Key.SSGHeaderStyle, "boxed", true)
 	imageExtensions := []string{".png", ".jpg", ".jpeg", ".webp"}
 
 	for _, content := range contents {
@@ -187,6 +188,10 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		if err != nil {
 			svc.Log().Error("Error converting markdown to HTML", "slug", content.Slug(), "error", err)
 			continue
+		}
+
+		if headerStyle == "boxed" || headerStyle == "overlay" {
+			htmlBody = svc.removeFirstH1(htmlBody)
 		}
 
 		pageContent := PageContent{
@@ -446,4 +451,17 @@ func (svc *BaseService) GetTagsForContent(ctx context.Context, contentID uuid.UU
 
 func (svc *BaseService) GetContentForTag(ctx context.Context, tagID uuid.UUID) ([]Content, error) {
 	return svc.repo.GetContentForTag(ctx, tagID)
+}
+
+var firstH1Regex = regexp.MustCompile(`(?i)<h1[^>]*>.*?</h1>`)
+
+// removeFirstH1 removes the first <h1>...</h1> tag from an HTML string.
+func (svc *BaseService) removeFirstH1(htmlContent string) string {
+	return firstH1Regex.ReplaceAllStringFunc(htmlContent, func(match string) string {
+		// Only replace the first occurrence
+		if strings.HasPrefix(htmlContent, match) {
+			return ""
+		}
+		return match
+	})
 }
