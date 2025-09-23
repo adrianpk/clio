@@ -7,21 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-- Migrated direct Tailwind CSS classes and inline styles from `assets/ssg/layout/layout.html` and `assets/ssg/partial/list.tmpl` to `assets/static/css/prose.css`.
-- Encapsulated Tailwind utility classes into custom CSS classes within `prose.css` using `@apply` directives.
-- Updated `layout.html` and `list.tmpl` to use the new custom CSS classes from `prose.css`.
-- Maintained Tailwind CSS CDN import in `layout.html` as per user request.
-
-### Fixed
-- Resolved build errors related to Goldmark `ast.Kind` constants by correctly aliasing `github.com/yuin/goldmark/ast` as `gmast` and `github.com/yuin/goldmark/extension/ast` as `extast`.
-- Updated `renderEmphasis` to correctly handle strong emphasis (level 2) and removed the redundant `renderStrong` function.
-- Ensured all rendering functions correctly use `gmast.Node`, `gmast.WalkStatus`, and `gmast.Text` where appropriate.
+## [2025-09-23]
 
 ### Added
-- **Preview Server:** A new web server running on port 8082 by default now serves the generated static site from `_workspace/documents/html`. This allows for a more realistic preview of the site with correct asset paths, without requiring a server restart for content changes.
-- **SSG:** Implement a configurable limit (`CLIO_SSG_BLOCKS_MAXITEMS`) for the maximum number of items displayed in content blocks.
-- **SSG:** Enforce a cascading hierarchy in block generation to ensure content appears only in the most relevant block.
+- **Section Indexes:** Implemented functionality to generate and display section indexes, providing organized listings of content within different categories.
+- **Static Site Preview Server:** Added a dedicated server for previewing the generated static site, improving the development workflow by allowing real-time content and style verification.
+- **SSG Enhancements:** Implemented a configurable limit (`CLIO_SSG_BLOCKS_MAXITEMS`) for the maximum number of items displayed in content blocks and enforced a cascading hierarchy in block generation.
+
+### Improved
+- **Styling and Consistency:** Enhanced the overall visual presentation by centralizing placeholder images for content headers and section indexes, and refining the display of content pages and section index cards. 
 
 ## [2025-09-20]
 

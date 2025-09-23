@@ -7,3 +7,5 @@ main
 __debug_bin*
 .env
 _workspace/
+node_modules/
+assets/static/css/prose.compiled.css
