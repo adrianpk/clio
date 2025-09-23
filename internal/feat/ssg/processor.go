@@ -4,30 +4,36 @@ import (
 	"bytes"
 
 	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/renderer"
+	"github.com/yuin/goldmark/util"
 )
 
-// MarkdownProcessor is responsible for converting Markdown text to HTML.
-type MarkdownProcessor struct {
+type Processor struct {
 	parser goldmark.Markdown
 }
 
 // NewMarkdownProcessor creates and configures a new Markdown processor.
-func NewMarkdownProcessor() *MarkdownProcessor {
-	// For now, we use the default goldmark parser.
-	// Extensions for syntax highlighting, etc., will be added later.
+func NewMarkdownProcessor() *Processor {
 	md := goldmark.New(
+		goldmark.WithRendererOptions(
+			renderer.WithNodeRenderers(
+				util.Prioritized(NewTailwindRenderer(), 1000),
+			),
+		),
 		goldmark.WithExtensions(
+			extension.GFM,
 			// Add extensions here, e.g., syntax.New()
 		),
 	)
 
-	return &MarkdownProcessor{
+	return &Processor{
 		parser: md,
 	}
 }
 
 // ToHTML converts a Markdown string to an HTML string.
-func (p *MarkdownProcessor) ToHTML(markdown []byte) (string, error) {
+func (p *Processor) ToHTML(markdown []byte) (string, error) {
 	var buf bytes.Buffer
 	if err := p.parser.Convert(markdown, &buf); err != nil {
 		return "", err

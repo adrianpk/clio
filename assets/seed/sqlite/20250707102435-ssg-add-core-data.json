@@ -47,6 +47,17 @@
   ],
   "contents": [
     {
+      "ref": "building-kubernetes-operators-with-go",
+      "user_ref": "user-superadmin",
+      "kind": "article",
+      "heading": "Building Kubernetes Operators with Go",
+      "body": "# Building Kubernetes Operators with Go\n\nKubernetes operators are a powerful way to extend the capabilities of clusters by automating the lifecycle of complex applications. Go has become the de facto language for writing operators thanks to its strong concurrency model and first-class tooling in the Kubernetes ecosystem.\n\n## Why Go for Operators?\n\n- **Strong type safety** helps avoid runtime surprises.  \n- **Native Kubernetes libraries** like `client-go` simplify integration.  \n- **Performance**: Go binaries are lightweight and fast to deploy.  \n\nA typical operator manages custom resources (CRDs) and reconciles their desired state with the actual state of the cluster.  \n\n## Example Use Cases\n\n| Use Case | Description |\n|----------|-------------|\n| Database Management | Automate provisioning, backup, and failover for databases. |\n| Messaging Systems   | Scale and configure systems like Kafka or NATS. |\n| Monitoring Agents   | Ensure observability agents run consistently across nodes. |\n\n## Getting Started\n\n1. Install the [Operator SDK](https://sdk.operatorframework.io/).  \n2. Initialize a project with your preferred domain and repository.  \n3. Create and register a custom resource definition (CRD).  \n4. Implement the reconciliation loop in Go to manage the lifecycle of your application.  \n\n## Best Practices\n\n- Keep reconciliation logic **idempotent**.  \n- Use **informers** to react quickly to cluster changes.  \n- Add **metrics and health checks** for observability.  \n\n## References\n\n- [Operator SDK Documentation](https://sdk.operatorframework.io/docs/)  \n- [Kubernetes Custom Resources](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)  \n- [client-go GitHub Repo](https://github.com/kubernetes/client-go)  \n",
+      "section_ref": "tech",
+      "draft": false,
+      "featured": true,
+      "published_at": "2025-09-23T10:00:00Z"
+    },
+    {
       "ref": "intro-to-golang",
       "user_ref": "user-superadmin",
       "kind": "article",
@@ -132,18 +143,18 @@
       "section_ref": "root",
       "draft": false,
       "featured": false,
-      "published_at": "2025-09-21T23:03:25.452035Z"
+      "published_at": "2025-09-21T23:03:25.452116Z"
     },
     {
       "ref": "article-root-3",
-      "user_ref": "user-admin",
+      "user_ref": "user-johndoe",
       "kind": "article",
       "heading": "Article 3 about Root",
       "body": "This is article 3 about Root.",
       "section_ref": "root",
       "draft": false,
       "featured": false,
-      "published_at": "2025-09-21T23:03:25.452042Z"
+      "published_at": "2025-09-21T23:03:25.452132Z"
     },
     {
       "ref": "blog-root-1",
@@ -411,6 +422,19 @@
     }
   ],
   "metas": [
+    {
+      "content_ref": "building-kubernetes-operators-with-go",
+      "description": "A comprehensive guide to building Kubernetes Operators using Go, covering reasons, use cases, and best practices.",
+      "summary": "Learn to build Kubernetes Operators with Go.",
+      "excerpt": "Kubernetes operators are a powerful way to extend the capabilities of clusters.",
+      "keywords": "kubernetes, operators, go, golang, client-go, operator-sdk",
+      "robots": "index, follow",
+      "canonical_url": "",
+      "sitemap": "{\"priority\": 0.9, \"changefreq\": \"monthly\"}",
+      "table_of_contents": true,
+      "share": true,
+      "comments": true
+    },
     {
       "content_ref": "intro-to-golang",
       "description": "A beginner's guide to the Go programming language, covering the basics and core concepts.",
@@ -843,6 +867,18 @@
   ],
   "tags": [],
   "content_tags": [
+    {
+      "content_ref": "building-kubernetes-operators-with-go",
+      "tag_ref": "kubernetes"
+    },
+    {
+      "content_ref": "building-kubernetes-operators-with-go",
+      "tag_ref": "go"
+    },
+    {
+      "content_ref": "building-kubernetes-operators-with-go",
+      "tag_ref": "operators"
+    },
     {
       "content_ref": "intro-to-golang",
       "tag_ref": "programming"
