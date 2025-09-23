@@ -169,15 +169,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		}
 
 		if !foundSpecificHeader {
-			if err := os.MkdirAll(contentImgDir, 0755); err != nil {
-				return fmt.Errorf("cannot create img directory for placeholder: %w", err)
-			}
-			placeholderSrc := "assets/static/img/header-v1.png"
-			placeholderDst := filepath.Join(contentImgDir, "header.png")
-			if err := copyFile(svc.assetsFS, placeholderSrc, placeholderDst); err != nil {
-				return fmt.Errorf("cannot copy placeholder header: %w", err)
-			}
-			headerImagePath = "img/header.png"
+			headerImagePath = "/static/img/header.png"
 		}
 
 		// Calculate asset path for relative links
