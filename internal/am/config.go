@@ -262,6 +262,12 @@ func (cfg *Config) APIAddr() string {
 	return host + ":" + port
 }
 
+func (cfg *Config) PreviewAddr() string {
+	host := cfg.StrValOrDef(Key.ServerPreviewHost, "localhost")
+	port := cfg.StrValOrDef(Key.ServerPreviewPort, "8082")
+	return host + ":" + port
+}
+
 // Debug prints the configuration values in a readable format.
 func (cfg *Config) Debug() {
 	fmt.Println("Configuration values:")
