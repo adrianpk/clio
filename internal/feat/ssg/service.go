@@ -95,12 +95,18 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("cannot get all content with meta: %w", err)
 	}
+
+	// Set placeholder for content without image
+	for i := range contents {
+		if contents[i].Image == "" {
+			contents[i].Image = "/static/img/placeholder.png"
+		}
+	}
+
 	sections, err := svc.repo.GetSections(ctx)
 	if err != nil {
 		return fmt.Errorf("cannot get sections: %w", err)
 	}
-
-	
 
 	var menuSections []Section
 	for _, s := range sections {
@@ -280,31 +286,6 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 			}
 			if depth > 0 {
 				assetPath = strings.Repeat("../", depth)
-			}
-
-			// Create img directory and copy placeholder
-			imgDir := filepath.Join(filepath.Dir(outputPath), "img")
-			if err := os.MkdirAll(imgDir, 0755); err != nil {
-				return fmt.Errorf("cannot create img directory for placeholder: %w", err)
-			}
-			placeholderSrc := "assets/static/img/placeholder.png"
-			placeholderDst := filepath.Join(imgDir, "placeholder.png")
-			if err := copyFile(svc.assetsFS, placeholderSrc, placeholderDst); err != nil {
-				return fmt.Errorf("cannot copy placeholder image: %w", err)
-			}
-
-			// Set placeholder for content without image
-			for i := range pageContent {
-				if pageContent[i].Image == "" {
-					pageContent[i].Image = "img/placeholder.png"
-				}
-			}
-
-			// Set placeholder for content without image
-			for i := range pageContent {
-				if pageContent[i].Image == "" {
-					pageContent[i].Image = "/static/img/placeholder.png"
-				}
 			}
 
 			// Prepare pagination data
