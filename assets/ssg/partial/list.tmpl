@@ -1,17 +1,17 @@
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8">
+<div class="list-grid">
     {{ range . }}
-        <div class="bg-white rounded-lg shadow-md overflow-hidden transform hover:-translate-y-1 transition-transform duration-300 ease-in-out">
-            <a href="{{ .SectionPath }}/{{ .Slug }}/" class="block">
+        <div class="list-card">
+            <a href="{{ .SectionPath }}/{{ .Slug }}/" class="list-card-link">
                 {{ if .Image }}
-                    <img class="h-48 w-full object-cover" src="{{ .Image }}" alt="Featured image for {{ .Heading }}">
+                    <img class="list-card-image" src="{{ .Image }}" alt="Featured image for {{ .Heading }}">
                 {{ else }}
-                    <div class="h-48 w-full bg-gray-200"></div>
+                    <div class="list-card-image-placeholder"></div>
                 {{ end }}
-                <div class="p-6">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-2">{{ .Heading }}</h2>
+                <div class="list-card-content">
+                    <h2 class="list-card-title">{{ .Heading }}</h2>
                     <!-- <p class="text-gray-600 text-sm mb-4">{{ .Summary }}</p> -->
-                    <div class="flex items-center text-xs text-gray-500">
-                        <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="list-card-meta">
+                        <svg class="list-card-meta-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                         {{ if .PublishedAt }}

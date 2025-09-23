@@ -7,6 +7,8 @@ BINARY = $(BUILD_DIR)/$(APP_NAME)
 DB_FILE = _workspace/db/clio.db
 DB_BACKUP_DIR = bak
 
+CSS_SOURCES = assets/static/css/prose.css assets/ssg/**/*.html assets/ssg/**/*.tmpl
+
 # Backup database with timestamp
 define backup_db
 	@if [ -f "$(DB_FILE)" ]; then \
@@ -24,8 +26,13 @@ endef
 # Default target
 all: build
 
+# Build CSS
+assets/static/css/prose.compiled.css: $(CSS_SOURCES)
+	@echo "Building CSS..."
+	@./scripts/build-css.sh
+
 # Build the application
-build:
+build: build-css
 	@echo "Building $(APP_NAME)..."
 	@mkdir -p $(BUILD_DIR)
 	@go build -o $(BINARY) $(MAIN_SRC)
@@ -171,4 +178,4 @@ reset-db:
 	@echo "A fresh database will be created on next application start"
 
 # Phony targets
-.PHONY: all build run runflags setenv clean backup-db reset-db generate-markdown generate-html test run-stacked run-overlay run-boxed run-text-only generate-html-stacked generate-html-overlay generate-html-boxed generate-html-text-only
+.PHONY: all build run runflags setenv clean backup-db reset-db generate-markdown generate-html test run-stacked run-overlay run-boxed run-text-only generate-html-stacked generate-html-overlay generate-html-boxed generate-html-text-only build-css build-css

@@ -1,0 +1,264 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom CSS for prose content */
+
+/* Styles from main branch layout.html */
+body {
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #fdfdfd;
+    color: #333;
+}
+.site-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+h1 {
+    font-weight: 700;
+}
+nav {
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #eee;
+}
+nav a {
+    margin-right: 1rem;
+    text-decoration: none;
+    color: #333;
+    font-weight: 700;
+}
+
+/* Hero Styles */
+.hero-wrapper {
+    position: relative;
+    width: 100%;
+}
+.hero-image {
+    width: 100%;
+    max-height: 450px;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+/* Stacked Style Specific */
+.hero-stacked-image {
+     margin-bottom: 2rem;
+}
+
+/* Overlay Style */
+.hero-wrapper.overlay::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1;
+}
+.hero-wrapper.overlay .hero-title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    z-index: 2;
+    text-align: center;
+    width: 90%;
+}
+
+/* Boxed Style - Frosted Glass */
+.hero-wrapper.boxed .hero-title-box {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 1.5rem 0;
+    z-index: 2;
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+}
+ .hero-wrapper.boxed .hero-title {
+    color: #333;
+    margin: 0;
+    text-align: center;
+}
+
+/* Styles for prose content (h1-h6, p, ul, ol, li, blockquote, hr, code, pre, table) */
+.prose-h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 2.5rem;
+  color: #1f2937;
+}
+.prose-h2 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #1f2937;
+}
+.prose-h3 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #374151;
+}
+.prose-h4 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #4b5563;
+}
+.prose-h5 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: #6b7280;
+}
+.prose-h6 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #9ca3af;
+}
+p {
+  font-size: 1.125rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+ul {
+  list-style-type: disc;
+  list-style-position: inside;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+ol {
+  list-style-type: decimal;
+  list-style-position: inside;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+li {
+  margin-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+blockquote {
+  border-left-width: 4px;
+  border-color: #d1d5db;
+  padding-left: 1.5rem;
+  font-style: italic;
+  color: #4b5563;
+  margin-bottom: 1.5rem;
+}
+hr {
+  border-top-width: 2px;
+  border-color: #d1d5db;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+code {
+  background-color: #e5e7eb;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.3rem;
+}
+pre {
+  background-color: #1f2937;
+  color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+table {
+  width: 100%;
+  table-layout: auto;
+  margin-bottom: 1.5rem;
+}
+thead {
+  background-color: #e5e7eb;
+}
+tr {
+  border-width: 1px;
+}
+td {
+  border-width: 1px;
+  padding: 0.5rem 1rem;
+}
+
+/* New styles from list.tmpl */
+.list-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 2rem;
+}
+@media (min-width: 768px) {
+  .list-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .list-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1280px) {
+  .list-grid {
+    gap: 3rem;
+  }
+}
+.list-card {
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transform: translateY(0);
+  transition-property: transform;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+.list-card:hover {
+  transform: translateY(-0.25rem);
+}
+.list-card-link {
+  display: block;
+  text-decoration: none !important;
+}
+.list-card-link a {
+  text-decoration: none !important;
+}
+.list-card-image {
+  height: 10rem;
+  width: 100%;
+  object-fit: cover;
+}
+.list-card-image-placeholder {
+  height: 10rem;
+  width: 100%;
+  background-color: #e5e7eb;
+}
+.list-card-content {
+  padding: 2rem;
+}
+.list-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+}
+.list-card-meta {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+.list-card-meta-icon {
+  height: 1rem;
+  width: 1rem;
+  margin-right: 0.25rem;
+}
