@@ -4,7 +4,7 @@ This gallery showcases the content management features of Clio.
 
 ## Content List
 
-The main view for listing all the content available in the system.
+The main view for listing all the content available in the system. Soon, the listed results will be paginated to avoid long scrolls.
 
 ![Content List](../img/list-content.png)
 
@@ -28,15 +28,15 @@ A distraction-free writing environment that focuses solely on the markdown edito
 
 ## Generated Markdown
 
-An example of a generated markdown file, including the YAML frontmatter created from the content's metadata.
+An example of a generated markdown file, including some related content code blocks.
 
-![Generated Markdown](../img/generated-html-blocks.png)
+![Generated Markdown](../img/generated-html.png)
 
-## Section Index (WIP)
+## Section Index
 
-A draft of the section index page. The content shown in this screenshot was algorithmically generated to illustrate the layout, and a placeholder is shown for the images.
+A draft of the section index page. Thumbnails currently display a default placeholder. Includes pagination controls and a configurable external search box (Google for now), which can be enabled via configuration.
 
-![Section Index Draft](../img/section-index-draft.png)
+![Section Index](../img/section-index.png)
 
 ---
 

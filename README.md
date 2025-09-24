@@ -1,6 +1,6 @@
 # Clio
 
-![Content List](docs/img/list-content.png)
+![Content List](docs/img/content.png)
 <p align="right"><i><a href="docs/gallery/content.md">view gallery...</a></i></p>
 
 Clio is (will be) a lightweight static site generator (SSG) written in Go.  
