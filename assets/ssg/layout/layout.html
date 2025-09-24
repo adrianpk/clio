@@ -29,6 +29,8 @@
                 {{template "list.tmpl" .ListPageContent}}
             </main>
         </div>
+        <div class="site-container">
+            {{template "pagination.tmpl" .}}
     {{else}}
         {{if eq .HeaderStyle "text-only"}}
             <div class="site-container">

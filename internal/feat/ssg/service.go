@@ -124,6 +124,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		"assets/ssg/partial/article-blocks.tmpl",
 		"assets/ssg/partial/blog-blocks.tmpl",
 		"assets/ssg/partial/series-blocks.tmpl",
+		"assets/ssg/partial/pagination.tmpl",
 	)
 	if err != nil {
 		return fmt.Errorf("cannot parse template from embedded fs: %w", err)

@@ -1,0 +1,23 @@
+{{ define "pagination.tmpl" }}
+{{ if gt .Pagination.TotalPages 1 }}
+<nav class="pagination-nav">
+    <ul class="pagination-list">
+        {{ if .Pagination.PrevPageURL }}
+        <li class="pagination-item">
+            <a href="{{ .Pagination.PrevPageURL }}" class="pagination-link">&laquo; Previous</a>
+        </li>
+        {{ end }}
+
+        <li class="pagination-item">
+            <span class="pagination-current">Page {{ .Pagination.CurrentPage }} of {{ .Pagination.TotalPages }}</span>
+        </li>
+
+        {{ if .Pagination.NextPageURL }}
+        <li class="pagination-item">
+            <a href="{{ .Pagination.NextPageURL }}" class="pagination-link">Next &raquo;</a>
+        </li>
+        {{ end }}
+    </ul>
+</nav>
+{{ end }}
+{{ end }}
