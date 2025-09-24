@@ -100,7 +100,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 	// Set placeholder for content without image
 	for i := range contents {
 		if contents[i].Image == "" {
-			            contents[i].Image = "/static/img/placeholder.png"
+			contents[i].Image = "/static/img/placeholder.png"
 		}
 	}
 
@@ -170,7 +170,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		}
 
 		if !foundSpecificHeader {
-			        headerImagePath = "/static/img/header.png"
+			headerImagePath = "/static/img/header.png"
 		}
 
 		assetPath := "/"
@@ -216,9 +216,9 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		}
 
 		if err := os.WriteFile(outputPath, buf.Bytes(), 0644); err != nil {
-				svc.Log().Error("Error writing HTML file", "path", outputPath, "error", err)
-				continue
-			}
+			svc.Log().Error("Error writing HTML file", "path", outputPath, "error", err)
+			continue
+		}
 	}
 
 	// Generate index pages
@@ -233,7 +233,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		}
 	}
 
-	postsPerPage := int(svc.Cfg().IntVal(am.Key.SSGIndexMaxItems, 10))
+	postsPerPage := int(svc.Cfg().IntVal(am.Key.SSGIndexMaxItems, 9))
 
 	for _, index := range indexes {
 		// Check if a manual index page exists for this path
@@ -275,9 +275,9 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 			if page > 1 {
 				if page == 2 {
 					pagination.PrevPageURL = assetPath + strings.TrimSuffix(index.Path, "/")
-			} else {
+				} else {
 					pagination.PrevPageURL = fmt.Sprintf("%spage/%d", assetPath, page-1)
-			}
+				}
 			}
 			if page < totalPages {
 				pagination.NextPageURL = fmt.Sprintf("%spage/%d", assetPath, page+1)
@@ -447,3 +447,4 @@ func (svc *BaseService) removeFirstH1(htmlContent string) string {
 		return match
 	})
 }
+
