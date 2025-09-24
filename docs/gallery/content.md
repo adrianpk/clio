@@ -46,7 +46,7 @@ This section showcases the different header styles available in Clio.
 
 ## "Stacked" Style
 
-The default style. The title is rendered below the image.
+The title is rendered below the image.
 
 ![Stacked Style](../img/generated-html-stacked.png)
 
@@ -62,7 +62,7 @@ The title is rendered in white text centered directly on top of the image, with 
 
 ## "Boxed" Style (Frosted Glass)
 
-The title is rendered inside a frosted-glass effect stripe at the bottom of the image.
+The default style. The title is rendered inside a frosted-glass effect stripe at the bottom of the image.
 
 ![Boxed Style](../img/generated-html-boxed.png)
 
