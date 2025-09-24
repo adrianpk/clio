@@ -4,7 +4,7 @@
       "ref": "alt",
       "name": "alt",
       "description": "Alternative editable layout, copy of the default layout from the filesystem.",
-      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>{{.Content.Heading}}</title>\n    <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n    <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n    <link href=\"https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap\" rel=\"stylesheet\">\n    <style>\n        body {\n            font-family: 'Montserrat', sans-serif;\n            line-height: 1.6;\n            margin: 0;\n            padding: 0;\n            background-color: #fdfdfd;\n            color: #333;\n        }\n        .container {\n            max-width: 800px;\n            margin: 0 auto;\n            padding: 2rem;\n        }\n        h1 {\n            font-weight: 700;\n        }\n        nav {\n            padding: 1rem 2rem;\n            border-bottom: 1px solid #eee;\n        }\n        nav a {\n            margin-right: 1rem;\n            text-decoration: none;\n            color: #333;\n            font-weight: 700;\n        }\n\n        /* Hero Styles */\n        .hero-wrapper {\n            position: relative;\n            width: 100%;\n        }\n        .hero-image {\n            width: 100%;\n            max-height: 450px;\n            object-fit: cover;\n            object-position: center;\n            display: block; /* Removes bottom space */\n        }\n\n        /* Stacked Style Specific */\n        .hero-stacked-image {\n             margin-bottom: 2rem;\n        }\n\n        /* Overlay Style */\n        .hero-wrapper.overlay::before {\n            content: '';\n            position: absolute;\n            top: 0;\n            left: 0;\n            right: 0;\n            bottom: 0;\n            background-color: rgba(0, 0, 0, 0.4);\n            z-index: 1;\n        }\n        .hero-wrapper.overlay .hero-title {\n            position: absolute;\n            top: 50%;\n            left: 50%;\n            transform: translate(-50%, -50%);\n            color: white;\n            z-index: 2;\n            text-align: center;\n            width: 90%;\n        }\n\n        /* Boxed Style - Frosted Glass */\n        .hero-wrapper.boxed .hero-title-box {\n            position: absolute;\n            bottom: 0;\n            left: 0;\n            width: 100%;\n            background-color: rgba(255, 255, 255, 0.3); /* Light, translucent background */\n            backdrop-filter: blur(8px); /* The \"frosted glass\" effect */\n            -webkit-backdrop-filter: blur(8px); /* Safari support */\n            padding: 1.5rem 0;\n            z-index: 2;\n            border-top: 1px solid rgba(255, 255, 255, 0.5); /* Subtle top border */\n        }\n         .hero-wrapper.boxed .hero-title {\n            color: #333; /* Dark text for contrast against the light blur */\n            margin: 0;\n            text-align: center;\n        }\n\n    </style>\n</head>\n<body>\n    <nav>\n        <div class=\"container\">\n            <a href=\"{{.AssetPath}}index.html\">Home</a>\n            {{range .Menu}}\n            <a href=\"{{$.AssetPath}}{{.Path}}/index.html\">{{.Name}}</a>\n            {{end}}\n        </div>\n    </nav>\n\n    {{if eq .HeaderStyle \"text-only\"}}\n        <div class=\"container\">\n            <h1>{{.Content.Heading}}</h1>\n        </div>\n    {{else if eq .HeaderStyle \"overlay\"}}\n        <div class=\"hero-wrapper overlay\">\n            <img class=\"hero-image\" src=\"{{.Content.HeaderImage}}\" alt=\"Header Image\">\n            <h1 class=\"hero-title\">{{.Content.Heading}}</h1>\n        </div>\n    {{else if eq .HeaderStyle \"boxed\"}}\n        <div class=\"hero-wrapper boxed\">\n            <img class=\"hero-image\" src=\"{{.Content.HeaderImage}}\" alt=\"Header Image\">\n            <div class=\"hero-title-box\">\n                <h1 class=\"hero-title\">{{.Content.Heading}}</h1>\n            </div>\n        </div>\n    {{else}} {{/* Default to stacked */}}\n        <img class=\"hero-image hero-stacked-image\" src=\"{{.Content.HeaderImage}}\" alt=\"Header Image\">\n        <div class=\"container\">\n            <h1>{{.Content.Heading}}</h1>\n        </div>\n    {{end}}\n\n    <div class=\"container\">\n        <hr>\n        <main>\n            {{.Content.Body}}\n        </main>\n    </div>\n</body>\n</html>"
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>{{.Content.Heading}}</title>\n    <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n    <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n    <link href=\"https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap\" rel=\"stylesheet\">\n    <style>\n        body {\n            font-family: 'Montserrat', sans-serif;\n            line-height: 1.6;\n            margin: 0;\n            padding: 0;\n            background-color: #fdfdfd;\n            color: #333;\n        }\n        .container {\n            max-width: 800px;\n            margin: 0 auto;\n            padding: 2rem;\n        }\n        h1 {\n            font-weight: 700;\n        }\n        nav {\n            padding: 1rem 2rem;\n            border-bottom: 1px solid #eee;\n        }\n        nav a {\n            margin-right: 1rem;\n            text-decoration: none;\n            color: #333;\n            font-weight: 700;\n        }\n\n        /* Hero Styles */\n        .hero-wrapper {\n            position: relative;\n            width: 100%;\n        }\n        .hero-image {\n            width: 100%;\n            max-height: 450px;\n            object-fit: cover;\n            object-position: center;\n            display: block; /* Removes bottom space */\n        }\n\n        /* Stacked Style Specific */\n        .hero-stacked-image {\n             margin-bottom: 2rem;\n        }\n\n        /* Overlay Style */\n        .hero-wrapper.overlay::before {\n            content: '';\n            position: absolute;\n            top: 0;\n            left: 0;\n            right: 0;\n            bottom: 0;\n            background-color: rgba(0, 0, 0, 0.4);\n            z-index: 1;\n        }\n        .hero-wrapper.overlay .hero-title {\n            position: absolute;\n            top: 50%;\n            left: 50%;\n            transform: translate(-50%, -50%);\n            color: white;\n            z-index: 2;\n            text-align: center;\n            width: 90%;\n        }\n\n        /* Boxed Style - Frosted Glass */\n        .hero-wrapper.boxed .hero-title-box {\n            position: absolute;\n            bottom: 0;\n            left: 0;\n            width: 100%;\n            background-color: rgba(255, 255, 255, 0.3);\n            backdrop-filter: blur(8px);\n            -webkit-backdrop-filter: blur(8px);\n            padding: 1.5rem 0;\n            z-index: 2;\n            border-top: 1px solid rgba(255, 255, 255, 0.5);\n        }\n         .hero-wrapper.boxed .hero-title {\n            color: #333;\n            margin: 0;\n            text-align: center;\n        }\n\n        /* Styles for prose content (h1-h6, p, ul, ol, li, blockquote, hr, code, pre, table) */\n        .prose-h1 {\n          font-size: 3rem;\n          font-weight: 700;\n          margin-bottom: 2.5rem;\n          color: #1f2937;\n        }\n        .prose-h2 {\n          font-size: 2.25rem;\n          font-weight: 700;\n          margin-bottom: 2rem;\n          color: #1f2937;\n        }\n        .prose-h3 {\n          font-size: 1.875rem;\n          font-weight: 700;\n          margin-bottom: 1.5rem;\n          color: #374151;\n        }\n        .prose-h4 {\n          font-size: 1.5rem;\n          font-weight: 700;\n          margin-bottom: 1rem;\n          color: #4b5563;\n        }\n        .prose-h5 {\n          font-size: 1.25rem;\n          font-weight: 700;\n          margin-bottom: 0.75rem;\n          color: #6b7280;\n        }\n        .prose-h6 {\n          font-size: 1.125rem;\n          font-weight: 700;\n          margin-bottom: 0.5rem;\n          color: #9ca3af;\n        }\n        p {\n          font-size: 1.125rem;\n          color: #333;\n          margin-bottom: 1.5rem;\n        }\n        ul {\n          list-style-type: disc;\n          list-style-position: inside;\n          margin-top: 1rem;\n          margin-bottom: 1rem;\n        }\n        ol {\n          list-style-type: decimal;\n          list-style-position: inside;\n          margin-top: 1rem;\n          margin-bottom: 1rem;\n        }\n        li {\n          margin-left: 1.5rem;\n          margin-bottom: 0.5rem;\n        }\n        blockquote {\n          border-left-width: 4px;\n          border-color: #d1d5db;\n          padding-left: 1.5rem;\n          font-style: italic;\n          color: #4b5563;\n          margin-bottom: 1.5rem;\n        }\n        hr {\n          border-top-width: 2px;\n          border-color: #d1d5db;\n          margin-top: 2rem;\n          margin-bottom: 2rem;\n        }\n        code {\n          background-color: #e5e7eb;\n          padding: 0.3rem 0.5rem;\n          border-radius: 0.3rem;\n        }\n        pre {\n          background-color: #1f2937;\n          color: #ffffff;\n          padding: 1.5rem;\n          border-radius: 0.25rem;\n          margin-bottom: 1.5rem;\n        }\n        table {\n          width: 100%;\n          table-layout: auto;\n          margin-bottom: 1.5rem;\n        }\n        thead {\n          background-color: #e5e7eb;\n        }\n        tr {\n          border-width: 1px;\n        }\n        td {\n          border-width: 1px;\n          padding: 0.5rem 1rem;\n        }\n\n        /* New styles from list.tmpl */\n        .list-grid {\n          display: grid;\n          grid-template-columns: repeat(1, minmax(0, 1fr));\n          gap: 2rem;\n        }\n        @media (min-width: 768px) {\n          .list-grid {\n            grid-template-columns: repeat(2, minmax(0, 1fr));\n          }\n        }\n        @media (min-width: 1024px) {\n          .list-grid {\n            grid-template-columns: repeat(3, minmax(0, 1fr));\n          }\n        }\n        @media (min-width: 1280px) {\n          .list-grid {\n            gap: 3rem;\n          }\n        }\n        .list-card {\n          background-color: #ffffff;\n          border-radius: 0.5rem;\n          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);\n          overflow: hidden;\n          transform: translateY(0);\n          transition-property: transform;\n          transition-duration: 300ms;\n          transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);\n        }\n        .list-card:hover {\n          transform: translateY(-0.25rem);\n        }\n        .list-card-link {\n          display: block;\n          text-decoration: none !important;\n        }\n        .list-card-link a {\n          text-decoration: none !important;\n        }\n        .list-card-image {\n          height: 10rem;\n          width: 100%;\n          object-fit: cover;\n        }\n        .list-card-image-placeholder {\n          height: 10rem;\n          width: 100%;\n          background-color: #e5e7eb;\n        }\n        .list-card-content {\n          padding: 2rem;\n        }\n        .list-card-title {\n          font-size: 1.25rem;\n          font-weight: 600;\n          color: #1f2937;\n          margin-bottom: 0.75rem;\n        }\n        .list-card-meta {\n          display: flex;\n          align-items: center;\n          font-size: 0.75rem;\n          color: #6b7280;\n        }\n        .list-card-meta-icon {\n          height: 1rem;\n          width: 1rem;\n          margin-right: 0.25rem;\n        }\n    </style>\n</head>\n<body class=\"site-body\">\n    <nav class=\"site-nav\">\n        <div class=\"site-container\">\n            <a class=\"site-nav-link\" href=\"{{.AssetPath}}index.html\">Home</a>\n            {{range .Menu}}\n            <a class=\"site-nav-link\" href=\"{{$.AssetPath}}{{.Path}}/index.html\">{{.Name}}</a>\n            {{end}}\n        </div>\n    </nav>\n\n    {{if .IsIndex}}\n        <div class=\"site-container\">\n            <h1 class=\"site-h1\">Index</h1>\n        </div>\n        <div class=\"site-container\">\n            <main>\n                {{template \"list.tmpl\" .ListPageContent}}\n            </main>\n        }\n    {{else}}\n        {{if eq .HeaderStyle \"text-only\"}}\n            <div class=\"site-container\">\n                <main>\n                    {{.Content.Body}}\n                </main>\n            </div>\n        {{else if eq .HeaderStyle \"overlay\"}}\n            <div class=\"hero-wrapper overlay\">\n                <img class=\"hero-image\" src=\"{{.Content.HeaderImage}}\" alt=\"Header Image\">\n                <h1 class=\"hero-title\">{{.Content.Heading}}</h1>\n            </div>\n            <div class=\"site-container\">\n                <hr>\n                <main>\n                    {{.Content.Body}}\n                </main>\n            </div>\n        {{else if eq .HeaderStyle \"boxed\"}}\n            <div class=\"hero-wrapper boxed\">\n                <img class=\"hero-image\" src=\"{{.Content.HeaderImage}}\" alt=\"Header Image\">\n                <div class=\"hero-title-box\">\n                    <h1 class=\"hero-title\">{{.Content.Heading}}</h1>\n                </div>\n            </div>\n            <div class=\"site-container\">\n                <main>\n                    {{.Content.Body}}\n                </main>\n            </div>\n        {{else}} {{/* Default to stacked */}}\n            <img class=\"hero-image hero-stacked-image\" src=\"{{.Content.HeaderImage}}\" alt=\"Header Image\">\n            <div class=\"site-container\">\n                <main>\n                    {{.Content.Body}}\n                </main>\n            </div>\n        {{end}}\n\n    {{end}}\n\n    <div class=\"site-container\">\n        {{template \"blocks\" .}}\n    </div>\n</body>\n</html>\n"
     }
   ],
   "sections": [
@@ -51,7 +51,7 @@
       "user_ref": "user-superadmin",
       "kind": "article",
       "heading": "Building Kubernetes Operators with Go",
-      "body": "# Building Kubernetes Operators with Go\n\nKubernetes operators are a powerful way to extend the capabilities of clusters by automating the lifecycle of complex applications. Go has become the de facto language for writing operators thanks to its strong concurrency model and first-class tooling in the Kubernetes ecosystem.\n\n## Why Go for Operators?\n\n- **Strong type safety** helps avoid runtime surprises.  \n- **Native Kubernetes libraries** like `client-go` simplify integration.  \n- **Performance**: Go binaries are lightweight and fast to deploy.  \n\nA typical operator manages custom resources (CRDs) and reconciles their desired state with the actual state of the cluster.  \n\n## Example Use Cases\n\n| Use Case | Description |\n|----------|-------------|\n| Database Management | Automate provisioning, backup, and failover for databases. |\n| Messaging Systems   | Scale and configure systems like Kafka or NATS. |\n| Monitoring Agents   | Ensure observability agents run consistently across nodes. |\n\n## Getting Started\n\n1. Install the [Operator SDK](https://sdk.operatorframework.io/).  \n2. Initialize a project with your preferred domain and repository.  \n3. Create and register a custom resource definition (CRD).  \n4. Implement the reconciliation loop in Go to manage the lifecycle of your application.  \n\n## Best Practices\n\n- Keep reconciliation logic **idempotent**.  \n- Use **informers** to react quickly to cluster changes.  \n- Add **metrics and health checks** for observability.  \n\n## References\n\n- [Operator SDK Documentation](https://sdk.operatorframework.io/docs/)  \n- [Kubernetes Custom Resources](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)  \n- [client-go GitHub Repo](https://github.com/kubernetes/client-go)  \n",
+      "body": "# Building Kubernetes Operators with Go\n\nKubernetes operators are a powerful way to extend the capabilities of clusters by automating the lifecycle of complex applications. Go has become the de facto language for writing operators thanks to its strong concurrency model and first-class tooling in the Kubernetes ecosystem.\n\n## Why Go for Operators?\n\n- **Strong type safety** helps avoid runtime surprises.  \n- **Native Kubernetes libraries** like `client-go` simplify integration.  \n- **Performance**: Go binaries are lightweight and fast to deploy.  \n\nA typical operator manages custom resources (CRDs) and reconciles their desired state with the actual state of the cluster.  \n\n## Example Use Cases\n\n| Use Case | Description |\n|----------|-------------|\n| Database Management | Automate provisioning, backup, and failover for databases. |\n| Messaging Systems   | Scale and configure systems like Kafka or NATS. |\n| Monitoring Agents   | Ensure observability agents run consistently across nodes. |\n\n## Getting Started\n\n1. Install the [Operator SDK](https://sdk.operatorframework.io/).  \n2. Initialize a project with your preferred domain and repository.  \n3. Create and register a custom resource definition (CRD).  \n4. Implement the reconciliation loop in Go to manage the lifecycle of your application.  \n5. Add **metrics and health checks** for observability.  \n\n## Best Practices\n\n- Keep reconciliation logic **idempotent**.  \n- Use **informers** to react quickly to cluster changes.  \n- Add **metrics and health checks** for observability.  \n\n## References\n\n- [Operator SDK Documentation](https://sdk.operatorframework.io/docs/)  \n- [Kubernetes Custom Resources](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)  \n- [client-go GitHub Repo](https://github.com/kubernetes/client-go)  \n",
       "section_ref": "tech",
       "draft": false,
       "featured": true,
@@ -61,8 +61,8 @@
       "ref": "intro-to-golang",
       "user_ref": "user-superadmin",
       "kind": "article",
-      "heading": "Introduction to Golang",
-      "body": "# An Introduction to Golang\n\nGo, also known as Golang, is a statically typed, compiled programming language designed at Google. It is known for its simplicity, efficiency, and strong support for concurrent programming.\n\n## Key Features\n\nHere are some of the key features of Go:\n\n- **Simplicity:** The language is designed to be simple and easy to learn, with a clean syntax.\n- **Concurrency:** Go has built-in support for concurrent programming using goroutines and channels.\n- **Performance:** Being a compiled language, Go offers excellent performance.\n- **Static Typing:** Go is a statically typed language, which helps in catching errors at compile time.\n\nThis article provides a basic overview. For more detailed information, you can visit the official Go website: [https://go.dev/](https://go.dev/).",
+      "heading": "The Elegance of Go: Simplicity and Concurrency",
+      "body": "# The Elegance of Go: Simplicity and Concurrency\n\nGo, often referred to as Golang, is a programming language designed at Google with a focus on simplicity, efficiency, and robust support for concurrent programming. Its clean syntax and powerful standard library make it a favorite for building scalable network services and command-line tools.\n\n## Why Developers Love Go\n\n- **Readability**: Go's syntax is straightforward, making code easy to read and maintain.\n- **Concurrency Model**: Goroutines and channels provide a powerful and intuitive way to handle concurrent operations.\n- **Performance**: Compiles to machine code, offering performance comparable to C/C++ while maintaining developer productivity.\n- **Tooling**: Comes with excellent built-in tools for testing, profiling, and dependency management.\n\nGo's philosophy emphasizes writing simple, explicit code, which often leads to fewer bugs and easier collaboration.\n\n## Getting Started with Go\n\n1.  **Install Go**: Download the appropriate installer from the [official Go website](https://go.dev/dl/).\n2.  **Set up your Workspace**: Configure your `GOPATH` and create your first module.\n3.  **Write your first program**: A simple \"Hello, World!\" is a great start.\n4.  **Explore the Standard Library**: Go's standard library is extensive and covers most common programming tasks.\n\n## Further Reading\n\n- [Effective Go](https://go.dev/doc/effective_go)\n- [Go by Example](https://gobyexample.com/)\n- [The Go Programming Language Book](https://www.gopl.io/)\n",
       "section_ref": "root",
       "draft": false,
       "featured": true,
@@ -72,8 +72,8 @@
       "ref": "go-generics",
       "user_ref": "user-superadmin",
       "kind": "article",
-      "heading": "Generics in Go",
-      "body": "Go introduced generics in version 1.18, allowing developers to write more flexible and reusable code. Generics enable writing functions and data structures that can work with any data type.",
+      "heading": "Unlocking Flexibility: Generics in Go 1.18+",
+      "body": "# Unlocking Flexibility: Generics in Go 1.18+\n\nGo 1.18 marked a significant milestone with the introduction of generics, allowing developers to write more flexible, reusable, and type-safe code. Generics enable functions and data structures to operate on values of any type, eliminating the need for repetitive code or reliance on `interface{}` with type assertions.\n\n## The Power of Type Parameters\n\nGenerics introduce *type parameters* to functions and types. This means you can define a function that works with a `T` (where `T` is a type parameter) without knowing `T` until the function is called. This is particularly useful for:\n\n- **Collections**: Implementing generic data structures like lists, maps, and queues.\n- **Algorithms**: Writing algorithms that work across various data types, such as sorting or searching.\n- **Utilities**: Creating utility functions that are type-safe and reusable.\n\n## Simple Example: A Generic Sum Function\n\n```go\nfunc Sum[T int | float64](a, b T) T {\n    return a + b\n}\n\nfunc main() {\n    fmt.Println(Sum(1, 2))       // Output: 3\n    fmt.Println(Sum(1.5, 2.5))   // Output: 4\n}\n```\n\nThis example shows how `Sum` can work with both `int` and `float64` types using a type constraint.\n\n## Considerations\n\nWhile powerful, generics should be used judiciously. Overuse can sometimes lead to more complex code. The Go community is still exploring best practices for generic programming.\n\n## Further Reading\n\n- [Go Generics Tutorial](https://go.dev/doc/tutorial/generics)\n- [When to Use Generics](https://go.dev/blog/when-to-use-generics)\n",
       "section_ref": "root",
       "draft": false,
       "featured": false,
@@ -83,8 +83,8 @@
       "ref": "what-is-nats",
       "user_ref": "user-superadmin",
       "kind": "article",
-      "heading": "What is NATS?",
-      "body": "NATS is a simple, high-performance open-source messaging system for cloud-native applications, IoT, and microservices architectures. It provides a lightweight and efficient way for services to communicate.",
+      "heading": "NATS: The Messaging System for Cloud-Native",
+      "body": "# NATS: The Messaging System for Cloud-Native\n\nNATS is a high-performance, lightweight, and secure messaging system designed for cloud-native applications, IoT, and microservices architectures. It provides a simple and efficient way for services to communicate, offering a publish-subscribe model, request-reply, and distributed queues.\n\n## Key Principles of NATS\n\n- **Simplicity**: Easy to use and understand, with minimal configuration.\n- **Performance**: Built for speed and efficiency, capable of handling millions of messages per second.\n- **Availability**: Designed for high availability and resilience.\n- **Security**: Offers robust authentication and authorization mechanisms.\n\nNATS is often chosen for its ability to connect services across various environments, from edge devices to large-scale cloud deployments, without introducing significant operational overhead.\n\n## Use Cases\n\n- **Microservices Communication**: Decouple services with efficient message passing.\n- **IoT Messaging**: Connect and manage data streams from a multitude of devices.\n- **Event Streaming**: Build real-time data pipelines and event-driven architectures.\n- **Command & Control**: Distribute commands to a fleet of applications or devices.\n\n## Getting Started with NATS\n\n1.  **Install NATS Server**: Run the NATS server as a Docker container or directly on your machine.\n2.  **Client Libraries**: Use one of the many client libraries (Go, Python, Node.js, etc.) to connect to the server.\n3.  **Publish and Subscribe**: Start sending and receiving messages.\n\n## Further Resources\n\n- [Official NATS Website](https://nats.io/)\n- [NATS Documentation](https://docs.nats.io/)\n",
       "section_ref": "root",
       "draft": false,
       "featured": false,
@@ -94,9 +94,9 @@
       "ref": "hashicorp-nomad",
       "user_ref": "user-johndoe",
       "kind": "article",
-      "heading": "HashiCorp Nomad",
-      "body": "# Exploring HashiCorp Nomad\n\nNomad is a simple and flexible workload orchestrator to deploy and manage containers and non-containerized applications across on-prem and clouds at scale.\n\n## Why Choose Nomad?\n\n- **Simplicity:** Nomad is a single binary that is easy to deploy and manage.\n- **Flexibility:** It can orchestrate containers, VMs, and standalone applications.\n- **Scalability:** Proven to scale to clusters of 10,000+ nodes.\n\nFor more details, see the [official Nomad documentation](https://www.nomadproject.io/docs).",
-      "section_ref": "news-section",
+      "heading": "HashiCorp Nomad: Orchestrating Workloads with Simplicity",
+      "body": "# HashiCorp Nomad: Orchestrating Workloads with Simplicity\n\nNomad, from HashiCorp, is a flexible and lightweight workload orchestrator that enables organizations to deploy and manage containers, legacy applications, and batch jobs across on-premise and cloud environments. Unlike Kubernetes, Nomad focuses on simplicity and operational ease, making it an excellent choice for specific use cases or smaller teams.\n\n## Why Choose Nomad?\n\n- **Single Binary**: Nomad is distributed as a single, small binary, simplifying deployment and upgrades.\n- **Any Workload**: It can orchestrate Docker containers, virtual machines, Java applications, and other long-running services.\n- **Scalability**: Proven to scale to tens of thousands of nodes, handling diverse workloads efficiently.\n- **Integration**: Seamlessly integrates with other HashiCorp tools like Consul for service discovery and Vault for secrets management.\n\nNomad's job specification language is declarative and easy to understand, allowing for quick definition and deployment of applications.\n\n## Getting Started with Nomad\n\n1.  **Install Nomad**: Download the binary and run the agent.\n2.  **Write a Job File**: Define your application's requirements in a `.nomad` job specification.\n3.  **Deploy**: Use `nomad run` to deploy your workload.\n4.  **Monitor**: Observe your application's status and logs.\n\n## Resources\n\n- [Official Nomad Documentation](https://www.nomadproject.io/docs)\n- [Nomad Tutorials](https://learn.hashicorp.com/nomad)\n",
+      "section_ref": "tech",
       "draft": false,
       "featured": false,
       "published_at": "2025-09-01T10:00:00Z"
@@ -105,8 +105,8 @@
       "ref": "kubernetes-basics",
       "user_ref": "user-superadmin",
       "kind": "article",
-      "heading": "Kubernetes Basics",
-      "body": "Kubernetes, also known as K8s, is an open-source system for automating deployment, scaling, and management of containerized applications. It has become the de-facto standard for container orchestration.",
+      "heading": "Kubernetes 101: A Foundation for Container Orchestration",
+      "body": "# Kubernetes 101: A Foundation for Container Orchestration\n\nKubernetes, often abbreviated as K8s, is an open-source platform designed to automate deploying, scaling, and operating application containers. It groups containers that make up an application into logical units for easy management and discovery. As the de-facto standard for container orchestration, understanding its basics is crucial for modern cloud-native development.\n\n## Core Concepts\n\n- **Pods**: The smallest deployable units of computing that can be created and managed in Kubernetes.\n- **Nodes**: The machines (physical or virtual) that run your applications.\n- **Clusters**: A set of nodes that run containerized applications.\n- **Deployments**: Manage a replicated set of Pods, ensuring a desired state.\n- **Services**: An abstract way to expose an application running on a set of Pods as a network service.\n\nKubernetes provides a robust framework for managing the entire lifecycle of containerized applications, from initial deployment to updates, scaling, and self-healing.\n\n## Why Kubernetes?\n\n- **Portability**: Run your applications consistently across public, private, or hybrid clouds.\n- **Scalability**: Easily scale your applications up or down based on demand.\n- **Self-healing**: Automatically restarts failed containers, replaces and reschedules containers when nodes die.\n- **Load Balancing**: Distributes network traffic to ensure stability.\n\n## Getting Started\n\n1.  **Minikube/Kind**: Set up a local Kubernetes cluster for development.\n2.  **kubectl**: Learn the command-line tool for interacting with Kubernetes clusters.\n3.  **Deploy an Application**: Deploy a simple web application to your cluster.\n\n## Resources\n\n- [Kubernetes Official Documentation](https://kubernetes.io/docs/)\n- [Kubernetes Tutorials](https://kubernetes.io/docs/tutorials/)\n",
       "section_ref": "root",
       "draft": false,
       "featured": true,
@@ -116,8 +116,8 @@
       "ref": "page-root",
       "user_ref": "user-johndoe",
       "kind": "page",
-      "heading": "About the Root Section",
-      "body": "This is a page about the Root section.",
+      "heading": "Welcome to the Root Section",
+      "body": "# Welcome to the Root Section\n\nThis is the main landing page for our site, offering a broad overview of the diverse topics we cover. From cutting-edge technology to timeless philosophical debates and culinary adventures, you'll find a rich tapestry of content designed to inform and inspire.\n\nExplore our latest articles and blog posts, or navigate through our specialized sections using the menu above. We're constantly updating our content to bring you fresh perspectives and in-depth analyses.\n\n## What You'll Find Here\n\n*   **Latest Articles**: Stay up-to-date with our newest publications.\n*   **Diverse Topics**: A wide range of subjects to pique your interest.\n*   **Community Insights**: Thoughts and discussions from our contributors.\n\nThank you for visiting!",
       "section_ref": "root",
       "draft": false,
       "featured": false,
@@ -127,8 +127,8 @@
       "ref": "article-root-1",
       "user_ref": "user-superadmin",
       "kind": "article",
-      "heading": "Article 1 about Root",
-      "body": "This is article 1 about Root.",
+      "heading": "The Future of Work: Remote vs. Office",
+      "body": "# The Future of Work: Remote vs. Office\n\nThe debate between remote work and traditional office environments has intensified in recent years. While remote work offers flexibility and reduced commute times, the office environment fosters spontaneous collaboration and a distinct company culture. This article explores the pros and cons of each model and predicts future trends.\n\n## Advantages of Remote Work\n\n- **Flexibility**: Employees can manage their schedules more effectively.\n- **Reduced Commute**: Saves time and money, and reduces environmental impact.\n- **Wider Talent Pool**: Companies can hire from anywhere in the world.\n\n## Benefits of Office Work\n\n- **Collaboration**: Easier impromptu discussions and brainstorming.\n- **Company Culture**: Stronger sense of belonging and team cohesion.\n- **Clear Boundaries**: Helps separate work life from home life.\n\nMany companies are now exploring hybrid models, combining the best of both worlds to create a more adaptable and productive workforce.\n",
       "section_ref": "root",
       "draft": false,
       "featured": false,
@@ -138,8 +138,8 @@
       "ref": "article-root-2",
       "user_ref": "user-admin",
       "kind": "article",
-      "heading": "Article 2 about Root",
-      "body": "This is article 2 about Root.",
+      "heading": "The Impact of AI on Everyday Life",
+      "body": "# The Impact of AI on Everyday Life\n\nArtificial Intelligence (AI) is no longer a futuristic concept; it's deeply integrated into our daily routines, from personalized recommendations on streaming services to smart assistants in our homes. This article delves into the various ways AI is transforming how we live, work, and interact with the world.\n\n## AI in Your Pocket\n\n- **Smartphones**: Facial recognition, predictive text, and voice assistants are powered by AI.\n- **Navigation Apps**: AI optimizes routes based on real-time traffic data.\n- **Social Media**: Algorithms curate your feed and suggest connections.\n\n## AI at Home\n\n- **Smart Home Devices**: AI learns your preferences for lighting, temperature, and entertainment.\n- **Security Systems**: AI-powered cameras can detect unusual activity and differentiate pets from intruders.\n\nAs AI continues to evolve, its influence will only grow, bringing both unprecedented convenience and new ethical challenges.\n",
       "section_ref": "root",
       "draft": false,
       "featured": false,
@@ -149,8 +149,8 @@
       "ref": "article-root-3",
       "user_ref": "user-johndoe",
       "kind": "article",
-      "heading": "Article 3 about Root",
-      "body": "This is article 3 about Root.",
+      "heading": "Understanding Modern Philosophy: A Brief Guide",
+      "body": "# Understanding Modern Philosophy: A Brief Guide\n\nModern philosophy, spanning from the 17th century to the present day, is characterized by a shift from theological concerns to human reason and experience. Key movements include Rationalism, Empiricism, Existentialism, and Postmodernism, each offering unique perspectives on knowledge, reality, and ethics.\n\n## Key Figures and Movements\n\n- **Rationalism (Descartes, Spinoza)**: Emphasizes reason as the primary source of knowledge.\n- **Empiricism (Locke, Hume)**: Argues that knowledge comes primarily from sensory experience.\n- **Existentialism (Sartre, Camus)**: Focuses on individual existence, freedom, and responsibility.\n- **Postmodernism (Foucault, Derrida)**: Challenges grand narratives and universal truths.\n\nEngaging with modern philosophy helps us critically examine our assumptions and understand the intellectual currents that shape our world.\n",
       "section_ref": "root",
       "draft": false,
       "featured": false,
@@ -160,8 +160,8 @@
       "ref": "blog-root-1",
       "user_ref": "user-johndoe",
       "kind": "blog",
-      "heading": "Blog Post 1 about Root",
-      "body": "This is blog post 1 about Root.",
+      "heading": "My Journey into Stoicism: Finding Inner Peace",
+      "body": "# My Journey into Stoicism: Finding Inner Peace\n\nStoicism, an ancient Greek philosophy, has seen a resurgence in modern times due to its practical approach to living a good life. It teaches us to focus on what we can control, accept what we cannot, and cultivate virtue, wisdom, and resilience. My personal journey with Stoicism has transformed my perspective on challenges and emotions.\n\n## Core Stoic Principles\n\n- **Dichotomy of Control**: Distinguish between what is within your power and what is not.\n- **Virtue as the Highest Good**: Live in accordance with reason, courage, justice, and temperance.\n- **Amor Fati**: Love your fate, embracing everything that happens.\n- **Memento Mori**: Remember that you will die, fostering appreciation for the present.\n\nPracticing Stoicism isn't about suppressing emotions, but about understanding and managing them rationally. It's a philosophy for resilience in an unpredictable world.\n",
       "section_ref": "root",
       "draft": false,
       "featured": false,
@@ -171,8 +171,8 @@
       "ref": "blog-root-2",
       "user_ref": "user-johndoe",
       "kind": "blog",
-      "heading": "Blog Post 2 about Root",
-      "body": "This is blog post 2 about Root.",
+      "heading": "The Art of Minimalist Living: Less is More",
+      "body": "# The Art of Minimalist Living: Less is More\n\nMinimalism is more than just decluttering your physical space; it's a philosophy that encourages intentional living, focusing on what truly adds value to your life. By reducing excess, we can gain clarity, freedom, and a deeper appreciation for experiences over possessions. My journey into minimalist living has simplified my daily routines and brought a sense of calm.\n\n## Key Principles of Minimalism\n\n- **Intentionality**: Make conscious choices about what you bring into your life.\n- **Decluttering**: Regularly remove items that don't serve a purpose or bring joy.\n- **Experiences over Possessions**: Prioritize travel, learning, and relationships.\n- **Mindful Consumption**: Be aware of your purchasing habits and their impact.\n\nEmbracing minimalism can lead to reduced stress, increased financial freedom, and a greater focus on personal growth. It's a continuous process of refining what truly matters.\n",
       "section_ref": "root",
       "draft": false,
       "featured": false,
@@ -182,8 +182,8 @@
       "ref": "blog-root-3",
       "user_ref": "user-superadmin",
       "kind": "blog",
-      "heading": "Blog Post 3 about Root",
-      "body": "This is blog post 3 about Root.",
+      "heading": "Exploring the Ethics of Artificial Intelligence",
+      "body": "# Exploring the Ethics of Artificial Intelligence\n\nAs Artificial Intelligence becomes more sophisticated and integrated into society, ethical considerations are paramount. From algorithmic bias to autonomous decision-making and job displacement, the moral implications of AI development require careful thought and proactive regulation. This blog post delves into some of the pressing ethical questions surrounding AI.\n\n## Key Ethical Dilemmas\n\n- **Algorithmic Bias**: Ensuring fairness and preventing discrimination in AI systems.\n- **Accountability**: Who is responsible when AI makes a mistake or causes harm?\n- **Privacy**: Protecting personal data used by AI systems.\n- **Job Displacement**: Addressing the societal impact of automation on the workforce.\n\nNavigating the ethical landscape of AI is crucial for building a future where technology serves humanity responsibly and equitably.\n",
       "section_ref": "root",
       "draft": false,
       "featured": false,
@@ -193,8 +193,8 @@
       "ref": "page-tech",
       "user_ref": "user-admin",
       "kind": "page",
-      "heading": "About the Tech Section",
-      "body": "This is a page about the Tech section.",
+      "heading": "Deep Dive into the Tech Section",
+      "body": "# Deep Dive into the Tech Section\n\nWelcome to the Tech section, your hub for the latest in software development, cloud computing, artificial intelligence, and more. Here, we explore cutting-edge technologies, provide in-depth tutorials, and share insights from industry experts. Whether you're a seasoned developer or just starting, you'll find valuable resources to expand your knowledge.\n\n## What's Trending\n\n- **Cloud-Native Architectures**: Building resilient and scalable applications.\n- **AI/ML in Production**: Deploying intelligent systems effectively.\n- **DevOps Best Practices**: Streamlining your development and operations workflows.\n\nStay tuned for new articles, guides, and discussions that push the boundaries of technology.\n",
       "section_ref": "tech",
       "draft": false,
       "featured": false,
@@ -204,8 +204,8 @@
       "ref": "article-tech-1",
       "user_ref": "user-johndoe",
       "kind": "article",
-      "heading": "Article 1 about Tech",
-      "body": "This is article 1 about Tech.",
+      "heading": "Mastering Go Modules: Dependency Management",
+      "body": "# Mastering Go Modules: Dependency Management\n\nGo modules revolutionized dependency management in Go projects, providing a robust and reproducible way to handle external packages. This guide covers the essentials of initializing modules, adding dependencies, and managing versions effectively to streamline your Go development workflow.\n\n## Key Concepts\n\n- **`go.mod`**: The module definition file, listing direct and indirect dependencies.\n- **`go.sum`**: Contains cryptographic hashes of module contents for security and integrity.\n- **Semantic Versioning**: Go modules adhere to SemVer for version compatibility.\n- **Module Proxy**: Go downloads modules from a proxy by default, improving reliability and security.\n\nEffective module management is crucial for building maintainable and collaborative Go projects, ensuring consistent builds across different environments.\n\n## Practical Commands\n\n- `go mod init <module-path>`: Initialize a new module.\n- `go get <package>`: Add a new dependency or update an existing one.\n- `go mod tidy`: Clean up unused dependencies and add missing ones.\n- `go mod vendor`: Copy dependencies into a `vendor` directory (optional).\n\n## Best Practices\n\n- Commit `go.mod` and `go.sum` to version control.\n- Use specific versions for dependencies to ensure reproducibility.\n- Regularly run `go mod tidy` to keep your module clean.\n",
       "section_ref": "tech",
       "draft": false,
       "featured": false,
@@ -215,8 +215,8 @@
       "ref": "article-tech-2",
       "user_ref": "user-admin",
       "kind": "article",
-      "heading": "Article 2 about Tech",
-      "body": "This is article 2 about Tech.",
+      "heading": "Python for Data Science: A Comprehensive Guide",
+      "body": "# Python for Data Science: A Comprehensive Guide\n\nPython has emerged as the dominant language in data science due to its simplicity, extensive libraries, and vibrant community. This guide provides an overview of why Python is the go-to choice for data analysis, machine learning, and artificial intelligence, along with essential tools and best practices.\n\n## Why Python Excels in Data Science\n\n- **Rich Ecosystem**: Libraries like NumPy, Pandas, Scikit-learn, and TensorFlow provide powerful functionalities.\n- **Ease of Learning**: Python's straightforward syntax makes it accessible to beginners.\n- **Versatility**: Used for data collection, cleaning, analysis, modeling, and visualization.\n- **Community Support**: A large and active community contributes to its growth and provides ample resources.\n\nPython's ability to integrate with other systems and its flexibility make it an indispensable tool for data scientists across various industries.\n\n## Essential Libraries\n\n- **NumPy**: Fundamental package for numerical computation.\n- **Pandas**: Data manipulation and analysis.\n- **Matplotlib/Seaborn**: Data visualization.\n- **Scikit-learn**: Machine learning algorithms.\n- **TensorFlow/PyTorch**: Deep learning frameworks.\n\n## Getting Started\n\n1.  **Install Anaconda**: A popular distribution for data science with Python.\n2.  **Jupyter Notebooks**: Use interactive environments for experimentation.\n3.  **Learn the Basics**: Master Python fundamentals and data structures.\n4.  **Practice**: Work on real-world datasets and projects.\n",
       "section_ref": "tech",
       "draft": false,
       "featured": false,
@@ -226,8 +226,8 @@
       "ref": "article-tech-3",
       "user_ref": "user-johndoe",
       "kind": "article",
-      "heading": "Article 3 about Tech",
-      "body": "This is article 3 about Tech.",
+      "heading": "Microservices Architecture: Design Principles",
+      "body": "# Microservices Architecture: Design Principles\n\nMicroservices architecture has become a popular approach for building complex applications as a suite of small, independent services. Each service runs in its own process and communicates with others using lightweight mechanisms, typically an API. This article explores the core design principles that enable microservices to deliver agility, scalability, and resilience.\n\n## Key Design Principles\n\n- **Single Responsibility Principle**: Each service should focus on a single business capability.\n- **Loose Coupling**: Services should be independent and communicate via well-defined APIs.\n- **High Cohesion**: Components within a service should be strongly related.\n- **Decentralized Data Management**: Each service manages its own data store.\n- **Resilience**: Services should be designed to handle failures gracefully.\n\nAdopting microservices requires a shift in mindset and operational practices, but it can lead to faster development cycles and easier maintenance of large systems.\n\n## Benefits\n\n- **Scalability**: Individual services can be scaled independently.\n- **Agility**: Smaller codebases are easier to develop, test, and deploy.\n- **Technology Diversity**: Different services can use different technologies.\n- **Fault Isolation**: Failure in one service doesn't necessarily bring down the entire application.\n",
       "section_ref": "tech",
       "draft": false,
       "featured": false,
@@ -235,10 +235,10 @@
     },
     {
       "ref": "blog-tech-1",
-      "user_ref": "user-superadmin",
+      "user_ref": "user-johndoe",
       "kind": "blog",
-      "heading": "Blog Post 1 about Tech",
-      "body": "This is blog post 1 about Tech.",
+      "heading": "Go Concurrency Patterns: Goroutines and Channels",
+      "body": "# Go Concurrency Patterns: Goroutines and Channels\n\nGo's built-in concurrency primitives, goroutines and channels, offer a powerful and elegant way to write concurrent programs. Unlike traditional thread-based concurrency, goroutines are lightweight and managed by the Go runtime, while channels provide a safe and synchronized way for goroutines to communicate. This post explores fundamental concurrency patterns in Go.\n\n## Goroutines: Lightweight Threads\n\nA goroutine is a lightweight thread of execution. You can launch a goroutine by simply prefixing a function call with the `go` keyword:\n\n```go\nfunc doSomething() {\n    // ...\n}\n\nfunc main() {\n    go doSomething()\n    // ...\n}\n```\n\n## Channels: Communicating Sequential Processes\n\nChannels are the conduits through which goroutines communicate. They allow you to send and receive values with a guarantee of synchronization.\n\n```go\nfunc worker(id int, jobs <-chan int, results chan<- int) {\n    for j := range jobs {\n        fmt.Printf(\"Worker %d started job %d\\n\", id, j)\n        time.Sleep(time.Second) // Simulate work\n        fmt.Printf(\"Worker %d finished job %d\\n\", id, j)\n        results <- j * 2\n    }\n}\n\nfunc main() {\n    jobs := make(chan int, 100)\n    results := make(chan int, 100)\n\n    for w := 1; w <= 3; w++ {\n        go worker(w, jobs, results)\n    }\n\n    for j := 1; j <= 5; j++ {\n        jobs <- j\n    }\n    close(jobs)\n\n    for a := 1; a <= 5; a++ {\n        <-results\n    }\n}\n```\n\nThis example demonstrates how multiple workers (goroutines) can process jobs sent through a channel and send results back through another.\n\n## Common Patterns\n\n- **Worker Pools**: Distribute tasks among a fixed number of goroutines.\n- **Fan-out/Fan-in**: Distribute work to multiple goroutines and collect their results.\n- **Select Statement**: Handle multiple channel operations simultaneously.\n\nGo's concurrency model simplifies the development of highly performant and scalable applications.\n",
       "section_ref": "tech",
       "draft": false,
       "featured": false,
@@ -248,8 +248,8 @@
       "ref": "blog-tech-2",
       "user_ref": "user-johndoe",
       "kind": "blog",
-      "heading": "Blog Post 2 about Tech",
-      "body": "This is blog post 2 about Tech.",
+      "heading": "Dockerizing Your Microservices: A Practical Guide",
+      "body": "# Dockerizing Your Microservices: A Practical Guide\n\nDocker has become an indispensable tool for packaging, deploying, and running microservices. By containerizing your applications, you ensure consistency across different environments, simplify dependency management, and enable efficient scaling. This guide walks you through the process of Dockerizing a typical microservice.\n\n## Why Docker for Microservices?\n\n- **Isolation**: Each service runs in its own isolated environment, preventing conflicts.\n- **Portability**: Docker containers run consistently on any platform that supports Docker.\n- **Efficiency**: Lightweight containers start quickly and use resources efficiently.\n- **Version Control**: Docker images can be versioned, making rollbacks easy.\n\nDocker simplifies the entire development lifecycle, from local development to production deployment, for microservices architectures.\n\n## Key Steps to Dockerize\n\n1.  **Create a `Dockerfile`**: Define your application's environment and build steps.\n2.  **Build the Image**: Use `docker build` to create a Docker image.\n3.  **Run the Container**: Use `docker run` to start your microservice in a container.\n4.  **Orchestration**: Use tools like Docker Compose or Kubernetes for multi-service applications.\n\n## Example `Dockerfile`\n\n```dockerfile\n# Use a lightweight base image\nFROM alpine:latest\n\n# Set the working directory\nWORKDIR /app\n\n# Copy the application code\nCOPY . .\n\n# Build the application (if applicable, e.g., Go or Rust)\n# RUN go build -o myapp .\n\n# Expose the port your application listens on\nEXPOSE 8080\n\n# Define the command to run your application\nCMD [\"./myapp\"]\n```\n\nThis basic `Dockerfile` can be adapted for various microservice technologies.\n",
       "section_ref": "tech",
       "draft": false,
       "featured": false,
@@ -257,10 +257,10 @@
     },
     {
       "ref": "blog-tech-3",
-      "user_ref": "user-johndoe",
+      "user_ref": "user-superadmin",
       "kind": "blog",
-      "heading": "Blog Post 3 about Tech",
-      "body": "This is blog post 3 about Tech.",
+      "heading": "Serverless Architectures: Beyond Functions as a Service",
+      "body": "# Serverless Architectures: Beyond Functions as a Service\n\nServerless computing has evolved beyond simple Functions as a Service (FaaS) to encompass entire application architectures where developers focus solely on writing code without managing servers. This paradigm offers significant benefits in terms of scalability, cost-efficiency, and reduced operational overhead. This post explores the broader landscape of serverless architectures.\n\n## Key Components of Serverless\n\n- **FaaS (Functions as a Service)**: Event-driven compute services (e.g., AWS Lambda, Google Cloud Functions).\n- **Backend as a Service (BaaS)**: Managed services for databases, authentication, and storage (e.g., Firebase, AWS Amplify).\n- **Serverless Databases**: Databases that scale automatically and are billed per usage (e.g., DynamoDB, Aurora Serverless).\n- **Event Buses**: Services that route events between different parts of your serverless application (e.g., AWS EventBridge).\n\nServerless enables developers to build highly scalable and resilient applications with minimal infrastructure management.\n\n## Benefits of Serverless\n\n- **No Server Management**: Focus on code, not infrastructure.\n- **Automatic Scaling**: Applications scale automatically with demand.\n- **Pay-per-use**: Only pay for the compute resources consumed.\n- **Faster Time to Market**: Accelerate development and deployment cycles.\n\n## Considerations\n\n- **Cold Starts**: Initial latency for infrequently used functions.\n- **Vendor Lock-in**: Reliance on specific cloud provider services.\n- **Monitoring and Debugging**: Can be more complex in distributed serverless environments.\n",
       "section_ref": "tech",
       "draft": false,
       "featured": false,
@@ -270,8 +270,8 @@
       "ref": "page-philosophy",
       "user_ref": "user-superadmin",
       "kind": "page",
-      "heading": "About the Philosophy Section",
-      "body": "This is a page about the Philosophy section.",
+      "heading": "Exploring the Depths of Philosophy",
+      "body": "# Exploring the Depths of Philosophy\n\nWelcome to the Philosophy section, a space dedicated to exploring fundamental questions about existence, knowledge, values, reason, mind, and language. Here, we delve into ancient wisdom, modern thought, and the ongoing debates that shape our understanding of the world and ourselves.\n\n## Key Areas of Inquiry\n\n- **Metaphysics**: What is reality? What is existence?\n- **Epistemology**: How do we know what we know? What are the limits of knowledge?\n- **Ethics**: What is good and bad? How should we live?\n- **Logic**: The study of valid reasoning.\n\nJoin us as we ponder the big questions and seek clarity in a complex world.\n",
       "section_ref": "philosophy",
       "draft": false,
       "featured": false,
@@ -281,8 +281,8 @@
       "ref": "article-philosophy-1",
       "user_ref": "user-admin",
       "kind": "article",
-      "heading": "Article 1 about Philosophy",
-      "body": "This is article 1 about Philosophy.",
+      "heading": "Stoicism for Modern Life: Ancient Wisdom, Contemporary Challenges",
+      "body": "# Stoicism for Modern Life: Ancient Wisdom, Contemporary Challenges\n\nStoicism, a school of Hellenistic philosophy, offers practical guidance for navigating the complexities of modern life. Its core tenets—focusing on what's within our control, cultivating virtue, and accepting fate—provide a powerful framework for building resilience, managing emotions, and finding tranquility amidst chaos. This article explores how Stoic principles can be applied today.\n\n## Core Stoic Practices\n\n- **Dichotomy of Control**: Distinguish between what you can influence and what you cannot.\n- **Premeditatio Malorum**: Meditate on potential misfortunes to prepare for them.\n- **Journaling**: Reflect on your actions and thoughts, often through a daily practice.\n- **Negative Visualization**: Appreciate what you have by imagining losing it.\n\nStoicism is not about suppressing emotions, but about understanding their nature and responding rationally, leading to a more serene and purposeful existence.\n\n## Key Figures\n\n- **Seneca**: Roman statesman and philosopher, known for his letters.\n- **Epictetus**: Former slave, whose teachings emphasize inner freedom.\n- **Marcus Aurelius**: Roman Emperor, author of \"Meditations\".\n",
       "section_ref": "philosophy",
       "draft": false,
       "featured": false,
@@ -292,8 +292,8 @@
       "ref": "article-philosophy-2",
       "user_ref": "user-admin",
       "kind": "article",
-      "heading": "Article 2 about Philosophy",
-      "body": "This is article 2 about Philosophy.",
+      "heading": "The Ethics of AI: Navigating the Moral Landscape",
+      "body": "# The Ethics of AI: Navigating the Moral Landscape\n\nAs Artificial Intelligence rapidly advances, the ethical questions it raises become increasingly urgent. From autonomous weapons to algorithmic bias in hiring and justice systems, understanding and addressing the moral implications of AI is crucial for its responsible development and deployment. This article delves into the key ethical challenges and frameworks for AI.\n\n## Core Ethical Concerns\n\n- **Bias and Fairness**: Ensuring AI systems do not perpetuate or amplify existing societal biases.\n- **Transparency and Explainability**: Understanding how AI makes decisions.\n- **Accountability**: Assigning responsibility for AI's actions and errors.\n- **Privacy**: Protecting personal data used by AI systems.\n- **Human Autonomy**: The impact of AI on human decision-making and control.\n\nDeveloping ethical AI requires a multidisciplinary approach, involving technologists, philosophers, policymakers, and the public.\n\n## Ethical Frameworks\n\n- **Deontology**: Rule-based ethics, focusing on duties and rights.\n- **Consequentialism**: Outcome-based ethics, focusing on the greatest good.\n- **Virtue Ethics**: Character-based ethics, focusing on moral character.\n",
       "section_ref": "philosophy",
       "draft": false,
       "featured": false,
@@ -303,8 +303,8 @@
       "ref": "article-philosophy-3",
       "user_ref": "user-johndoe",
       "kind": "article",
-      "heading": "Article 3 about Philosophy",
-      "body": "This is article 3 about Philosophy.",
+      "heading": "Existentialism: Freedom, Responsibility, and Meaning",
+      "body": "# Existentialism: Freedom, Responsibility, and Meaning\n\nExistentialism is a philosophical movement that emphasizes individual existence, freedom, and responsibility. It posits that humans define their own meaning in life, and try to make rational decisions in an irrational universe. Key thinkers like Sartre, Camus, and Kierkegaard explored themes of anguish, alienation, and the search for authenticity in a world without inherent purpose.\n\n## Core Tenets\n\n- **Existence Precedes Essence**: We are born without inherent purpose and define ourselves through our choices.\n- **Freedom and Responsibility**: We are condemned to be free, and thus fully responsible for our actions.\n- **Anguish**: The feeling of dread and responsibility that comes with absolute freedom.\n- **Absurdity**: The conflict between the human tendency to seek inherent value and meaning in life and the human inability to find any in a purposeless, meaningless or irrational universe.\n\nExistentialism challenges us to confront the realities of our freedom and to create meaning in a world that offers none by default.\n\n## Key Figures\n\n- **Jean-Paul Sartre**: French philosopher, playwright, novelist, political activist.\n- **Albert Camus**: French philosopher, author, and journalist, known for his concept of the absurd.\n- **Søren Kierkegaard**: Danish philosopher, theologian, poet, social critic, and religious author.\n",
       "section_ref": "philosophy",
       "draft": false,
       "featured": false,
@@ -312,10 +312,10 @@
     },
     {
       "ref": "blog-philosophy-1",
-      "user_ref": "user-superadmin",
+      "user_ref": "user-johndoe",
       "kind": "blog",
-      "heading": "Blog Post 1 about Philosophy",
-      "body": "This is blog post 1 about Philosophy.",
+      "heading": "The Logic of Everyday Arguments: A Practical Guide",
+      "body": "# The Logic of Everyday Arguments: A Practical Guide\n\nUnderstanding basic logical principles can significantly improve how we construct our own arguments and critically evaluate those of others. This blog post explores common logical fallacies and sound reasoning techniques that are applicable in daily conversations, debates, and decision-making. Sharpening your logical skills is key to clearer communication and more effective persuasion.\n\n## Common Logical Fallacies\n\n- **Ad Hominem**: Attacking the person, not the argument.\n- **Straw Man**: Misrepresenting an opponent's argument to make it easier to attack.\n- **False Dilemma**: Presenting only two options when more exist.\n- **Appeal to Authority**: Citing an authority figure without proper justification.\n- **Slippery Slope**: Assuming a small first step will lead to a chain of related, increasingly negative events.\n\nRecognizing these fallacies helps you avoid them in your own reasoning and identify them in others'.\n\n## Principles of Sound Reasoning\n\n- **Clarity**: Express your ideas clearly and unambiguously.\n- **Consistency**: Ensure your premises do not contradict each other.\n- **Relevance**: Make sure your evidence directly supports your conclusion.\n- **Sufficiency**: Provide enough evidence to warrant your conclusion.\n\nDeveloping strong logical reasoning is a valuable skill for both personal and professional life.\n",
       "section_ref": "philosophy",
       "draft": false,
       "featured": false,
@@ -325,8 +325,8 @@
       "ref": "blog-philosophy-2",
       "user_ref": "user-superadmin",
       "kind": "blog",
-      "heading": "Blog Post 2 about Philosophy",
-      "body": "This is blog post 2 about Philosophy.",
+      "heading": "Idealism vs. Realism: Two Ways of Seeing the World",
+      "body": "# Idealism vs. Realism: Two Ways of Seeing the World\n\nIn philosophy, idealism and realism represent two fundamental approaches to understanding the nature of reality. Idealism posits that reality is fundamentally mental or consciousness-based, while realism asserts that reality exists independently of our minds. This blog post explores the core tenets and implications of these contrasting philosophical perspectives.\n\n## Idealism\n\n- **Key Idea**: Reality is constructed by the mind or is fundamentally mental.\n- **Proponents**: George Berkeley, Immanuel Kant (transcendental idealism).\n- **Implications**: Emphasizes the role of consciousness, perception, and ideas in shaping our world.\n\n## Realism\n\n- **Key Idea**: Reality exists independently of our thoughts, beliefs, or perceptions.\n- **Proponents**: Aristotle, John Locke (naive realism), scientific realists.\n- **Implications**: Focuses on objective truth and the external world as it is.\n\nBoth perspectives offer valuable insights into how we perceive and interact with the world, influencing fields from science to ethics.\n",
       "section_ref": "philosophy",
       "draft": false,
       "featured": false,
@@ -336,8 +336,8 @@
       "ref": "blog-philosophy-3",
       "user_ref": "user-johndoe",
       "kind": "blog",
-      "heading": "Blog Post 3 about Philosophy",
-      "body": "This is blog post 3 about Philosophy.",
+      "heading": "The Philosophy of Movies: Deconstructing Cinematic Meaning",
+      "body": "# The Philosophy of Movies: Deconstructing Cinematic Meaning\n\nMovies are not just entertainment; they are powerful mediums for exploring philosophical ideas, ethical dilemmas, and the human condition. From existential crises in sci-fi epics to moral quandaries in dramas, cinema often serves as a mirror reflecting our deepest questions and societal values. This post delves into how films engage with philosophical themes.\n\n## Philosophical Themes in Film\n\n- **Existentialism**: Films like *Blade Runner* or *The Matrix* question identity, free will, and the nature of reality.\n- **Ethics**: Dramas often explore moral choices, justice, and the consequences of human actions.\n- **Metaphysics**: Science fiction frequently delves into the nature of time, space, and consciousness.\n- **Social Commentary**: Films can critique societal norms, power structures, and political ideologies.\n\nAnalyzing movies through a philosophical lens enriches the viewing experience and deepens our understanding of both film and philosophy.\n\n## Examples\n\n- ***The Matrix***: Explores reality, free will, and simulated worlds.\n- ***Inception***: Delves into dreams, reality, and the nature of consciousness.\n- ***Arrival***: Examines language, perception, and determinism.\n",
       "section_ref": "philosophy",
       "draft": false,
       "featured": false,
@@ -347,8 +347,8 @@
       "ref": "page-food",
       "user_ref": "user-superadmin",
       "kind": "page",
-      "heading": "About the Food Section",
-      "body": "This is a page about the Food section.",
+      "heading": "A Culinary Journey: Exploring the World of Food",
+      "body": "# A Culinary Journey: Exploring the World of Food\n\nWelcome to the Food section, your passport to global flavors, culinary techniques, and the rich cultural stories behind what we eat. From traditional recipes to modern gastronomic innovations, we explore everything that makes food a central part of human experience. Whether you're a home cook, a food enthusiast, or simply curious, prepare to tantalize your taste buds.\n\n## What's on the Menu\n\n- **Global Cuisines**: Discover dishes from around the world.\n- **Cooking Techniques**: Master new skills in the kitchen.\n- **Food Culture**: Understand the history and traditions behind your favorite meals.\n- **Dietary Lifestyles**: Explore vegan, vegetarian, and other eating philosophies.\n\nJoin us as we celebrate the joy of food and its power to connect us all.\n",
       "section_ref": "food",
       "draft": false,
       "featured": false,
@@ -358,8 +358,8 @@
       "ref": "article-food-1",
       "user_ref": "user-johndoe",
       "kind": "article",
-      "heading": "Article 1 about Food",
-      "body": "This is article 1 about Food.",
+      "heading": "The Art of Sushi: A Japanese Culinary Tradition",
+      "body": "# The Art of Sushi: A Japanese Culinary Tradition\n\nSushi is more than just raw fish; it's an intricate Japanese culinary art form that emphasizes fresh ingredients, precise preparation, and aesthetic presentation. This article delves into the history, types, and etiquette surrounding sushi, offering insights into what makes it a global delicacy.\n\n## Key Components of Sushi\n\n- **Nori**: Dried seaweed used to wrap rolls.\n- **Sushi-meshi**: Specially prepared vinegared rice.\n- **Neta**: The toppings, typically seafood (raw or cooked), but also vegetables or egg.\n- **Wasabi & Gari**: Green horseradish paste and pickled ginger, served as condiments.\n\nMastering sushi requires years of dedication, but understanding its fundamentals can enhance your appreciation for this exquisite cuisine.\n\n## Types of Sushi\n\n- **Nigiri**: Sliced fish over a small mound of rice.\n- **Maki**: Rice and fillings rolled in nori, then sliced.\n- **Sashimi**: Sliced raw fish without rice.\n- **Temaki**: Hand-rolled cone-shaped sushi.\n\n## Etiquette Tips\n\n- Eat nigiri with your hands.\n- Dip fish-side down into soy sauce.\n- Eat ginger between different types of sushi to cleanse the palate.\n",
       "section_ref": "food",
       "draft": false,
       "featured": false,
@@ -369,8 +369,8 @@
       "ref": "article-food-2",
       "user_ref": "user-johndoe",
       "kind": "article",
-      "heading": "Article 2 about Food",
-      "body": "This is article 2 about Food.",
+      "heading": "Vegan Italian Cuisine: A Plant-Based Feast",
+      "body": "# Vegan Italian Cuisine: A Plant-Based Feast\n\nItalian cuisine is renowned for its rich flavors and comforting dishes, and going vegan doesn't mean sacrificing any of that. From hearty pasta dishes to creamy risottos and delectable pizzas, plant-based Italian cooking offers a world of delicious possibilities. This article explores how to create authentic Italian flavors using only vegan ingredients.\n\n## Staples of Vegan Italian Cooking\n\n- **Tomatoes**: The foundation of many sauces, from marinara to puttanesca.\n- **Garlic & Onion**: Aromatic base for almost every dish.\n- **Olive Oil**: Essential for flavor and cooking.\n- **Legumes**: Beans and lentils add protein and texture to stews and pasta.\n- **Fresh Herbs**: Basil, oregano, rosemary, and parsley are indispensable.\n\nWith a few simple substitutions and creative techniques, you can enjoy all the richness of Italian food without animal products.\n\n## Popular Vegan Italian Dishes\n\n- **Pasta Aglio e Olio**: Simple yet flavorful garlic and oil pasta.\n- **Mushroom Risotto**: Creamy rice dish with earthy mushrooms.\n- **Pizza Marinara**: Classic pizza with tomato, garlic, and oregano.\n- **Melanzane alla Parmigiana (Eggplant Parmesan)**: Layered eggplant with rich tomato sauce and vegan cheese.\n\n## Tips for Success\n\n- Use nutritional yeast for a cheesy flavor.\n- Experiment with plant-based milks and creams for richness.\n- Don't shy away from bold flavors; Italian cooking is all about them.\n",
       "section_ref": "food",
       "draft": false,
       "featured": false,
@@ -380,8 +380,8 @@
       "ref": "article-food-3",
       "user_ref": "user-admin",
       "kind": "article",
-      "heading": "Article 3 about Food",
-      "body": "This is article 3 about Food.",
+      "heading": "Thai Street Food: A Culinary Adventure",
+      "body": "# Thai Street Food: A Culinary Adventure\n\nThai street food is a vibrant, flavorful, and essential part of Thai culture, offering an incredible array of dishes that are both delicious and affordable. From bustling night markets to roadside stalls, the culinary landscape of Thailand is a feast for the senses. This article guides you through some must-try dishes and the experience of eating street food in Thailand.\n\n## Must-Try Thai Street Dishes\n\n- **Pad Thai**: Stir-fried rice noodles with shrimp or chicken, tofu, peanuts, and bean sprouts.\n- **Tom Yum Goong**: Spicy and sour shrimp soup, a national favorite.\n- **Mango Sticky Rice**: A popular dessert made with sticky rice, fresh mango, and coconut milk.\n- **Satay**: Grilled skewers of meat, often served with peanut sauce.\n- **Green Curry (Gaeng Keow Wan)**: A rich and spicy coconut milk-based curry.\n\nEating street food in Thailand is not just about the food; it's about the atmosphere, the sounds, and the energy of the local culture.\n\n## Tips for Enjoying Street Food\n\n- **Look for crowds**: A busy stall usually means good food.\n- **Observe hygiene**: Choose stalls that look clean and handle food properly.\n- **Be adventurous**: Try new things, but start with less spicy options if you're sensitive.\n- **Carry cash**: Most street vendors only accept cash.\n\nThai street food offers an authentic and unforgettable culinary experience.\n",
       "section_ref": "food",
       "draft": false,
       "featured": false,
@@ -391,8 +391,8 @@
       "ref": "blog-food-1",
       "user_ref": "user-johndoe",
       "kind": "blog",
-      "heading": "Blog Post 1 about Food",
-      "body": "This is blog post 1 about Food.",
+      "heading": "Mexican Vegan Delights: Flavor Without Compromise",
+      "body": "# Mexican Vegan Delights: Flavor Without Compromise\n\nMexican cuisine is celebrated for its bold flavors, fresh ingredients, and vibrant spices. The good news is that it's incredibly easy to adapt many traditional Mexican dishes to be entirely plant-based without sacrificing any of the deliciousness. This blog post explores how to enjoy authentic Mexican flavors in a vegan way.\n\n## Key Vegan Mexican Ingredients\n\n- **Beans**: Black beans, pinto beans are staples for protein and texture.\n- **Avocado**: Essential for guacamole and creamy textures.\n- **Chiles**: Fresh and dried chiles provide the characteristic heat and depth of flavor.\n- **Corn**: Tortillas, tamales, and esquites rely on corn.\n- **Vegetables**: Bell peppers, onions, tomatoes, zucchini, and nopales (cactus paddles) are common.\n\nFrom tacos to enchiladas, the versatility of Mexican ingredients makes vegan adaptations both simple and incredibly satisfying.\n\n## Popular Vegan Mexican Dishes\n\n- **Tacos al Pastor (Vegan Version)**: Marinated and grilled mushrooms or jackfruit.\n- **Enchiladas Rojas**: Corn tortillas filled with beans or veggies, smothered in red chile sauce.\n- **Chiles Rellenos (Vegan)**: Poblano peppers stuffed with vegan cheese and vegetables.\n- **Guacamole & Chips**: A timeless classic.\n\n## Tips for Authentic Flavor\n\n- Use fresh ingredients whenever possible.\n- Don't be afraid of spices; toast them for deeper flavor.\n- Make your own salsas for a fresh taste.\n",
       "section_ref": "food",
       "draft": false,
       "featured": false,
@@ -402,8 +402,8 @@
       "ref": "blog-food-2",
       "user_ref": "user-admin",
       "kind": "blog",
-      "heading": "Blog Post 2 about Food",
-      "body": "This is blog post 2 about Food.",
+      "heading": "The Secret to Perfect Italian Pasta: A Simple Guide",
+      "body": "# The Secret to Perfect Italian Pasta: A Simple Guide\n\nAchieving perfectly cooked Italian pasta is an art form, but it's also surprisingly simple once you know a few key secrets. Forget mushy noodles or bland flavors; this guide will help you master the techniques for al dente pasta that truly shines, whether you're making a simple aglio e olio or a complex ragù.\n\n## Key Principles for Perfect Pasta\n\n- **Plenty of Water**: Use a large pot with ample water to allow the pasta to move freely.\n- **Generous Salt**: Salt the water until it tastes like the sea. This seasons the pasta from within.\n- **Boiling Water**: Add pasta only when the water is at a rolling boil.\n- **Al Dente**: Cook until it's firm to the bite, not soft or mushy.\n- **Reserve Pasta Water**: The starchy water is liquid gold for emulsifying sauces.\n\nThese simple steps elevate your pasta dishes from good to extraordinary, bringing authentic Italian flavors to your table.\n\n## Common Mistakes to Avoid\n\n- **Adding Oil to Water**: It prevents sauce from clinging to the pasta.\n- **Rinsing Cooked Pasta**: Removes starch needed for sauce adhesion.\n- **Overcooking**: Leads to mushy texture and loss of flavor.\n- **Using Too Little Sauce**: Pasta should be coated, not swimming.\n\n## Popular Italian Pasta Dishes\n\n- **Cacio e Pepe**: Simple, cheesy, peppery perfection.\n- **Carbonara**: Creamy, rich, and utterly delicious (no cream needed!).\n- **Amatriciana**: Spicy tomato sauce with guanciale.\n- **Pesto**: Fresh basil, pine nuts, garlic, Parmesan, and olive oil.\n",
       "section_ref": "food",
       "draft": false,
       "featured": false,
@@ -413,456 +413,12 @@
       "ref": "blog-food-3",
       "user_ref": "user-johndoe",
       "kind": "blog",
-      "heading": "Blog Post 3 about Food",
-      "body": "This is blog post 3 about Food.",
+      "heading": "Exploring Indian Vegetarian Cuisine: A World of Spices",
+      "body": "# Exploring Indian Vegetarian Cuisine: A World of Spices\n\nIndian vegetarian cuisine is a vibrant tapestry of flavors, aromas, and textures, offering an incredible diversity of dishes that are naturally plant-based and deeply satisfying. From aromatic curries to crispy dosas and fluffy naans, it's a culinary journey through a rich tradition of spices and fresh ingredients. This blog post introduces the wonders of Indian vegetarian food.\n\n## Pillars of Indian Vegetarian Cooking\n\n- **Spices**: Cumin, coriander, turmeric, cardamom, chili, and garam masala are fundamental.\n- **Lentils & Legumes (Dal)**: A primary source of protein, used in countless dishes.\n- **Vegetables**: A wide array of seasonal vegetables form the base of many curries and stir-fries.\n- **Grains**: Rice and various flatbreads (roti, naan, chapati) are staples.\n- **Dairy (Optional)**: Paneer (cheese), yogurt, and ghee are used in many traditional dishes, but can often be substituted for vegan versions.\n\nIndian vegetarian food is not just about sustenance; it's about balance, health, and a profound connection to nature's bounty.\n\n## Popular Dishes to Try\n\n- **Dal Makhani**: Creamy black lentil curry.\n- **Palak Paneer (or Tofu)**: Spinach and cheese (or tofu) curry.\n- **Chole Bhature**: Spicy chickpea curry with fried bread.\n- **Vegetable Biryani**: Aromatic rice dish with mixed vegetables.\n- **Masala Dosa**: Crispy fermented crepe with a spiced potato filling.\n\n## Tips for Cooking Indian Food\n\n- **Temper your spices**: Bloom whole spices in hot oil for maximum flavor.\n- **Balance flavors**: Aim for a balance of sweet, sour, salty, spicy, and bitter.\n- **Don't be afraid to experiment**: Indian cooking is very forgiving.\n",
       "section_ref": "food",
       "draft": false,
       "featured": false,
       "published_at": "2025-09-21T23:03:25.452284Z"
-    }
-  ],
-  "metas": [
-    {
-      "content_ref": "building-kubernetes-operators-with-go",
-      "description": "A comprehensive guide to building Kubernetes Operators using Go, covering reasons, use cases, and best practices.",
-      "summary": "Learn to build Kubernetes Operators with Go.",
-      "excerpt": "Kubernetes operators are a powerful way to extend the capabilities of clusters.",
-      "keywords": "kubernetes, operators, go, golang, client-go, operator-sdk",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.9, \"changefreq\": \"monthly\"}",
-      "table_of_contents": true,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "intro-to-golang",
-      "description": "A beginner's guide to the Go programming language, covering the basics and core concepts.",
-      "summary": "A beginner's guide to the Go programming language.",
-      "excerpt": "Go is a statically typed, compiled programming language designed at Google.",
-      "keywords": "golang, programming, introduction, google",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.9, \"changefreq\": \"monthly\"}",
-      "table_of_contents": true,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "go-generics",
-      "description": "An overview of how to use generics in Go (Golang) since version 1.18.",
-      "summary": "An overview of how to use generics in Go.",
-      "excerpt": "Go introduced generics in version 1.18.",
-      "keywords": "golang, programming, generics",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"yearly\"}",
-      "table_of_contents": true,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "what-is-nats",
-      "description": "A primer on the NATS messaging system for cloud-native architectures.",
-      "summary": "A primer on the NATS messaging system.",
-      "excerpt": "NATS is a simple, high-performance open-source messaging system.",
-      "keywords": "nats, messaging, cloud-native, microservices",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
-      "table_of_contents": false,
-      "share": true,
-      "comments": false
-    },
-    {
-      "content_ref": "hashicorp-nomad",
-      "description": "Understanding the basics of HashiCorp Nomad for workload orchestration.",
-      "summary": "Understanding the basics of HashiCorp Nomad.",
-      "excerpt": "Nomad is a simple and flexible workload orchestrator.",
-      "keywords": "nomad, hashicorp, orchestration, containers",
-      "robots": "noindex, nofollow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.5, \"changefreq\": \"yearly\"}",
-      "table_of_contents": true,
-      "share": false,
-      "comments": false
-    },
-    {
-      "content_ref": "kubernetes-basics",
-      "description": "A foundational look at Kubernetes (K8s) for container orchestration.",
-      "summary": "A foundational look at Kubernetes (K8s).",
-      "excerpt": "Kubernetes, also known as K8s, is an open-source system for automating deployment, scaling, and management of containerized applications.",
-      "keywords": "kubernetes, k8s, orchestration, containers, cloud-native",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.9, \"changefreq\": \"weekly\"}",
-      "table_of_contents": true,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "page-root",
-      "description": "A page about the Root section.",
-      "summary": "A page about the Root section.",
-      "excerpt": "This is a page about the Root section.",
-      "keywords": "root, page",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.5, \"changefreq\": \"yearly\"}",
-      "table_of_contents": false,
-      "share": false,
-      "comments": false
-    },
-    {
-      "content_ref": "article-root-1",
-      "description": "Article 1 about the Root section.",
-      "summary": "Article 1 about the Root section.",
-      "excerpt": "This is article 1 about Root.",
-      "keywords": "root, article, article 1",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
-      "table_of_contents": true,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "article-root-2",
-      "description": "Article 2 about the Root section.",
-      "summary": "Article 2 about the Root section.",
-      "excerpt": "This is article 2 about Root.",
-      "keywords": "root, article, article 2",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
-      "table_of_contents": true,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "article-root-3",
-      "description": "Article 3 about the Root section.",
-      "summary": "Article 3 about the Root section.",
-      "excerpt": "This is article 3 about Root.",
-      "keywords": "root, article, article 3",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
-      "table_of_contents": true,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "blog-root-1",
-      "description": "Blog post 1 about the Root section.",
-      "summary": "Blog post 1 about the Root section.",
-      "excerpt": "This is blog post 1 about Root.",
-      "keywords": "root, blog, blog post 1",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
-      "table_of_contents": false,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "blog-root-2",
-      "description": "Blog post 2 about the Root section.",
-      "summary": "Blog post 2 about the Root section.",
-      "excerpt": "This is blog post 2 about Root.",
-      "keywords": "root, blog, blog post 2",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
-      "table_of_contents": false,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "blog-root-3",
-      "description": "Blog post 3 about the Root section.",
-      "summary": "Blog post 3 about the Root section.",
-      "excerpt": "This is blog post 3 about Root.",
-      "keywords": "root, blog, blog post 3",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
-      "table_of_contents": false,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "page-tech",
-      "description": "A page about the Tech section.",
-      "summary": "A page about the Tech section.",
-      "excerpt": "This is a page about the Tech section.",
-      "keywords": "tech, page",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.5, \"changefreq\": \"yearly\"}",
-      "table_of_contents": false,
-      "share": false,
-      "comments": false
-    },
-    {
-      "content_ref": "article-tech-1",
-      "description": "Article 1 about the Tech section.",
-      "summary": "Article 1 about the Tech section.",
-      "excerpt": "This is article 1 about Tech.",
-      "keywords": "tech, article, article 1",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
-      "table_of_contents": true,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "article-tech-2",
-      "description": "Article 2 about the Tech section.",
-      "summary": "Article 2 about the Tech section.",
-      "excerpt": "This is article 2 about Tech.",
-      "keywords": "tech, article, article 2",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
-      "table_of_contents": true,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "article-tech-3",
-      "description": "Article 3 about the Tech section.",
-      "summary": "Article 3 about the Tech section.",
-      "excerpt": "This is article 3 about Tech.",
-      "keywords": "tech, article, article 3",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
-      "table_of_contents": true,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "blog-tech-1",
-      "description": "Blog post 1 about the Tech section.",
-      "summary": "Blog post 1 about the Tech section.",
-      "excerpt": "This is blog post 1 about Tech.",
-      "keywords": "tech, blog, blog post 1",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
-      "table_of_contents": false,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "blog-tech-2",
-      "description": "Blog post 2 about the Tech section.",
-      "summary": "Blog post 2 about the Tech section.",
-      "excerpt": "This is blog post 2 about Tech.",
-      "keywords": "tech, blog, blog post 2",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
-      "table_of_contents": false,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "blog-tech-3",
-      "description": "Blog post 3 about the Tech section.",
-      "summary": "Blog post 3 about the Tech section.",
-      "excerpt": "This is blog post 3 about Tech.",
-      "keywords": "tech, blog, blog post 3",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
-      "table_of_contents": false,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "page-philosophy",
-      "description": "A page about the Philosophy section.",
-      "summary": "A page about the Philosophy section.",
-      "excerpt": "This is a page about the Philosophy section.",
-      "keywords": "philosophy, page",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.5, \"changefreq\": \"yearly\"}",
-      "table_of_contents": false,
-      "share": false,
-      "comments": false
-    },
-    {
-      "content_ref": "article-philosophy-1",
-      "description": "Article 1 about the Philosophy section.",
-      "summary": "Article 1 about the Philosophy section.",
-      "excerpt": "This is article 1 about Philosophy.",
-      "keywords": "philosophy, article, article 1",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
-      "table_of_contents": true,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "article-philosophy-2",
-      "description": "Article 2 about the Philosophy section.",
-      "summary": "Article 2 about the Philosophy section.",
-      "excerpt": "This is article 2 about Philosophy.",
-      "keywords": "philosophy, article, article 2",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
-      "table_of_contents": true,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "article-philosophy-3",
-      "description": "Article 3 about the Philosophy section.",
-      "summary": "Article 3 about the Philosophy section.",
-      "excerpt": "This is article 3 about Philosophy.",
-      "keywords": "philosophy, article, article 3",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
-      "table_of_contents": true,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "blog-philosophy-1",
-      "description": "Blog post 1 about the Philosophy section.",
-      "summary": "Blog post 1 about the Philosophy section.",
-      "excerpt": "This is blog post 1 about Philosophy.",
-      "keywords": "philosophy, blog, blog post 1",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
-      "table_of_contents": false,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "blog-philosophy-2",
-      "description": "Blog post 2 about the Philosophy section.",
-      "summary": "Blog post 2 about the Philosophy section.",
-      "excerpt": "This is blog post 2 about Philosophy.",
-      "keywords": "philosophy, blog, blog post 2",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
-      "table_of_contents": false,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "blog-philosophy-3",
-      "description": "Blog post 3 about the Philosophy section.",
-      "summary": "Blog post 3 about the Philosophy section.",
-      "excerpt": "This is blog post 3 about Philosophy.",
-      "keywords": "philosophy, blog, blog post 3",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
-      "table_of_contents": false,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "page-food",
-      "description": "A page about the Food section.",
-      "summary": "A page about the Food section.",
-      "excerpt": "This is a page about the Food section.",
-      "keywords": "food, page",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.5, \"changefreq\": \"yearly\"}",
-      "table_of_contents": false,
-      "share": false,
-      "comments": false
-    },
-    {
-      "content_ref": "article-food-1",
-      "description": "Article 1 about the Food section.",
-      "summary": "Article 1 about the Food section.",
-      "excerpt": "This is article 1 about Food.",
-      "keywords": "food, article, article 1",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
-      "table_of_contents": true,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "article-food-2",
-      "description": "Article 2 about the Food section.",
-      "summary": "Article 2 about the Food section.",
-      "excerpt": "This is article 2 about Food.",
-      "keywords": "food, article, article 2",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
-      "table_of_contents": true,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "article-food-3",
-      "description": "Article 3 about the Food section.",
-      "summary": "Article 3 about the Food section.",
-      "excerpt": "This is article 3 about Food.",
-      "keywords": "food, article, article 3",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.8, \"changefreq\": \"monthly\"}",
-      "table_of_contents": true,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "blog-food-1",
-      "description": "Blog post 1 about the Food section.",
-      "summary": "Blog post 1 about the Food section.",
-      "excerpt": "This is blog post 1 about Food.",
-      "keywords": "food, blog, blog post 1",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
-      "table_of_contents": false,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "blog-food-2",
-      "description": "Blog post 2 about the Food section.",
-      "summary": "Blog post 2 about the Food section.",
-      "excerpt": "This is blog post 2 about Food.",
-      "keywords": "food, blog, blog post 2",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
-      "table_of_contents": false,
-      "share": true,
-      "comments": true
-    },
-    {
-      "content_ref": "blog-food-3",
-      "description": "Blog post 3 about the Food section.",
-      "summary": "Blog post 3 about the Food section.",
-      "excerpt": "This is blog post 3 about Food.",
-      "keywords": "food, blog, blog post 3",
-      "robots": "index, follow",
-      "canonical_url": "",
-      "sitemap": "{\"priority\": 0.7, \"changefreq\": \"weekly\"}",
-      "table_of_contents": false,
-      "share": true,
-      "comments": true
     }
   ],
   "tags": [],
@@ -920,224 +476,224 @@
       "tag_ref": "cloud-native"
     },
     {
-      "content_ref": "article-tech-1",
-      "tag_ref": "tag-python"
+      "content_ref": "article-root-1",
+      "tag_ref": "work"
+    },
+    {
+      "content_ref": "article-root-1",
+      "tag_ref": "life"
+    },
+    {
+      "content_ref": "article-root-2",
+      "tag_ref": "ai"
+    },
+    {
+      "content_ref": "article-root-2",
+      "tag_ref": "ethics"
+    },
+    {
+      "content_ref": "article-root-3",
+      "tag_ref": "philosophy"
+    },
+    {
+      "content_ref": "article-root-3",
+      "tag_ref": "history"
+    },
+    {
+      "content_ref": "blog-root-1",
+      "tag_ref": "philosophy"
+    },
+    {
+      "content_ref": "blog-root-1",
+      "tag_ref": "stoicism"
+    },
+    {
+      "content_ref": "blog-root-2",
+      "tag_ref": "life"
+    },
+    {
+      "content_ref": "blog-root-2",
+      "tag_ref": "minimalism"
+    },
+    {
+      "content_ref": "blog-root-3",
+      "tag_ref": "ai"
+    },
+    {
+      "content_ref": "blog-root-3",
+      "tag_ref": "ethics"
+    },
+    {
+      "content_ref": "page-tech",
+      "tag_ref": "tech"
+    },
+    {
+      "content_ref": "page-tech",
+      "tag_ref": "overview"
     },
     {
       "content_ref": "article-tech-1",
-      "tag_ref": "tag-go"
+      "tag_ref": "go"
+    },
+    {
+      "content_ref": "article-tech-1",
+      "tag_ref": "programming"
     },
     {
       "content_ref": "article-tech-2",
-      "tag_ref": "tag-python"
+      "tag_ref": "python"
     },
     {
       "content_ref": "article-tech-2",
-      "tag_ref": "tag-ai"
+      "tag_ref": "ai"
+    },
+    {
+      "content_ref": "article-tech-2",
+      "tag_ref": "ml"
     },
     {
       "content_ref": "article-tech-3",
-      "tag_ref": "tag-ml"
+      "tag_ref": "microservices"
     },
     {
       "content_ref": "article-tech-3",
-      "tag_ref": "tag-microservices"
-    },
-    {
-      "content_ref": "article-tech-3",
-      "tag_ref": "tag-kubernetes"
+      "tag_ref": "architecture"
     },
     {
       "content_ref": "blog-tech-1",
-      "tag_ref": "tag-go"
+      "tag_ref": "go"
+    },
+    {
+      "content_ref": "blog-tech-1",
+      "tag_ref": "concurrency"
     },
     {
       "content_ref": "blog-tech-2",
-      "tag_ref": "tag-microservices"
+      "tag_ref": "docker"
     },
     {
       "content_ref": "blog-tech-2",
-      "tag_ref": "tag-ai"
-    },
-    {
-      "content_ref": "blog-tech-2",
-      "tag_ref": "tag-docker"
+      "tag_ref": "microservices"
     },
     {
       "content_ref": "blog-tech-3",
-      "tag_ref": "tag-serverless"
+      "tag_ref": "serverless"
+    },
+    {
+      "content_ref": "blog-tech-3",
+      "tag_ref": "cloud-native"
+    },
+    {
+      "content_ref": "page-philosophy",
+      "tag_ref": "philosophy"
+    },
+    {
+      "content_ref": "page-philosophy",
+      "tag_ref": "overview"
     },
     {
       "content_ref": "article-philosophy-1",
-      "tag_ref": "tag-stoicism"
+      "tag_ref": "stoicism"
     },
     {
       "content_ref": "article-philosophy-1",
-      "tag_ref": "tag-ethics"
-    },
-    {
-      "content_ref": "article-philosophy-1",
-      "tag_ref": "tag-logic"
+      "tag_ref": "ethics"
     },
     {
       "content_ref": "article-philosophy-2",
-      "tag_ref": "tag-realism"
+      "tag_ref": "ai"
     },
     {
       "content_ref": "article-philosophy-2",
-      "tag_ref": "tag-existentialism"
+      "tag_ref": "ethics"
     },
     {
       "content_ref": "article-philosophy-3",
-      "tag_ref": "tag-logic"
-    },
-    {
-      "content_ref": "blog-philosophy-1",
-      "tag_ref": "tag-existentialism"
-    },
-    {
-      "content_ref": "blog-philosophy-1",
-      "tag_ref": "tag-logic"
-    },
-    {
-      "content_ref": "blog-philosophy-2",
-      "tag_ref": "tag-ethics"
-    },
-    {
-      "content_ref": "blog-philosophy-2",
-      "tag_ref": "tag-idealism"
-    },
-    {
-      "content_ref": "blog-philosophy-3",
-      "tag_ref": "tag-realism"
-    },
-    {
-      "content_ref": "blog-philosophy-3",
-      "tag_ref": "tag-stoicism"
-    },
-    {
-      "content_ref": "article-food-1",
-      "tag_ref": "tag-japanese"
-    },
-    {
-      "content_ref": "article-food-1",
-      "tag_ref": "tag-vegan"
-    },
-    {
-      "content_ref": "article-food-1",
-      "tag_ref": "tag-mexican"
-    },
-    {
-      "content_ref": "article-food-2",
-      "tag_ref": "tag-italian"
-    },
-    {
-      "content_ref": "article-food-2",
-      "tag_ref": "tag-vegan"
-    },
-    {
-      "content_ref": "article-food-2",
-      "tag_ref": "tag-japanese"
-    },
-    {
-      "content_ref": "article-food-3",
-      "tag_ref": "tag-thai"
-    },
-    {
-      "content_ref": "article-food-3",
-      "tag_ref": "tag-italian"
-    },
-    {
-      "content_ref": "blog-food-1",
-      "tag_ref": "tag-mexican"
-    },
-    {
-      "content_ref": "blog-food-1",
-      "tag_ref": "tag-vegetarian"
-    },
-    {
-      "content_ref": "blog-food-1",
-      "tag_ref": "tag-italian"
-    },
-    {
-      "content_ref": "blog-food-2",
-      "tag_ref": "tag-japanese"
-    },
-    {
-      "content_ref": "blog-food-3",
-      "tag_ref": "tag-dessert"
-    },
-    {
-      "content_ref": "blog-food-3",
-      "tag_ref": "tag-vegan"
-    },
-    {
-      "content_ref": "blog-food-3",
-      "tag_ref": "tag-indian"
-    },
-    {
-      "content_ref": "article-tech-1",
-      "tag_ref": "tag-realism"
-    },
-    {
-      "content_ref": "blog-tech-2",
-      "tag_ref": "tag-realism"
+      "tag_ref": "existentialism"
     },
     {
       "content_ref": "article-philosophy-3",
-      "tag_ref": "tag-vegetarian"
+      "tag_ref": "freedom"
     },
     {
-      "content_ref": "blog-philosophy-3",
-      "tag_ref": "tag-vegetarian"
+      "content_ref": "blog-philosophy-1",
+      "tag_ref": "logic"
     },
     {
-      "content_ref": "article-food-2",
-      "tag_ref": "tag-ml"
-    },
-    {
-      "content_ref": "blog-food-2",
-      "tag_ref": "tag-ml"
-    },
-    {
-      "content_ref": "blog-food-3",
-      "tag_ref": "tag-movies"
+      "content_ref": "blog-philosophy-1",
+      "tag_ref": "arguments"
     },
     {
       "content_ref": "blog-philosophy-2",
-      "tag_ref": "tag-movies"
+      "tag_ref": "idealism"
+    },
+    {
+      "content_ref": "blog-philosophy-2",
+      "tag_ref": "realism"
+    },
+    {
+      "content_ref": "blog-philosophy-3",
+      "tag_ref": "movies"
+    },
+    {
+      "content_ref": "blog-philosophy-3",
+      "tag_ref": "philosophy"
     },
     {
       "content_ref": "page-food",
-      "tag_ref": "tag-life"
+      "tag_ref": "food"
     },
     {
-      "content_ref": "blog-philosophy-3",
-      "tag_ref": "tag-life"
+      "content_ref": "page-food",
+      "tag_ref": "culinary"
     },
     {
-      "content_ref": "blog-food-3",
-      "tag_ref": "tag-work"
+      "content_ref": "article-food-1",
+      "tag_ref": "japanese"
     },
     {
-      "content_ref": "article-tech-1",
-      "tag_ref": "tag-work"
+      "content_ref": "article-food-1",
+      "tag_ref": "sushi"
+    },
+    {
+      "content_ref": "article-food-2",
+      "tag_ref": "italian"
+    },
+    {
+      "content_ref": "article-food-2",
+      "tag_ref": "vegan"
+    },
+    {
+      "content_ref": "article-food-3",
+      "tag_ref": "thai"
+    },
+    {
+      "content_ref": "article-food-3",
+      "tag_ref": "street-food"
     },
     {
       "content_ref": "blog-food-1",
-      "tag_ref": "tag-books"
+      "tag_ref": "mexican"
     },
     {
-      "content_ref": "article-tech-3",
-      "tag_ref": "tag-books"
+      "content_ref": "blog-food-1",
+      "tag_ref": "vegan"
     },
     {
-      "content_ref": "article-philosophy-1",
-      "tag_ref": "tag-movies"
+      "content_ref": "blog-food-2",
+      "tag_ref": "italian"
     },
     {
-      "content_ref": "blog-tech-2",
-      "tag_ref": "tag-movies"
+      "content_ref": "blog-food-2",
+      "tag_ref": "pasta"
+    },
+    {
+      "content_ref": "blog-food-3",
+      "tag_ref": "indian"
+    },
+    {
+      "content_ref": "blog-food-3",
+      "tag_ref": "vegetarian"
     }
   ]
 }
