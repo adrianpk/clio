@@ -10,14 +10,14 @@ import (
 )
 
 func CopyStaticAssets(assetsFS embed.FS, targetDir string) error {
-	staticRoot := "assets"
+	
 
-	return fs.WalkDir(assetsFS, "assets/static", func(path string, d fs.DirEntry, err error) error {
+	return fs.WalkDir(assetsFS, "assets/ssg/static", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return fmt.Errorf("error walking directory: %w", err)
 		}
 
-		destPath := filepath.Join(targetDir, path[len(staticRoot):])
+		destPath := filepath.Join(targetDir, path[len("assets/ssg"):])
 
 		if d.IsDir() {
 			if err := os.MkdirAll(destPath, 0755); err != nil {

@@ -100,7 +100,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 	// Set placeholder for content without image
 	for i := range contents {
 		if contents[i].Image == "" {
-			contents[i].Image = "/static/img/placeholder.png"
+			            contents[i].Image = "/static/img/placeholder.png"
 		}
 	}
 
@@ -170,19 +170,10 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		}
 
 		if !foundSpecificHeader {
-			headerImagePath = "/static/img/header.png"
+			        headerImagePath = "/static/img/header.png"
 		}
 
-		// Calculate asset path for relative links
-		pagePath := filepath.Join(content.SectionPath, content.Slug())
-		depth := strings.Count(strings.Trim(pagePath, "/"), "/")
-		assetPath := "./"
-		if pagePath != "" && pagePath != "/" {
-			depth++
-		}
-		if depth > 0 {
-			assetPath = strings.Repeat("../", depth)
-		}
+		assetPath := "/"
 
 		htmlBody, err := processor.ToHTML([]byte(content.Body))
 		if err != nil {
@@ -274,16 +265,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 				outputPath = filepath.Join(htmlPath, index.Path, "page", fmt.Sprintf("%d", page), "index.html")
 			}
 
-			// Calculate asset path for relative links
-			pagePath := strings.TrimPrefix(filepath.Dir(outputPath), htmlPath)
-			depth := strings.Count(strings.Trim(pagePath, "/"), "/")
-			assetPath := "./"
-			if pagePath != "" && pagePath != "/" {
-				depth++
-			}
-			if depth > 0 {
-				assetPath = strings.Repeat("../", depth)
-			}
+			assetPath := "/"
 
 			// Prepare pagination data
 			pagination := &PaginationData{

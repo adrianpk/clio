@@ -9,7 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tailwind-test": "tailwindcss --version",
-    "build-tailwind-css": "tailwindcss -i ./assets/static/css/prose.css -o ./assets/static/css/prose.compiled.css --postcss --minify"
+    "build-tailwind-css": "tailwindcss -i ./assets/ssg/static/css/prose.css -o ./assets/ssg/static/css/prose.compiled.css --postcss --minify"
   },
   "repository": {
     "type": "git",
