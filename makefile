@@ -128,6 +128,7 @@ setenv:
 	@export CLIO_RENDER_WEB_ERRORS="true"
 	@export CLIO_RENDER_API_ERRORS="true"
 	@export CLIO_SSG_BLOCKS_MAXITEMS=5
+	@export CLIO_SSG_INDEX_MAXITEMS=10
 
 # Run tests
 test:

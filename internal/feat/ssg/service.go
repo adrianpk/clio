@@ -233,7 +233,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		}
 	}
 
-	postsPerPage := int(svc.Cfg().IntVal(am.Key.SSGPostsPerPage, 10))
+	postsPerPage := int(svc.Cfg().IntVal(am.Key.SSGIndexMaxItems, 10))
 
 	for _, index := range indexes {
 		// Check if a manual index page exists for this path
