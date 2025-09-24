@@ -8,21 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **Pagination Controls**: Implemented navigation controls (Previous/Next, Page X of Y) for SSG index pages.
-- **Content Realism**: Enhanced seed data with more realistic headings and body content for existing posts.
+- **External Site Search Support**: Implemented Google Custom Search integration for site-wide content search, allowing users to easily find content.
+- **Pagination Controls**: Implemented navigation controls (Previous/Next, Page X of Y) for index pages.
 
 ### Changed
 - **Asset Separation**: Refactored SSG static assets into a dedicated `assets/ssg/static/` structure.
 - **Asset Paths**: Updated SSG templates and Go code to use absolute and simplified asset paths (`/static/`) in generated HTML, removing the `/ssg` prefix.
-- **Configuration Key**: Renamed `ssg.posts.per.page` to `ssg.index.maxitems` for improved semantic clarity and updated its usage across the codebase, `.envrc`, and `makefile`.
-- **CSS Optimization**: Configured Tailwind CSS build to run in production mode (`NODE_ENV=production`) to enable full purging of unused CSS.
-- **Pagination Text**: Localized pagination navigation texts to English.
-- **Pagination Styling**: Added CSS styles for pagination controls to display in a single, centered line.
 
 ### Fixed
-- Resolved template parsing error (`unexpected EOF`) in `pagination.tmpl`.
-- Corrected hardcoded image paths in SSG generation to reflect new asset structure.
-- Fixed Tailwind CSS build error related to `@apply` directives by reverting to plain CSS for pagination styles.
+- Resolved various internal issues to ensure stable and correct rendering of site content and features.
 
 ## [2025-09-23]
 
@@ -30,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Section Indexes:** Implemented functionality to generate and display section indexes, providing organized listings of content within different categories.
 - **Static Site Preview Server:** Added a dedicated server for previewing the generated static site, improving the development workflow by allowing real-time content and style verification.
 - **SSG Enhancements:** Implemented a configurable limit (`CLIO_SSG_BLOCKS_MAXITEMS`) for the maximum number of items displayed in content blocks and enforced a cascading hierarchy in block generation.
+- **Pagination Controls**: Implemented navigation controls (Previous/Next, Page X of Y) for SSG index pages.
 
 ### Improved
 - **Styling and Consistency:** Enhanced the overall visual presentation by centralizing placeholder images for content headers and section indexes, and refining the display of content pages and section index cards. 
