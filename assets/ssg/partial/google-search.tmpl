@@ -1,0 +1,9 @@
+{{ if .Search.Enabled }}
+{{ if .Search.ID }}
+<div class="google-custom-search">
+    <script async src="https://cse.google.com/cse.js?cx={{ .Search.ID }}">
+    </script>
+    <div class="gcse-search"></div>
+</div>
+{{ end }}
+{{ end }}

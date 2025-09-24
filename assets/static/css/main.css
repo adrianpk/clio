@@ -1,5 +1,36 @@
 @import "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css";
 
+@import "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css";
+
+.google-custom-search {
+    flex-shrink: 0;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    max-width: 180px;
+    font-size: 0.8rem;
+}
+
+.google-custom-search input[type="text"] {
+    height: 25px !important;
+    border-radius: 12px !important;
+    padding: 3px 8px !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    width: 90px;
+}
+
+.google-custom-search input[type="submit"] {
+    height: 25px !important;
+    border-radius: 12px !important;
+    padding: 0 10px !important;
+    background-color: #007bff !important;
+    color: white !important;
+    border: none !important;
+    cursor: pointer !important;
+    margin-left: 3px;
+}
+
 /* --- Action Buttons --- */
 .static-action-buttons button {
     opacity: 0.8; /* 80% visible */

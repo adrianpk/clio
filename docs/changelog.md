@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Pagination Controls**: Implemented navigation controls (Previous/Next, Page X of Y) for SSG index pages.
+- **Content Realism**: Enhanced seed data with more realistic headings and body content for existing posts.
+
+### Changed
+- **Asset Separation**: Refactored SSG static assets into a dedicated `assets/ssg/static/` structure.
+- **Asset Paths**: Updated SSG templates and Go code to use absolute and simplified asset paths (`/static/`) in generated HTML, removing the `/ssg` prefix.
+- **Configuration Key**: Renamed `ssg.posts.per.page` to `ssg.index.maxitems` for improved semantic clarity and updated its usage across the codebase, `.envrc`, and `makefile`.
+- **CSS Optimization**: Configured Tailwind CSS build to run in production mode (`NODE_ENV=production`) to enable full purging of unused CSS.
+- **Pagination Text**: Localized pagination navigation texts to English.
+- **Pagination Styling**: Added CSS styles for pagination controls to display in a single, centered line.
+
+### Fixed
+- Resolved template parsing error (`unexpected EOF`) in `pagination.tmpl`.
+- Corrected hardcoded image paths in SSG generation to reflect new asset structure.
+- Fixed Tailwind CSS build error related to `@apply` directives by reverting to plain CSS for pagination styles.
+
 ## [2025-09-23]
 
 ### Added

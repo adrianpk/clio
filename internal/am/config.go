@@ -102,6 +102,16 @@ func (cfg *Config) StrVal(key string, reload ...bool) (value string, ok bool) {
 	return val, ok
 }
 
+// GetStr retrieves the value of a specific namespaced environment variable or CLI flag as a string.
+// If the key is not found, it returns an empty string and an error.
+func (cfg *Config) GetStr(key string, reload ...bool) (string, error) {
+	val, ok := cfg.StrVal(key, reload...)
+	if !ok {
+		return "", fmt.Errorf("key '%s' not found in config", key)
+	}
+	return val, nil
+}
+
 // StrValOrDef retrieves the value of a specific namespaced environment variable or CLI flag.
 // If the key is not found, it returns the provided default value.
 // If reload is true, it re-reads the values from the environment and CLI flags.

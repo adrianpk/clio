@@ -1,6 +1,7 @@
 {{define "blocks"}}
     {{if .Blocks}}
         <div class="mt-8">
+            {{template "google-search.tmpl" .}}
             {{if eq .Content.Kind "article"}}
                 {{template "article-blocks" .}}
             {{else if eq .Content.Kind "blog"}}

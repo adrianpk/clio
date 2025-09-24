@@ -7,7 +7,7 @@ BINARY = $(BUILD_DIR)/$(APP_NAME)
 DB_FILE = _workspace/db/clio.db
 DB_BACKUP_DIR = bak
 
-CSS_SOURCES = assets/static/css/prose.css assets/ssg/**/*.html assets/ssg/**/*.tmpl
+CSS_SOURCES = assets/static/css/prose.css assets/ssg/**/*.html assets/ssg/**/*.tmpl assets/static/css/main.css
 
 # Backup database with timestamp
 define backup_db
@@ -27,7 +27,7 @@ endef
 all: build
 
 # Build CSS
-assets/static/css/prose.compiled.css: $(CSS_SOURCES)
+build-css:
 	@echo "Building CSS..."
 	@./scripts/build-css.sh
 
@@ -129,6 +129,8 @@ setenv:
 	@export CLIO_RENDER_API_ERRORS="true"
 	@export CLIO_SSG_BLOCKS_MAXITEMS=5
 	@export CLIO_SSG_INDEX_MAXITEMS=9
+	@export CLIO_SSG_SEARCH_GOOGLE_ENABLED=true
+	@export CLIO_SSG_SEARCH_GOOGLE_ID="94ad2c0b147c141fa"
 
 # Run tests
 test:

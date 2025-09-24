@@ -50,6 +50,8 @@ type Keys struct {
 	SSGImagesPath     string
 	SSGBlocksMaxItems string
 	SSGIndexMaxItems  string
+	SSGSearchGoogleEnabled string
+	SSGSearchGoogleID string
 }
 
 var Key = Keys{
@@ -102,4 +104,6 @@ var Key = Keys{
 	SSGImagesPath:    "ssg.images.path",
 	SSGBlocksMaxItems: "ssg.blocks.maxitems",
 	SSGIndexMaxItems:   "ssg.index.maxitems",
+	SSGSearchGoogleEnabled: "ssg.search.google.enabled",
+	SSGSearchGoogleID: "ssg.search.google.id",
 }

@@ -125,6 +125,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		"assets/ssg/partial/blog-blocks.tmpl",
 		"assets/ssg/partial/series-blocks.tmpl",
 		"assets/ssg/partial/pagination.tmpl",
+		"assets/ssg/partial/google-search.tmpl",
 	)
 	if err != nil {
 		return fmt.Errorf("cannot parse template from embedded fs: %w", err)
@@ -139,6 +140,14 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 
 	headerStyle := svc.Cfg().StrValOrDef(am.Key.SSGHeaderStyle, "boxed", true)
 	imageExtensions := []string{".png", ".jpg", ".jpeg", ".webp"}
+
+	// Prepare SearchData
+	searchData := SearchData{
+		Provider: "google", // O el proveedor que corresponda
+		Enabled:  svc.Cfg().BoolVal(am.Key.SSGSearchGoogleEnabled, false),
+		ID:       svc.Cfg().StrValOrDef(am.Key.SSGSearchGoogleID, ""),
+	}
+	svc.Log().Info("SearchData values", "enabled", searchData.Enabled, "id", searchData.ID) // Línea de log modificada
 
 	for _, content := range contents {
 		svc.Log().Debug("Processing content for HTML generation", "slug", content.Slug(), "section_path", content.SectionPath)
@@ -201,6 +210,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 			Menu:        menuSections,
 			Content:     pageContent,
 			Blocks:      blocks,
+			Search:      searchData,
 		}
 
 		var buf bytes.Buffer
@@ -291,6 +301,7 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 				IsIndex:         true,
 				ListPageContent: pageContent,
 				Pagination:      pagination,
+				Search:          searchData,
 			}
 
 			var buf bytes.Buffer
