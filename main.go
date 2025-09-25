@@ -8,6 +8,7 @@ import (
 	"github.com/adrianpk/clio/internal/core"
 	"github.com/adrianpk/clio/internal/feat/auth"
 	"github.com/adrianpk/clio/internal/feat/ssg"
+	"github.com/adrianpk/clio/internal/git/github"
 	"github.com/adrianpk/clio/internal/repo/sqlite"
 	appssg "github.com/adrianpk/clio/internal/web/ssg"
 )
@@ -49,9 +50,11 @@ func main() {
 	apiRouter.Mount("/auth", authAPIRouter)
 
 	// SSG feature
+	gitClient := github.NewClient(opts...)
+	ssgPublisher := ssg.NewPublisher(gitClient, opts...)
 	ssgSeeder := ssg.NewSeeder(assetsFS, engine, repo)
 	ssgGenerator := ssg.NewGenerator(opts...)
-	ssgService := ssg.NewService(assetsFS, repo, ssgGenerator, opts...)
+	ssgService := ssg.NewService(assetsFS, repo, ssgGenerator, ssgPublisher, opts...)
 	ssgAPIHandler := ssg.NewAPIHandler("ssg-api-handler", ssgService)
 	ssgAPIRouter := ssg.NewAPIRouter(ssgAPIHandler, nil) // No middleware for now
 	apiRouter.Mount("/ssg", ssgAPIRouter)
@@ -76,6 +79,8 @@ func main() {
 	app.Add(ssgWebRouter)
 	app.Add(authSeeder)
 	app.Add(ssgSeeder)
+	app.Add(gitClient)
+	app.Add(ssgPublisher)
 	app.Add(ssgGenerator)
 	app.Add(ssgService)
 	app.Add(ssgAPIHandler)

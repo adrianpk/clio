@@ -51,6 +51,8 @@ type Service interface {
 
 	GenerateMarkdown(ctx context.Context) error
 	GenerateHTMLFromContent(ctx context.Context) error
+	Publish(ctx context.Context, cfg PublisherConfig) (string, error)
+	Plan(ctx context.Context, cfg PublisherConfig) (PlanReport, error)
 }
 
 // BaseService is the concrete implementation of the Service interface.
@@ -59,16 +61,50 @@ type BaseService struct {
 	assetsFS embed.FS
 	repo     Repo
 	gen      *Generator
+	pub      Publisher
 }
 
 // NewService creates a new BaseService.
-func NewService(assetsFS embed.FS, repo Repo, gen *Generator, opts ...am.Option) *BaseService {
+func NewService(assetsFS embed.FS, repo Repo, gen *Generator, publisher Publisher, opts ...am.Option) *BaseService {
 	return &BaseService{
 		Service:  am.NewService("ssg-svc", opts...),
 		assetsFS: assetsFS,
 		repo:     repo,
 		gen:      gen,
+		pub:      publisher,
 	}
+}
+
+// Publish delegates the publishing task to the underlying pub.
+func (svc *BaseService) Publish(ctx context.Context, cfg PublisherConfig) (string, error) {
+	svc.Log().Info("Service starting publish process")
+
+	// Get the output directory for HTML files, which is the source for publishing
+	sourceDir := svc.Cfg().StrValOrDef(am.Key.SSGHTMLPath, "_workspace/documents/html")
+
+	commitURL, err := svc.pub.Publish(ctx, cfg, sourceDir)
+	if err != nil {
+		return "", fmt.Errorf("cannot publish site: %w", err)
+	}
+
+	svc.Log().Info("Service publish process finished successfully", "commit_url", commitURL)
+	return commitURL, nil
+}
+
+// Plan delegates the plan task to the underlying pub.
+func (svc *BaseService) Plan(ctx context.Context, cfg PublisherConfig) (PlanReport, error) {
+	svc.Log().Info("Service starting plan process")
+
+	// Get the output directory for HTML files, which is the source for planning
+	sourceDir := svc.Cfg().StrValOrDef(am.Key.SSGHTMLPath, "_workspace/documents/html")
+
+	report, err := svc.pub.Plan(ctx, cfg, sourceDir)
+	if err != nil {
+		return PlanReport{}, fmt.Errorf("cannot plan site: %w", err)
+	}
+
+	svc.Log().Info("Service plan process finished successfully", "summary", report.Summary)
+	return report, nil
 }
 
 // GenerateMarkdown generates markdown files from the content in the database.
@@ -205,17 +241,17 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		blocks := BuildBlocks(content, contents, int(svc.Cfg().IntVal(am.Key.SSGBlocksMaxItems, 5)))
 
 		data := PageData{
-			HeaderStyle: headerStyle,
-			AssetPath:   assetPath,
-			Menu:        menuSections,
+			HeaderStyle:     headerStyle,
+			AssetPath:       assetPath,
+			Menu:            menuSections,
 			Content:     pageContent,
 			Blocks:      blocks,
-			Search:      searchData,
+			Search:          searchData,
 		}
 
 		var buf bytes.Buffer
 		if err := tmpl.Execute(&buf, data); err != nil {
-			svc.Log().Error("Error executing template", "slug", content.Slug(), "error", err)
+			svc.Log().Error("Error executing template for content", "slug", content.Slug(), "error", err)
 			continue
 		}
 
@@ -227,98 +263,8 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		}
 
 		if err := os.WriteFile(outputPath, buf.Bytes(), 0644); err != nil {
-			svc.Log().Error("Error writing HTML file", "path", outputPath, "error", err)
+			svc.Log().Error("Error writing index HTML file", "path", outputPath, "error", err)
 			continue
-		}
-	}
-
-	// Generate index pages
-	svc.Log().Info("Building site indexes...")
-	indexes := BuildIndexes(contents, sections)
-
-	// Create a lookup map for manual index pages
-	manualIndexPages := make(map[string]bool)
-	for _, c := range contents {
-		if strings.ToLower(c.Kind) == "page" && c.Slug() == "index" {
-			manualIndexPages[c.SectionPath] = true
-		}
-	}
-
-	postsPerPage := int(svc.Cfg().IntVal(am.Key.SSGIndexMaxItems, 9))
-
-	for _, index := range indexes {
-		// Check if a manual index page exists for this path
-		if manualIndexPages[index.Path] {
-			svc.Log().Info(fmt.Sprintf("Skipping index generation for '%s': manual index page found.", index.Path))
-			continue
-		}
-
-		// Paginate the content
-		totalContent := len(index.Content)
-		if totalContent == 0 {
-			continue
-		}
-		totalPages := (totalContent + postsPerPage - 1) / postsPerPage
-
-		for page := 1; page <= totalPages; page++ {
-			start := (page - 1) * postsPerPage
-			end := start + postsPerPage
-			if end > totalContent {
-				end = totalContent
-			}
-			pageContent := index.Content[start:end]
-
-			// Determine output path for the index page
-			var outputPath string
-			if page == 1 {
-				outputPath = filepath.Join(htmlPath, index.Path, "index.html")
-			} else {
-				outputPath = filepath.Join(htmlPath, index.Path, "page", fmt.Sprintf("%d", page), "index.html")
-			}
-
-			assetPath := "/"
-
-			// Prepare pagination data
-			pagination := &PaginationData{
-				CurrentPage: page,
-				TotalPages:  totalPages,
-			}
-			if page > 1 {
-				if page == 2 {
-					pagination.PrevPageURL = assetPath + strings.TrimSuffix(index.Path, "/")
-				} else {
-					pagination.PrevPageURL = fmt.Sprintf("%spage/%d", assetPath, page-1)
-				}
-			}
-			if page < totalPages {
-				pagination.NextPageURL = fmt.Sprintf("%spage/%d", assetPath, page+1)
-			}
-
-			data := PageData{
-				HeaderStyle:     headerStyle,
-				AssetPath:       assetPath,
-				Menu:            menuSections,
-				IsIndex:         true,
-				ListPageContent: pageContent,
-				Pagination:      pagination,
-				Search:          searchData,
-			}
-
-			var buf bytes.Buffer
-			if err := tmpl.Execute(&buf, data); err != nil {
-				svc.Log().Error("Error executing template for index", "path", index.Path, "error", err)
-				continue
-			}
-
-			if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
-				svc.Log().Error("Error creating directory for index file", "path", outputPath, "error", err)
-				continue
-			}
-
-			if err := os.WriteFile(outputPath, buf.Bytes(), 0644); err != nil {
-				svc.Log().Error("Error writing index HTML file", "path", outputPath, "error", err)
-				continue
-			}
 		}
 	}
 
@@ -332,10 +278,6 @@ func (svc *BaseService) CreateContent(ctx context.Context, content *Content) err
 	return svc.repo.CreateContent(ctx, content)
 }
 
-func (svc *BaseService) GetAllContentWithMeta(ctx context.Context) ([]Content, error) {
-	return svc.repo.GetAllContentWithMeta(ctx)
-}
-
 func (svc *BaseService) GetContent(ctx context.Context, id uuid.UUID) (Content, error) {
 	return svc.repo.GetContent(ctx, id)
 }
@@ -346,6 +288,10 @@ func (svc *BaseService) UpdateContent(ctx context.Context, content *Content) err
 
 func (svc *BaseService) DeleteContent(ctx context.Context, id uuid.UUID) error {
 	return svc.repo.DeleteContent(ctx, id)
+}
+
+func (svc *BaseService) GetAllContentWithMeta(ctx context.Context) ([]Content, error) {
+	return svc.repo.GetAllContentWithMeta(ctx)
 }
 
 // Section related
@@ -459,4 +405,3 @@ func (svc *BaseService) removeFirstH1(htmlContent string) string {
 		return match
 	})
 }
-

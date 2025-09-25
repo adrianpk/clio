@@ -1,4 +1,4 @@
-# Clio → GitHub Pages Publishing
+# Publisher
 
 ## Goal
 Enable Clio to publish locally generated static HTML to GitHub Pages.
@@ -103,6 +103,18 @@ A fake implementation of the `Publisher` will be created for testing purposes.
 
 ### Architecture: Publisher vs. Github Client
 The system will have two distinct components: a high-level `Publisher` and a low-level `GithubClient`. The `Publisher` is responsible for the publishing logic, while the `GithubClient` provides a generic, reusable interface for interacting with GitHub repositories (e.g., clone, commit, push). The `Publisher` will *use* the `GithubClient` to perform its tasks. The `GithubClient` itself will be agnostic to the concept of 'publishing'.
+
+## The "Temporary Directory" Approach
+
+Why we clone the repository into a temporary directory instead of just using the `html/` output folder directly? This is a deliberate design choice for a few key reasons:
+
+*   **It keeps things clean and predictable.** Every time we publish, we start with a fresh, empty copy of the destination repository. This means no leftover files from old builds and no risk of accidentally committing other project files. It's a clean slate, every time.
+
+*   **It prevents messing with your repo.** The publishing process is completely isolated from your local project. We don't have to worry about your own uncommitted changes, the branch you're on, or any other local Git state. It just works, without side effects.
+
+*   **It's more robust.** This approach makes the publishing process atomic. Either it all works and the changes are pushed, or it fails and the temporary folder is simply thrown away, leaving your project untouched. There's no in-between state.
+
+In short, it's a safer, more professional way to handle deployments, separating the build process from the publishing act itself.
 
 ## Build and Publish Workflow
 The overall process is orchestrated by a higher-level component that understands workspaces (`test`/`production`). This component provides the environment-specific paths to the publishing client, which remains agnostic.
