@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"os/exec"
 	"strings"
+
+	"github.com/adrianpk/clio/internal/am"
 )
 
 // AuthMethod defines the authentication strategy.
@@ -20,7 +22,7 @@ const (
 // Auth holds authentication details.
 type Auth struct {
 	Method AuthMethod
-	Token  string // For AuthToken
+	Token  string
 }
 
 // Commit holds details for making a commit.
@@ -37,14 +39,19 @@ type Client interface {
 	Add(ctx context.Context, localRepoPath, pathspec string) error
 	Commit(ctx context.Context, localRepoPath string, commit Commit) (string, error)
 	Push(ctx context.Context, localRepoPath string, auth Auth) error
+	Status(ctx context.Context, localRepoPath string) (string, error)
 }
 
 // client implements the Client interface using command-line git.
-type client struct{}
+type client struct {
+	am.Core
+}
 
 // NewClient creates a new git client.
-func NewClient() Client {
-	return &client{}
+func NewClient(opts ...am.Option) *client {
+	return &client{
+		Core: am.NewCore("git-client", opts...),
+	}
 }
 
 func (c *client) Clone(ctx context.Context, repoURL, localPath string, auth Auth) error {
@@ -58,6 +65,7 @@ func (c *client) Clone(ctx context.Context, repoURL, localPath string, auth Auth
 	}
 
 	cmd := exec.CommandContext(ctx, "git", "clone", repoURL, localPath)
+
 	return c.runCommand(cmd)
 }
 
@@ -70,6 +78,7 @@ func (c *client) Checkout(ctx context.Context, localRepoPath, branch string, cre
 
 	cmd := exec.CommandContext(ctx, "git", args...)
 	cmd.Dir = localRepoPath
+
 	return c.runCommand(cmd)
 }
 
@@ -80,7 +89,6 @@ func (c *client) Add(ctx context.Context, localRepoPath, pathspec string) error 
 }
 
 func (c *client) Commit(ctx context.Context, localRepoPath string, commit Commit) (string, error) {
-	// Configure author for the commit
 	configUserCmd := exec.CommandContext(ctx, "git", "config", "user.name", commit.UserName)
 	configUserCmd.Dir = localRepoPath
 	if err := c.runCommand(configUserCmd); err != nil {
@@ -93,14 +101,12 @@ func (c *client) Commit(ctx context.Context, localRepoPath string, commit Commit
 		return "", fmt.Errorf("failed to set git user email: %w", err)
 	}
 
-	// Commit
 	commitCmd := exec.CommandContext(ctx, "git", "commit", "-m", commit.Message)
 	commitCmd.Dir = localRepoPath
 	if err := c.runCommand(commitCmd); err != nil {
 		return "", fmt.Errorf("git commit failed: %w", err)
 	}
 
-	// Get commit hash
 	hashCmd := exec.CommandContext(ctx, "git", "rev-parse", "HEAD")
 	hashCmd.Dir = localRepoPath
 	var out bytes.Buffer
@@ -113,20 +119,31 @@ func (c *client) Commit(ctx context.Context, localRepoPath string, commit Commit
 }
 
 func (c *client) Push(ctx context.Context, localRepoPath string, auth Auth) error {
-	// For SSH, auth is handled by the agent. For Token, it's in the cloned URL's remote.
 	cmd := exec.CommandContext(ctx, "git", "push")
 	cmd.Dir = localRepoPath
 	return c.runCommand(cmd)
+}
+
+func (c *client) Status(ctx context.Context, localRepoPath string) (string, error) {
+	cmd := exec.CommandContext(ctx, "git", "status", "--porcelain")
+	cmd.Dir = localRepoPath
+	var stdout bytes.Buffer
+	cmd.Stdout = &stdout
+	if err := c.runCommand(cmd); err != nil {
+		return "", fmt.Errorf("failed to get git status: %w", err)
+	}
+	return stdout.String(), nil
 }
 
 // runCommand is a helper to execute commands and return a detailed error.
 func (c *client) runCommand(cmd *exec.Cmd) error {
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf(`error executing command: %s
-error: %w
-output: %s`, cmd.String(), err, stderr.String())
+
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf(`error executing command: %s\nerror: %w\noutput: %s`, cmd.String(), err, stderr.String())
 	}
+
 	return nil
 }

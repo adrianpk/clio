@@ -12,6 +12,9 @@ func NewAPIRouter(handler *APIHandler, mw []am.Middleware, opts ...am.Option) *a
 	core.Post("/generate-markdown", handler.GenerateMarkdown)
 	core.Post("/generate-html", handler.GenerateHTML)
 
+	// Publish API routes
+	core.Post("/publish", handler.Publish)
+
 	// Layout API routes
 	core.Get("/layouts", handler.GetAllLayouts)
 	core.Get("/layouts/{id}", handler.GetLayout)

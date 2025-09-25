@@ -46,12 +46,22 @@ type Keys struct {
 	SSGHTMLPath      string
 	SSGLayoutPath    string
 	SSGHeaderStyle   string
-	SSGAssetsPath     string
-	SSGImagesPath     string
+	SSGAssetsPath    string
+	SSGImagesPath    string
 	SSGBlocksMaxItems string
-	SSGIndexMaxItems  string
+	SSGIndexMaxItems string
+
 	SSGSearchGoogleEnabled string
-	SSGSearchGoogleID string
+	SSGSearchGoogleID      string
+
+	SSGPublishRepoURL         string
+	SSGPublishBranch          string
+	SSGPublishPagesSubdir     string
+	SSGPublishAuthMethod      string
+	SSGPublishAuthToken       string
+	SSGPublishCommitUserName  string
+	SSGPublishCommitUserEmail string
+	SSGPublishCommitMessage   string
 }
 
 var Key = Keys{
@@ -105,5 +115,14 @@ var Key = Keys{
 	SSGBlocksMaxItems: "ssg.blocks.maxitems",
 	SSGIndexMaxItems:   "ssg.index.maxitems",
 	SSGSearchGoogleEnabled: "ssg.search.google.enabled",
-	SSGSearchGoogleID: "ssg.search.google.id",
+	SSGSearchGoogleID:      "ssg.search.google.id",
+
+	SSGPublishRepoURL:         "ssg.publish.repo.url",
+	SSGPublishBranch:          "ssg.publish.branch",
+	SSGPublishPagesSubdir:     "ssg.publish.pages.subdir",
+	SSGPublishAuthMethod:      "ssg.publish.auth.method",
+	SSGPublishAuthToken:       "ssg.publish.auth.token",
+	SSGPublishCommitUserName:  "ssg.publish.commit.user.name",
+	SSGPublishCommitUserEmail: "ssg.publish.commit.user.email",
+	SSGPublishCommitMessage:   "ssg.publish.commit.message",
 }

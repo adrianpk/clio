@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/adrianpk/clio/internal/am"
+	"github.com/adrianpk/clio/internal/git/github"
 	"github.com/google/uuid"
 )
 
@@ -70,11 +71,36 @@ func (h *APIHandler) wrapData(data interface{}) interface{} {
 	}
 }
 
-// Layout related API handlers
+// Publish handles the API request to publish the site.
+func (h *APIHandler) Publish(w http.ResponseWriter, r *http.Request) {
+	h.Log().Info("Handling publish request")
 
-func (h *APIHandler) TestLayoutsEndpoint(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hola Mundo, Papi!")
+	// For now, we build the config from the application's configuration.
+	cfg := PublisherConfig{
+		RepoURL: h.Cfg().StrValOrDef(am.Key.SSGPublishRepoURL, ""),
+		Branch:  h.Cfg().StrValOrDef(am.Key.SSGPublishBranch, ""),
+		Auth: github.Auth{
+			// NOTE: This is oversimplified. We need to work out a bit more here.
+			Method: github.AuthToken,
+			Token:  h.Cfg().StrValOrDef(am.Key.SSGPublishAuthToken, ""),
+		},
+		CommitAuthor: github.Commit{
+			UserName:  h.Cfg().StrValOrDef(am.Key.SSGPublishCommitUserName, ""),
+			UserEmail: h.Cfg().StrValOrDef(am.Key.SSGPublishCommitUserEmail, ""),
+			Message:   h.Cfg().StrValOrDef(am.Key.SSGPublishCommitMessage, ""),
+		},
+	}
+
+	commitURL, err := h.svc.Publish(r.Context(), cfg)
+	if err != nil {
+		h.Err(w, http.StatusInternalServerError, "error publishing site", err)
+		return
+	}
+
+	h.OK(w, fmt.Sprintf("Site published successfully: %s", commitURL), nil)
 }
+
+// Layout related API handlers
 
 func (h *APIHandler) GetLayout(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling GetLayout", h.Name())
