@@ -50,7 +50,7 @@ func main() {
 	apiRouter.Mount("/auth", authAPIRouter)
 
 	// SSG feature
-	gitClient := github.NewClient(app.Core)
+	gitClient := github.NewClient(opts...)
 	ssgPublisher := ssg.NewPublisher(gitClient, opts...)
 	ssgSeeder := ssg.NewSeeder(assetsFS, engine, repo)
 	ssgGenerator := ssg.NewGenerator(opts...)

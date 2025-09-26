@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/adrianpk/clio/internal/am"
 	"github.com/adrianpk/clio/internal/fake"
-	"github.com/adrianpk/clio/internal/git/github"
 )
 
 func TestGithubClientClone(t *testing.T) {
@@ -16,7 +16,8 @@ func TestGithubClientClone(t *testing.T) {
 		ctx         context.Context
 		repoURL     string
 		localPath   string
-		auth        github.Auth
+		auth        am.GitAuth
+		env         []string
 		expectedErr error
 		expectCalls int
 	}{
@@ -26,21 +27,23 @@ func TestGithubClientClone(t *testing.T) {
 			ctx:         context.Background(),
 			repoURL:     "https://github.com/owner/repo.git",
 			localPath:   "/tmp/repo",
-			auth:        github.Auth{Method: github.AuthToken, Token: "test-token"},
+			auth:        am.GitAuth{Method: am.AuthToken, Token: "test-token"},
+			env:         []string{"GIT_TERMINAL_PROMPT=0"},
 			expectedErr: nil,
 			expectCalls: 1,
 		},
 		{
 			name: "clone returns error",
 			setupFake: func(f *fake.GithubClient) {
-				f.CloneFn = func(ctx context.Context, repoURL, localPath string, auth github.Auth) error {
+				f.CloneFn = func(ctx context.Context, repoURL, localPath string, auth am.GitAuth, env []string) error {
 					return errors.New("clone failed")
 				}
 			},
 			ctx:         context.Background(),
 			repoURL:     "https://github.com/owner/repo.git",
 			localPath:   "/tmp/repo",
-			auth:        github.Auth{Method: github.AuthSSH},
+			auth:        am.GitAuth{Method: am.AuthSSH},
+			env:         nil,
 			expectedErr: errors.New("clone failed"),
 			expectCalls: 1,
 		},
@@ -51,7 +54,7 @@ func TestGithubClientClone(t *testing.T) {
 			f := fake.NewGithubClient()
 			tt.setupFake(f)
 
-			err := f.Clone(tt.ctx, tt.repoURL, tt.localPath, tt.auth)
+			err := f.Clone(tt.ctx, tt.repoURL, tt.localPath, tt.auth, tt.env)
 
 			if tt.expectedErr != nil {
 				if err == nil || err.Error() != tt.expectedErr.Error() {

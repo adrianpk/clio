@@ -6,8 +6,8 @@ import (
 	"github.com/adrianpk/clio/internal/feat/ssg"
 )
 
-// SsgPublisher is a fake implementation of ssg.Publisher for testing.
-type SsgPublisher struct {
+// SSGPublisher is a fake implementation of ssg.Publisher for testing.
+type SSGPublisher struct {
 	// Expected results
 	ValidateFn func(cfg ssg.PublisherConfig) error
 	PublishFn  func(ctx context.Context, cfg ssg.PublisherConfig, sourceDir string) (string, error)
@@ -15,16 +15,24 @@ type SsgPublisher struct {
 
 	// Captured arguments
 	ValidateCalls []struct{ Cfg ssg.PublisherConfig }
-	PublishCalls  []struct{ Ctx context.Context; Cfg ssg.PublisherConfig; SourceDir string }
-	PlanCalls     []struct{ Ctx context.Context; Cfg ssg.PublisherConfig; SourceDir string }
+	PublishCalls  []struct {
+		Ctx       context.Context
+		Cfg       ssg.PublisherConfig
+		SourceDir string
+	}
+	PlanCalls []struct {
+		Ctx       context.Context
+		Cfg       ssg.PublisherConfig
+		SourceDir string
+	}
 }
 
-// NewSsgPublisher creates a new fake SsgPublisher.
-func NewSsgPublisher() *SsgPublisher {
-	return &SsgPublisher{}
+// NewSSGPublisher creates a new fake SSGPublisher.
+func NewSSGPublisher() *SSGPublisher {
+	return &SSGPublisher{}
 }
 
-func (f *SsgPublisher) Validate(cfg ssg.PublisherConfig) error {
+func (f *SSGPublisher) Validate(cfg ssg.PublisherConfig) error {
 	f.ValidateCalls = append(f.ValidateCalls, struct{ Cfg ssg.PublisherConfig }{Cfg: cfg})
 	if f.ValidateFn != nil {
 		return f.ValidateFn(cfg)
@@ -32,16 +40,24 @@ func (f *SsgPublisher) Validate(cfg ssg.PublisherConfig) error {
 	return nil
 }
 
-func (f *SsgPublisher) Publish(ctx context.Context, cfg ssg.PublisherConfig, sourceDir string) (string, error) {
-	f.PublishCalls = append(f.PublishCalls, struct{ Ctx context.Context; Cfg ssg.PublisherConfig; SourceDir string }{Ctx: ctx, Cfg: cfg, SourceDir: sourceDir})
+func (f *SSGPublisher) Publish(ctx context.Context, cfg ssg.PublisherConfig, sourceDir string) (string, error) {
+	f.PublishCalls = append(f.PublishCalls, struct {
+		Ctx       context.Context
+		Cfg       ssg.PublisherConfig
+		SourceDir string
+	}{Ctx: ctx, Cfg: cfg, SourceDir: sourceDir})
 	if f.PublishFn != nil {
 		return f.PublishFn(ctx, cfg, sourceDir)
 	}
 	return "fake-commit-url", nil
 }
 
-func (f *SsgPublisher) Plan(ctx context.Context, cfg ssg.PublisherConfig, sourceDir string) (ssg.PlanReport, error) {
-	f.PlanCalls = append(f.PlanCalls, struct{ Ctx context.Context; Cfg ssg.PublisherConfig; SourceDir string }{Ctx: ctx, Cfg: cfg, SourceDir: sourceDir})
+func (f *SSGPublisher) Plan(ctx context.Context, cfg ssg.PublisherConfig, sourceDir string) (ssg.PlanReport, error) {
+	f.PlanCalls = append(f.PlanCalls, struct {
+		Ctx       context.Context
+		Cfg       ssg.PublisherConfig
+		SourceDir string
+	}{Ctx: ctx, Cfg: cfg, SourceDir: sourceDir})
 	if f.PlanFn != nil {
 		return f.PlanFn(ctx, cfg, sourceDir)
 	}

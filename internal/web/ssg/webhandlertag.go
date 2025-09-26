@@ -102,7 +102,8 @@ func (h *WebHandler) UpdateTag(w http.ResponseWriter, r *http.Request) {
 	err = h.apiClient.Put(r, path, featTag, nil)
 	if err != nil {
 		h.Err(w, err, "Failed to update tag via API", http.StatusInternalServerError)
-		return	}
+		return
+	}
 
 	if am.IsHTMXRequest(r) {
 		w.Header().Set("Content-Type", "text/html")

@@ -23,12 +23,12 @@ const (
 
 type App struct {
 	Core
-	opts          []Option
-	Version       string
-	Router        *Router
-	APIRouter     *Router
-	APIRouters    map[string]*Router
-	
+	opts       []Option
+	Version    string
+	Router     *Router
+	APIRouter  *Router
+	APIRouters map[string]*Router
+
 	deps          map[string]*Dep
 	depOrder      []string
 	depsMutex     sync.Mutex
@@ -58,18 +58,16 @@ func NewApp(name, version string, fs embed.FS, opts ...Option) *App {
 	}
 
 	app := &App{
-		opts:          opts,
-		Core:          core,
-		Router:        NewWebRouter("web-router", opts...),
-		APIRouter:     NewWebRouter("api-router", opts...),
-		APIRouters:    make(map[string]*Router),
-		
+		opts:       opts,
+		Core:       core,
+		Router:     NewWebRouter("web-router", opts...),
+		APIRouter:  NewWebRouter("api-router", opts...),
+		APIRouters: make(map[string]*Router),
+
 		fs:            fs,
 		deps:          make(map[string]*Dep),
 		InternalToken: uuid.NewString(), // Initialize InternalToken with a new UUID
 	}
-
-	
 
 	return app
 }
@@ -258,8 +256,6 @@ func (a *App) MountAPI(version, path string, handler http.Handler) {
 	a.APIRouter.Mount("/api"+version, router)
 }
 
-
-
 func (a *App) MountFileServer(path string, fs *FileServer) {
 	a.Router.Mount(path, fs.Router)
 }
@@ -275,8 +271,6 @@ func (app *App) SetAPIRouter(router *Router) {
 func (app *App) MountWeb(path string, handler http.Handler) {
 	app.Router.Mount(path, handler)
 }
-
-
 
 func (a *App) checkSetup() error {
 	if a.Log() == nil {
