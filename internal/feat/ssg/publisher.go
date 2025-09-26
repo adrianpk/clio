@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/adrianpk/clio/internal/am"
-	"github.com/adrianpk/clio/internal/git/github"
 )
 
 // PublisherConfig holds all configuration needed for a publishing operation.
@@ -17,8 +16,8 @@ type PublisherConfig struct {
 	RepoURL      string // Full URL to the GitHub repository
 	Branch       string // Target branch for publishing (e.g., "gh-pages")
 	PagesSubdir  string // Subdirectory within the repo (e.g., "" for root, "docs")
-	Auth         github.Auth
-	CommitAuthor github.Commit
+	Auth         am.GitAuth
+	CommitAuthor am.GitCommit
 }
 
 // Publisher defines the interface for orchestrating the publishing process.
@@ -46,11 +45,11 @@ type PlanReport struct {
 // publisher implements the Publisher interface.
 type publisher struct {
 	am.Core
-	gitClient github.Client // Injected GitHub client
+	gitClient am.GitClient // Injected GitHub client
 }
 
 // NewPublisher creates a new Publisher instance.
-func NewPublisher(gitClient github.Client, opts ...am.Option) *publisher {
+func NewPublisher(gitClient am.GitClient, opts ...am.Option) *publisher {
 	return &publisher{
 		Core:      am.NewCore("ssg-pub", opts...),
 		gitClient: gitClient,
@@ -117,7 +116,7 @@ func (p *publisher) Publish(ctx context.Context, cfg PublisherConfig, sourceDir 
 		return "", fmt.Errorf("failed to stage changes: %w", err)
 	}
 
-	// Commit
+	// GitCommit
 	p.Log().Info("Committing changes")
 	commitHash, err := p.gitClient.Commit(ctx, tempDir, cfg.CommitAuthor)
 	if err != nil {

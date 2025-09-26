@@ -11,51 +11,20 @@ import (
 	"github.com/adrianpk/clio/internal/am"
 )
 
-// AuthMethod defines the authentication strategy.
-type AuthMethod int
-
-const (
-	AuthToken AuthMethod = iota // HTTPS with Personal Access Token
-	AuthSSH                     // SSH with agent
-)
-
-// Auth holds authentication details.
-type Auth struct {
-	Method AuthMethod
-	Token  string
-}
-
-// Commit holds details for making a commit.
-type Commit struct {
-	UserName  string
-	UserEmail string
-	Message   string
-}
-
-// Client provides a low-level interface for Git operations.
-type Client interface {
-	Clone(ctx context.Context, repoURL, localPath string, auth Auth) error
-	Checkout(ctx context.Context, localRepoPath, branch string, create bool) error
-	Add(ctx context.Context, localRepoPath, pathspec string) error
-	Commit(ctx context.Context, localRepoPath string, commit Commit) (string, error)
-	Push(ctx context.Context, localRepoPath string, auth Auth) error
-	Status(ctx context.Context, localRepoPath string) (string, error)
-}
-
-// client implements the Client interface using command-line git.
-type client struct {
+// Client implements the am.Client interface using command-line git.
+type Client struct {
 	am.Core
 }
 
-// NewClient creates a new git client.
-func NewClient(opts ...am.Option) *client {
-	return &client{
-		Core: am.NewCore("git-client", opts...),
+// NewClient creates a new git Client.
+func NewClient(core am.Core) *Client {
+	return &Client{
+		Core: core,
 	}
 }
 
-func (c *client) Clone(ctx context.Context, repoURL, localPath string, auth Auth) error {
-	if auth.Method == AuthToken {
+func (c *Client) Clone(ctx context.Context, repoURL, localPath string, auth am.GitAuth) error {
+	if auth.Method == am.AuthToken {
 		u, err := url.Parse(repoURL)
 		if err != nil {
 			return fmt.Errorf("invalid repo URL: %w", err)
@@ -69,7 +38,7 @@ func (c *client) Clone(ctx context.Context, repoURL, localPath string, auth Auth
 	return c.runCommand(cmd)
 }
 
-func (c *client) Checkout(ctx context.Context, localRepoPath, branch string, create bool) error {
+func (c *Client) Checkout(ctx context.Context, localRepoPath, branch string, create bool) error {
 	args := []string{"checkout"}
 	if create {
 		args = append(args, "-b")
@@ -82,13 +51,13 @@ func (c *client) Checkout(ctx context.Context, localRepoPath, branch string, cre
 	return c.runCommand(cmd)
 }
 
-func (c *client) Add(ctx context.Context, localRepoPath, pathspec string) error {
+func (c *Client) Add(ctx context.Context, localRepoPath, pathspec string) error {
 	cmd := exec.CommandContext(ctx, "git", "add", pathspec)
 	cmd.Dir = localRepoPath
 	return c.runCommand(cmd)
 }
 
-func (c *client) Commit(ctx context.Context, localRepoPath string, commit Commit) (string, error) {
+func (c *Client) Commit(ctx context.Context, localRepoPath string, commit am.GitCommit) (string, error) {
 	configUserCmd := exec.CommandContext(ctx, "git", "config", "user.name", commit.UserName)
 	configUserCmd.Dir = localRepoPath
 	if err := c.runCommand(configUserCmd); err != nil {
@@ -118,13 +87,13 @@ func (c *client) Commit(ctx context.Context, localRepoPath string, commit Commit
 	return strings.TrimSpace(out.String()), nil
 }
 
-func (c *client) Push(ctx context.Context, localRepoPath string, auth Auth) error {
+func (c *Client) Push(ctx context.Context, localRepoPath string, auth am.GitAuth) error {
 	cmd := exec.CommandContext(ctx, "git", "push")
 	cmd.Dir = localRepoPath
 	return c.runCommand(cmd)
 }
 
-func (c *client) Status(ctx context.Context, localRepoPath string) (string, error) {
+func (c *Client) Status(ctx context.Context, localRepoPath string) (string, error) {
 	cmd := exec.CommandContext(ctx, "git", "status", "--porcelain")
 	cmd.Dir = localRepoPath
 	var stdout bytes.Buffer
@@ -136,7 +105,7 @@ func (c *client) Status(ctx context.Context, localRepoPath string) (string, erro
 }
 
 // runCommand is a helper to execute commands and return a detailed error.
-func (c *client) runCommand(cmd *exec.Cmd) error {
+func (c *Client) runCommand(cmd *exec.Cmd) error {
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 

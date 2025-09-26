@@ -35,7 +35,7 @@ func (s *Seeder) Setup(ctx context.Context) error {
 
 // SeedAll loads and applies all auth seeds in a single transaction.
 func (s *Seeder) SeedAll(ctx context.Context) error {
-	s.Log().Info("Seeding Auth data...")
+	s.Log().Info("Seeding GitAuth data...")
 	byFeature, err := s.JSONSeeder.LoadJSONSeeds()
 	if err != nil {
 		return fmt.Errorf("failed to load JSON seeds: %w", err)

@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/adrianpk/clio/internal/am"
-	"github.com/adrianpk/clio/internal/git/github"
+
 	"github.com/google/uuid"
 )
 
@@ -79,12 +79,12 @@ func (h *APIHandler) Publish(w http.ResponseWriter, r *http.Request) {
 	cfg := PublisherConfig{
 		RepoURL: h.Cfg().StrValOrDef(am.Key.SSGPublishRepoURL, ""),
 		Branch:  h.Cfg().StrValOrDef(am.Key.SSGPublishBranch, ""),
-		Auth: github.Auth{
+		Auth: am.GitAuth{
 			// NOTE: This is oversimplified. We need to work out a bit more here.
-			Method: github.AuthToken,
+			Method: am.AuthToken,
 			Token:  h.Cfg().StrValOrDef(am.Key.SSGPublishAuthToken, ""),
 		},
-		CommitAuthor: github.Commit{
+		CommitAuthor: am.GitCommit{
 			UserName:  h.Cfg().StrValOrDef(am.Key.SSGPublishCommitUserName, ""),
 			UserEmail: h.Cfg().StrValOrDef(am.Key.SSGPublishCommitUserEmail, ""),
 			Message:   h.Cfg().StrValOrDef(am.Key.SSGPublishCommitMessage, ""),

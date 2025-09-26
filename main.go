@@ -5,12 +5,12 @@ import (
 	"embed"
 
 	"github.com/adrianpk/clio/internal/am"
+	"github.com/adrianpk/clio/internal/am/github"
 	"github.com/adrianpk/clio/internal/core"
 	"github.com/adrianpk/clio/internal/feat/auth"
 	"github.com/adrianpk/clio/internal/feat/ssg"
-	"github.com/adrianpk/clio/internal/git/github"
 	"github.com/adrianpk/clio/internal/repo/sqlite"
-	appssg "github.com/adrianpk/clio/internal/web/ssg"
+	webssg "github.com/adrianpk/clio/internal/web/ssg"
 )
 
 const (
@@ -42,7 +42,7 @@ func main() {
 
 	apiRouter := am.NewAPIRouter("api-router", opts...)
 
-	// Auth feature
+	// GitAuth feature
 	authSeeder := auth.NewSeeder(assetsFS, engine, repo)
 	authService := auth.NewService(repo, opts...)
 	authAPIHandler := auth.NewAPIHandler("auth-api-handler", authService, opts...)
@@ -50,7 +50,7 @@ func main() {
 	apiRouter.Mount("/auth", authAPIRouter)
 
 	// SSG feature
-	gitClient := github.NewClient(opts...)
+	gitClient := github.NewClient(app.Core)
 	ssgPublisher := ssg.NewPublisher(gitClient, opts...)
 	ssgSeeder := ssg.NewSeeder(assetsFS, engine, repo)
 	ssgGenerator := ssg.NewGenerator(opts...)
@@ -62,8 +62,8 @@ func main() {
 	app.MountAPI("v1", "/", apiRouter)
 
 	// Web app
-	ssgWebHandler := appssg.NewWebHandler(templateManager, fm, opts...)
-	ssgWebRouter := appssg.NewWebRouter(ssgWebHandler, append(fm.Middlewares(), am.LogHeadersMw))
+	ssgWebHandler := webssg.NewWebHandler(templateManager, fm, opts...)
+	ssgWebRouter := webssg.NewWebRouter(ssgWebHandler, append(fm.Middlewares(), am.LogHeadersMw))
 
 	app.MountWeb("/ssg", ssgWebRouter)
 
