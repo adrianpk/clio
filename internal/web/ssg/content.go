@@ -15,19 +15,19 @@ const (
 
 // Content model.
 type Content struct {
-	ID          uuid.UUID    `json:"id"`
-	ShortID     string       `json:"-"`
-	UserID      uuid.UUID    `json:"user_id"`
-	SectionID   uuid.UUID    `json:"section_id"`
-	Heading     string       `json:"heading"`
-	Body        string       `json:"body"`
-	Draft       bool         `json:"draft"`
-	Featured    bool         `json:"featured"`
-	PublishedAt *time.Time   `json:"published_at"`
-	Tags        []feat.Tag   `json:"tags"`
-	Meta        feat.Meta    `json:"meta"`
-	SectionPath string       `json:"section_path,omitempty"`
-	SectionName string       `json:"section_name,omitempty"`
+	ID          uuid.UUID  `json:"id"`
+	ShortID     string     `json:"-"`
+	UserID      uuid.UUID  `json:"user_id"`
+	SectionID   uuid.UUID  `json:"section_id"`
+	Heading     string     `json:"heading"`
+	Body        string     `json:"body"`
+	Draft       bool       `json:"draft"`
+	Featured    bool       `json:"featured"`
+	PublishedAt *time.Time `json:"published_at"`
+	Tags        []feat.Tag `json:"tags"`
+	Meta        feat.Meta  `json:"meta"`
+	SectionPath string     `json:"section_path,omitempty"`
+	SectionName string     `json:"section_name,omitempty"`
 }
 
 // NewContent creates a new Content.

@@ -34,7 +34,6 @@ type Publisher interface {
 	Plan(ctx context.Context, cfg PublisherConfig, sourceDir string) (PlanReport, error)
 }
 
-// PlanReport summarizes the changes that would be made during a dry-run.
 type PlanReport struct {
 	Added    []string
 	Modified []string
@@ -42,13 +41,11 @@ type PlanReport struct {
 	Summary  string
 }
 
-// publisher implements the Publisher interface.
 type publisher struct {
 	am.Core
-	gitClient am.GitClient // Injected GitHub client
+	gitClient am.GitClient
 }
 
-// NewPublisher creates a new Publisher instance.
 func NewPublisher(gitClient am.GitClient, opts ...am.Option) *publisher {
 	return &publisher{
 		Core:      am.NewCore("ssg-pub", opts...),
@@ -70,26 +67,39 @@ func (p *publisher) Validate(cfg PublisherConfig) error {
 	return nil
 }
 
-// Publish implementation
 func (p *publisher) Publish(ctx context.Context, cfg PublisherConfig, sourceDir string) (commitURL string, err error) {
 	p.Log().Info("Starting publish process")
 
-	// Tenp dir
-	tempDir, err := os.MkdirTemp("", "clio-publish-*")
+	// Temp dir for the publisher's work
+	parentTempDir, err := os.MkdirTemp("", "clio-publish-parent-*")
 	if err != nil {
-		return "", fmt.Errorf("cannot create temp dir: %w", err)
+		return "", fmt.Errorf("cannot create parent temp dir: %w", err)
 	}
-	defer os.RemoveAll(tempDir)
-	p.Log().Info("Temp dir created", "path", tempDir)
+	defer os.RemoveAll(parentTempDir)
 
-	// Clone
-	if err := p.gitClient.Clone(ctx, cfg.RepoURL, tempDir, cfg.Auth); err != nil {
+	// The actual repository will be cloned into a subdirectory
+	tempDir := filepath.Join(parentTempDir, "repo")
+
+	// NOTE: This is a temporary hack and we need to get rid of it, but for now
+	// it does the trick.
+	// Create a temporary script to provide the GitHub token for the publisher's git operations
+	askpassScriptPath := filepath.Join(parentTempDir, "git-askpass.sh")
+	err = os.WriteFile(askpassScriptPath, []byte(fmt.Sprintf("#!/bin/sh\necho %s", cfg.Auth.Token)), 0700)
+	if err != nil {
+		return "", fmt.Errorf("cannot create askpass script: %w", err)
+	}
+
+	// Set GIT_ASKPASS environment variable for all git commands in tempDir
+	env := os.Environ()
+	env = append(env, "GIT_ASKPASS="+askpassScriptPath)
+
+	if err := p.gitClient.Clone(ctx, cfg.RepoURL, tempDir, cfg.Auth, env); err != nil {
 		return "", fmt.Errorf("cannot clone repo: %w", err)
 	}
 	p.Log().Info("Repo cloned")
 
 	// Checkout target branch
-	if err := p.gitClient.Checkout(ctx, tempDir, cfg.Branch, true); err != nil {
+	if err := p.gitClient.Checkout(ctx, tempDir, cfg.Branch, true, env); err != nil {
 		return "", fmt.Errorf("cannot checkout branch: %w", err)
 	}
 	p.Log().Info("Checked out branch", "branch", cfg.Branch)
@@ -97,12 +107,32 @@ func (p *publisher) Publish(ctx context.Context, cfg PublisherConfig, sourceDir 
 	// Clean and copy source dir content
 	targetDir := filepath.Join(tempDir, cfg.PagesSubdir)
 	p.Log().Info("Cleaning target directory", "path", targetDir)
-	if err := os.RemoveAll(targetDir); err != nil {
-		return "", fmt.Errorf("cannot clean target dir: %w", err)
-	}
 
-	if err := os.MkdirAll(targetDir, 0755); err != nil {
-		return "", fmt.Errorf("cannot create target dir: %w", err)
+	if cfg.PagesSubdir == "" {
+		// Remove all contents except .git
+		dirs, err := os.ReadDir(tempDir)
+		if err != nil {
+			return "", fmt.Errorf("cannot read temp dir: %w", err)
+		}
+
+		for _, d := range dirs {
+			if d.Name() == ".git" {
+				continue
+			}
+			if err := os.RemoveAll(filepath.Join(tempDir, d.Name())); err != nil {
+				return "", fmt.Errorf("cannot remove %s from temp dir: %w", d.Name(), err)
+			}
+		}
+
+	} else {
+		// When publishing to a subdirectory we remove the subdirectory
+		if err := os.RemoveAll(targetDir); err != nil {
+			return "", fmt.Errorf("cannot clean target dir: %w", err)
+		}
+
+		if err := os.MkdirAll(targetDir, 0755); err != nil {
+			return "", fmt.Errorf("cannot create target dir: %w", err)
+		}
 	}
 
 	p.Log().Info("Copying generated site to target directory")
@@ -112,21 +142,35 @@ func (p *publisher) Publish(ctx context.Context, cfg PublisherConfig, sourceDir 
 
 	// Stage
 	p.Log().Info("Staging changes")
-	if err := p.gitClient.Add(ctx, tempDir, "."); err != nil {
+	if err := p.gitClient.Add(ctx, tempDir, ".", env); err != nil {
 		return "", fmt.Errorf("cannot stage changes: %w", err)
 	}
 
-	// GitCommit
+	// Commit
 	p.Log().Info("Committing changes")
-	commitHash, err := p.gitClient.Commit(ctx, tempDir, cfg.CommitAuthor)
+	commitHash, err := p.gitClient.Commit(ctx, tempDir, cfg.CommitAuthor, env)
 	if err != nil {
 		return "", fmt.Errorf("cannot commit changes: %w", err)
 	}
 	p.Log().Info("Changes committed", "hash", commitHash)
 
+	statusOutput, err := p.gitClient.Status(ctx, tempDir, env)
+	if err != nil {
+		p.Log().Error("cannot get git status after commit", "error", err)
+	}
+
+	p.Log().Info("DEBUG: git status after commit", "output", statusOutput)
+	logOutput, err := p.gitClient.GitLog(ctx, tempDir, []string{"-1", "--pretty=format:%s"}, env)
+
+	if err != nil {
+		p.Log().Error("cannot get git log after commit", "error", err)
+	}
+
+	p.Log().Info("DEBUG: git log after commit", "output", logOutput)
+
 	// Push
 	p.Log().Info("Pushing changes to remote")
-	if err := p.gitClient.Push(ctx, tempDir, cfg.Auth); err != nil {
+	if err := p.gitClient.Push(ctx, tempDir, cfg.Auth, "origin", cfg.Branch, env); err != nil {
 		return "", fmt.Errorf("cannot push changes: %w", err)
 	}
 
@@ -143,27 +187,33 @@ func (p *publisher) Plan(ctx context.Context, cfg PublisherConfig, sourceDir str
 
 	var report PlanReport
 
-	// Tenp dir
-	tempDir, err := os.MkdirTemp("", "clio-plan-*")
+	parentTempDir, err := os.MkdirTemp("", "clio-plan-parent-*")
 	if err != nil {
-		return PlanReport{}, fmt.Errorf("cannot create temp dir for plan: %w", err)
+		return PlanReport{}, fmt.Errorf("cannot create parent temp dir for plan: %w", err)
 	}
-	defer os.RemoveAll(tempDir)
-	p.Log().Info("Temp dir created for plan", "path", tempDir)
+	defer os.RemoveAll(parentTempDir)
 
-	// Clone
-	if err := p.gitClient.Clone(ctx, cfg.RepoURL, tempDir, cfg.Auth); err != nil {
+	tempDir := filepath.Join(parentTempDir, "repo") // Git will create this
+
+	askpassScriptPath := filepath.Join(parentTempDir, "git-askpass.sh")
+	err = os.WriteFile(askpassScriptPath, []byte(fmt.Sprintf("#!/bin/sh\necho %s", cfg.Auth.Token)), 0700)
+	if err != nil {
+		return PlanReport{}, fmt.Errorf("cannot create askpass script for plan: %w", err)
+	}
+
+	env := os.Environ()
+	env = append(env, "GIT_ASKPASS="+askpassScriptPath)
+
+	if err := p.gitClient.Clone(ctx, cfg.RepoURL, tempDir, cfg.Auth, env); err != nil {
 		return PlanReport{}, fmt.Errorf("cannot clone repo for plan: %w", err)
 	}
 	p.Log().Info("Repo cloned for plan")
 
-	// Checkout target branch
-	if err := p.gitClient.Checkout(ctx, tempDir, cfg.Branch, true); err != nil {
+	if err := p.gitClient.Checkout(ctx, tempDir, cfg.Branch, true, env); err != nil {
 		return PlanReport{}, fmt.Errorf("cannot checkout branch for plan: %w", err)
 	}
 	p.Log().Info("Checked out branch for plan", "branch", cfg.Branch)
 
-	// Clean and copy source dir content
 	targetDir := filepath.Join(tempDir, cfg.PagesSubdir)
 	p.Log().Info("Cleaning target directory for plan", "path", targetDir)
 	if err := os.RemoveAll(targetDir); err != nil {
@@ -179,20 +229,17 @@ func (p *publisher) Plan(ctx context.Context, cfg PublisherConfig, sourceDir str
 		return PlanReport{}, fmt.Errorf("cannot copy site content for plan: %w", err)
 	}
 
-	// Stage
 	p.Log().Info("Staging changes for plan")
-	if err := p.gitClient.Add(ctx, tempDir, "."); err != nil {
+	if err := p.gitClient.Add(ctx, tempDir, ".", env); err != nil {
 		return PlanReport{}, fmt.Errorf("cannot stage changes for plan: %w", err)
 	}
 
-	// Get status
 	p.Log().Info("Getting git status for plan")
-	statusOutput, err := p.gitClient.Status(ctx, tempDir)
+	statusOutput, err := p.gitClient.Status(ctx, tempDir, env)
 	if err != nil {
 		return PlanReport{}, fmt.Errorf("cannot get git status for plan: %w", err)
 	}
 
-	// Parse status output
 	lines := strings.Split(statusOutput, "\n")
 	for _, line := range lines {
 		if len(line) < 3 {
@@ -208,7 +255,7 @@ func (p *publisher) Plan(ctx context.Context, cfg PublisherConfig, sourceDir str
 			report.Modified = append(report.Modified, filename)
 		case "D ":
 			report.Removed = append(report.Removed, filename)
-		case "??": // Untracked files, which should be added by `git add .`
+		case "??":
 			report.Added = append(report.Added, filename)
 		}
 	}
@@ -226,7 +273,7 @@ func copyDir(src, dst string) error {
 			return err
 		}
 
-		// calculate relative path
+		// NOTE: calculate relative path
 		relPath, err := filepath.Rel(src, path)
 		if err != nil {
 			return err

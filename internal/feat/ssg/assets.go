@@ -10,7 +10,6 @@ import (
 )
 
 func CopyStaticAssets(assetsFS embed.FS, targetDir string) error {
-	
 
 	return fs.WalkDir(assetsFS, "assets/ssg/static", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {

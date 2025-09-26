@@ -46,13 +46,18 @@ func TestPublisherPublishFakeClient(t *testing.T) {
 				"css/style.css": "body { color: red; }",
 			},
 			gitClient: &fake.GithubClient{
-				CloneFn:    func(ctx context.Context, repoURL, localPath string, auth am.GitAuth) error { return nil },
-				CheckoutFn: func(ctx context.Context, localRepoPath, branch string, create bool) error { return nil },
-				AddFn:      func(ctx context.Context, localRepoPath, pathspec string) error { return nil },
-				CommitFn: func(ctx context.Context, localRepoPath string, commit am.GitCommit) (string, error) {
+				CloneFn:    func(ctx context.Context, repoURL, localPath string, auth am.GitAuth, env []string) error {
+					if err := os.MkdirAll(localPath, 0755); err != nil {
+						return err
+					}
+					return nil
+				},
+				CheckoutFn: func(ctx context.Context, localRepoPath, branch string, create bool, env []string) error { return nil },
+				AddFn:      func(ctx context.Context, localRepoPath, pathspec string, env []string) error { return nil },
+				CommitFn: func(ctx context.Context, localRepoPath string, commit am.GitCommit, env []string) (string, error) {
 					return "fake-hash", nil
 				},
-				PushFn: func(ctx context.Context, localRepoPath string, auth am.GitAuth) error { return nil },
+				PushFn: func(ctx context.Context, localRepoPath string, auth am.GitAuth, remote, branch string, env []string) error { return nil },
 			},
 			expectedError:         nil,
 			expectedCloneCalls:    1,
@@ -78,7 +83,7 @@ func TestPublisherPublishFakeClient(t *testing.T) {
 				"index.html": "<html><body>Hello</body></html>",
 			},
 			gitClient: &fake.GithubClient{
-				CloneFn: func(ctx context.Context, repoURL, localPath string, auth am.GitAuth) error {
+				CloneFn: func(ctx context.Context, repoURL, localPath string, auth am.GitAuth, env []string) error {
 					return errors.New("clone error")
 				},
 			},

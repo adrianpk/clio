@@ -9,41 +9,54 @@ import (
 // GithubClient is a fake implementation of am.GitClient for testing.
 type GithubClient struct {
 	// Expected results
-	CloneFn    func(ctx context.Context, repoURL, localPath string, auth am.GitAuth) error
-	CheckoutFn func(ctx context.Context, localRepoPath, branch string, create bool) error
-	AddFn      func(ctx context.Context, localRepoPath, pathspec string) error
-	CommitFn   func(ctx context.Context, localRepoPath string, commit am.GitCommit) (string, error)
-	PushFn     func(ctx context.Context, localRepoPath string, auth am.GitAuth) error
-	StatusFn   func(ctx context.Context, localRepoPath string) (string, error)
+	CloneFn    func(ctx context.Context, repoURL, localPath string, auth am.GitAuth, env []string) error
+	CheckoutFn func(ctx context.Context, localRepoPath, branch string, create bool, env []string) error
+	AddFn      func(ctx context.Context, localRepoPath, pathspec string, env []string) error
+	CommitFn   func(ctx context.Context, localRepoPath string, commit am.GitCommit, env []string) (string, error)
+	PushFn     func(ctx context.Context, localRepoPath string, auth am.GitAuth, remote, branch string, env []string) error
+	StatusFn   func(ctx context.Context, localRepoPath string, env []string) (string, error)
+	GitLogFn   func(ctx context.Context, localRepoPath string, args []string, env []string) (string, error)
 
 	// Captured arguments
 	CloneCalls []struct {
 		Ctx                context.Context
 		RepoURL, LocalPath string
 		Auth               am.GitAuth
+		Env                []string
 	}
 	CheckoutCalls []struct {
 		Ctx                   context.Context
 		LocalRepoPath, Branch string
 		Create                bool
+		Env                   []string
 	}
 	AddCalls []struct {
 		Ctx                     context.Context
 		LocalRepoPath, Pathspec string
+		Env                     []string
 	}
 	CommitCalls []struct {
 		Ctx           context.Context
 		LocalRepoPath string
 		Commit        am.GitCommit
+		Env           []string
 	}
 	PushCalls []struct {
-		Ctx           context.Context
-		LocalRepoPath string
-		Auth          am.GitAuth
+		Ctx                           context.Context
+		LocalRepoPath, Remote, Branch string
+		Auth                          am.GitAuth
+		Env                           []string
 	}
 	StatusCalls []struct {
 		Ctx           context.Context
 		LocalRepoPath string
+		Env           []string
+	}
+	GitLogCalls []struct {
+		Ctx           context.Context
+		LocalRepoPath string
+		Args          []string
+		Env           []string
 	}
 }
 
@@ -52,72 +65,91 @@ func NewGithubClient() *GithubClient {
 	return &GithubClient{}
 }
 
-func (f *GithubClient) Clone(ctx context.Context, repoURL, localPath string, auth am.GitAuth) error {
+func (f *GithubClient) Clone(ctx context.Context, repoURL, localPath string, auth am.GitAuth, env []string) error {
 	f.CloneCalls = append(f.CloneCalls, struct {
 		Ctx                context.Context
 		RepoURL, LocalPath string
 		Auth               am.GitAuth
-	}{Ctx: ctx, RepoURL: repoURL, LocalPath: localPath, Auth: auth})
+		Env                []string
+	}{Ctx: ctx, RepoURL: repoURL, LocalPath: localPath, Auth: auth, Env: env})
 	if f.CloneFn != nil {
-		return f.CloneFn(ctx, repoURL, localPath, auth)
+		return f.CloneFn(ctx, repoURL, localPath, auth, env)
 	}
 	return nil // Default success
 }
 
-func (f *GithubClient) Checkout(ctx context.Context, localRepoPath, branch string, create bool) error {
+func (f *GithubClient) Checkout(ctx context.Context, localRepoPath, branch string, create bool, env []string) error {
 	f.CheckoutCalls = append(f.CheckoutCalls, struct {
 		Ctx                   context.Context
 		LocalRepoPath, Branch string
 		Create                bool
-	}{Ctx: ctx, LocalRepoPath: localRepoPath, Branch: branch, Create: create})
+		Env                   []string
+	}{Ctx: ctx, LocalRepoPath: localRepoPath, Branch: branch, Create: create, Env: env})
 	if f.CheckoutFn != nil {
-		return f.CheckoutFn(ctx, localRepoPath, branch, create)
+		return f.CheckoutFn(ctx, localRepoPath, branch, create, env)
 	}
 	return nil
 }
 
-func (f *GithubClient) Add(ctx context.Context, localRepoPath, pathspec string) error {
+func (f *GithubClient) Add(ctx context.Context, localRepoPath, pathspec string, env []string) error {
 	f.AddCalls = append(f.AddCalls, struct {
 		Ctx                     context.Context
 		LocalRepoPath, Pathspec string
-	}{Ctx: ctx, LocalRepoPath: localRepoPath, Pathspec: pathspec})
+		Env                     []string
+	}{Ctx: ctx, LocalRepoPath: localRepoPath, Pathspec: pathspec, Env: env})
 	if f.AddFn != nil {
-		return f.AddFn(ctx, localRepoPath, pathspec)
+		return f.AddFn(ctx, localRepoPath, pathspec, env)
 	}
 	return nil
 }
 
-func (f *GithubClient) Commit(ctx context.Context, localRepoPath string, commit am.GitCommit) (string, error) {
+func (f *GithubClient) Commit(ctx context.Context, localRepoPath string, commit am.GitCommit, env []string) (string, error) {
 	f.CommitCalls = append(f.CommitCalls, struct {
 		Ctx           context.Context
 		LocalRepoPath string
 		Commit        am.GitCommit
-	}{Ctx: ctx, LocalRepoPath: localRepoPath, Commit: commit})
+		Env           []string
+	}{Ctx: ctx, LocalRepoPath: localRepoPath, Commit: commit, Env: env})
 	if f.CommitFn != nil {
-		return f.CommitFn(ctx, localRepoPath, commit)
+		return f.CommitFn(ctx, localRepoPath, commit, env)
 	}
 	return "fake-commit-hash", nil // Default hash
 }
 
-func (f *GithubClient) Push(ctx context.Context, localRepoPath string, auth am.GitAuth) error {
+func (f *GithubClient) Push(ctx context.Context, localRepoPath string, auth am.GitAuth, remote, branch string, env []string) error {
 	f.PushCalls = append(f.PushCalls, struct {
-		Ctx           context.Context
-		LocalRepoPath string
-		Auth          am.GitAuth
-	}{Ctx: ctx, LocalRepoPath: localRepoPath, Auth: auth})
+		Ctx                           context.Context
+		LocalRepoPath, Remote, Branch string
+		Auth                          am.GitAuth
+		Env                           []string
+	}{Ctx: ctx, LocalRepoPath: localRepoPath, Auth: auth, Remote: remote, Branch: branch, Env: env})
 	if f.PushFn != nil {
-		return f.PushFn(ctx, localRepoPath, auth)
+		return f.PushFn(ctx, localRepoPath, auth, remote, branch, env)
 	}
 	return nil
 }
 
-func (f *GithubClient) Status(ctx context.Context, localRepoPath string) (string, error) {
+func (f *GithubClient) Status(ctx context.Context, localRepoPath string, env []string) (string, error) {
 	f.StatusCalls = append(f.StatusCalls, struct {
 		Ctx           context.Context
 		LocalRepoPath string
-	}{Ctx: ctx, LocalRepoPath: localRepoPath})
+		Env           []string
+	}{Ctx: ctx, LocalRepoPath: localRepoPath, Env: env})
 	if f.StatusFn != nil {
-		return f.StatusFn(ctx, localRepoPath)
+		return f.StatusFn(ctx, localRepoPath, env)
 	}
 	return " M somefile.txt\n?? anotherfile.txt", nil // Default status
+}
+
+func (f *GithubClient) GitLog(ctx context.Context, localRepoPath string, args []string, env []string) (string, error) {
+	f.GitLogCalls = append(f.GitLogCalls, struct {
+		Ctx           context.Context
+		LocalRepoPath string
+		Args          []string
+		Env           []string
+	}{Ctx: ctx, LocalRepoPath: localRepoPath, Args: args, Env: env})
+	if f.GitLogFn != nil {
+		return f.GitLogFn(ctx, localRepoPath, args, env)
+	}
+	return "fake git log", nil // Default log
 }

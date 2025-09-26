@@ -439,7 +439,7 @@ func (repo *ClioRepo) UpdateLayout(ctx context.Context, layout ssg.Layout) error
 	return err
 }
 
-	func (repo *ClioRepo) DeleteLayout(ctx context.Context, id uuid.UUID) error {
+func (repo *ClioRepo) DeleteLayout(ctx context.Context, id uuid.UUID) error {
 	query, err := repo.Query().Get(featSSG, resLayout, "Delete")
 	if err != nil {
 		return err
@@ -448,7 +448,6 @@ func (repo *ClioRepo) UpdateLayout(ctx context.Context, layout ssg.Layout) error
 	_, err = repo.db.ExecContext(ctx, query, id)
 	return err
 }
-
 
 // Tag related
 

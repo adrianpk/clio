@@ -21,7 +21,7 @@ type Tag struct {
 	ShortID string `json:"-" db:"short_id"`
 
 	// Tag specific fields
-	Name string `json:"name" db:"name"`
+	Name      string `json:"name" db:"name"`
 	SlugField string `json:"slug" db:"slug"`
 
 	// Audit

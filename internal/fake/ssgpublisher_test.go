@@ -9,10 +9,10 @@ import (
 	"github.com/adrianpk/clio/internal/feat/ssg"
 )
 
-func TestSsgPublisherPublish(t *testing.T) {
+func TestSSGPublisherPublish(t *testing.T) {
 	tests := []struct {
 		name        string
-		setupFake   func(f *fake.SsgPublisher)
+		setupFake   func(f *fake.SSGPublisher)
 		ctx         context.Context
 		cfg         ssg.PublisherConfig
 		sourceDir   string
@@ -22,7 +22,7 @@ func TestSsgPublisherPublish(t *testing.T) {
 	}{
 		{
 			name:        "successful publish",
-			setupFake:   func(f *fake.SsgPublisher) {},
+			setupFake:   func(f *fake.SSGPublisher) {},
 			ctx:         context.Background(),
 			cfg:         ssg.PublisherConfig{RepoURL: "http://example.com/repo"},
 			sourceDir:   "/tmp/src",
@@ -32,7 +32,7 @@ func TestSsgPublisherPublish(t *testing.T) {
 		},
 		{
 			name: "publish returns error",
-			setupFake: func(f *fake.SsgPublisher) {
+			setupFake: func(f *fake.SSGPublisher) {
 				f.PublishFn = func(ctx context.Context, cfg ssg.PublisherConfig, sourceDir string) (string, error) {
 					return "", errors.New("publish failed")
 				}
@@ -48,7 +48,7 @@ func TestSsgPublisherPublish(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			f := fake.NewSsgPublisher()
+			f := fake.NewSSGPublisher()
 			tt.setupFake(f)
 
 			url, err := f.Publish(tt.ctx, tt.cfg, tt.sourceDir)

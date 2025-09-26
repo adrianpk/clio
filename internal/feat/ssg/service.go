@@ -241,12 +241,12 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		blocks := BuildBlocks(content, contents, int(svc.Cfg().IntVal(am.Key.SSGBlocksMaxItems, 5)))
 
 		data := PageData{
-			HeaderStyle:     headerStyle,
-			AssetPath:       assetPath,
-			Menu:            menuSections,
+			HeaderStyle: headerStyle,
+			AssetPath:   assetPath,
+			Menu:        menuSections,
 			Content:     pageContent,
 			Blocks:      blocks,
-			Search:          searchData,
+			Search:      searchData,
 		}
 
 		var buf bytes.Buffer
