@@ -77,20 +77,20 @@ func (p *publisher) Publish(ctx context.Context, cfg PublisherConfig, sourceDir 
 	// Tenp dir
 	tempDir, err := os.MkdirTemp("", "clio-publish-*")
 	if err != nil {
-		return "", fmt.Errorf("error creating temp dir: %w", err)
+		return "", fmt.Errorf("cannot create temp dir: %w", err)
 	}
 	defer os.RemoveAll(tempDir)
 	p.Log().Info("Temp dir created", "path", tempDir)
 
 	// Clone
 	if err := p.gitClient.Clone(ctx, cfg.RepoURL, tempDir, cfg.Auth); err != nil {
-		return "", fmt.Errorf("failed to clone repo: %w", err)
+		return "", fmt.Errorf("cannot clone repo: %w", err)
 	}
 	p.Log().Info("Repo cloned")
 
 	// Checkout target branch
 	if err := p.gitClient.Checkout(ctx, tempDir, cfg.Branch, true); err != nil {
-		return "", fmt.Errorf("failed to checkout branch: %w", err)
+		return "", fmt.Errorf("cannot checkout branch: %w", err)
 	}
 	p.Log().Info("Checked out branch", "branch", cfg.Branch)
 
@@ -98,36 +98,36 @@ func (p *publisher) Publish(ctx context.Context, cfg PublisherConfig, sourceDir 
 	targetDir := filepath.Join(tempDir, cfg.PagesSubdir)
 	p.Log().Info("Cleaning target directory", "path", targetDir)
 	if err := os.RemoveAll(targetDir); err != nil {
-		return "", fmt.Errorf("error cleaning target dir: %w", err)
+		return "", fmt.Errorf("cannot clean target dir: %w", err)
 	}
 
 	if err := os.MkdirAll(targetDir, 0755); err != nil {
-		return "", fmt.Errorf("error creating target dir: %w", err)
+		return "", fmt.Errorf("cannot create target dir: %w", err)
 	}
 
 	p.Log().Info("Copying generated site to target directory")
 	if err := copyDir(sourceDir, targetDir); err != nil {
-		return "", fmt.Errorf("error copying site content: %w", err)
+		return "", fmt.Errorf("cannot copy site content: %w", err)
 	}
 
 	// Stage
 	p.Log().Info("Staging changes")
 	if err := p.gitClient.Add(ctx, tempDir, "."); err != nil {
-		return "", fmt.Errorf("failed to stage changes: %w", err)
+		return "", fmt.Errorf("cannot stage changes: %w", err)
 	}
 
 	// GitCommit
 	p.Log().Info("Committing changes")
 	commitHash, err := p.gitClient.Commit(ctx, tempDir, cfg.CommitAuthor)
 	if err != nil {
-		return "", fmt.Errorf("error commiting changes: %w", err)
+		return "", fmt.Errorf("cannot commit changes: %w", err)
 	}
 	p.Log().Info("Changes committed", "hash", commitHash)
 
 	// Push
 	p.Log().Info("Pushing changes to remote")
 	if err := p.gitClient.Push(ctx, tempDir, cfg.Auth); err != nil {
-		return "", fmt.Errorf("error pushing changes: %w", err)
+		return "", fmt.Errorf("cannot push changes: %w", err)
 	}
 
 	// // NOTE: We need to find a neater way to do this
@@ -146,20 +146,20 @@ func (p *publisher) Plan(ctx context.Context, cfg PublisherConfig, sourceDir str
 	// Tenp dir
 	tempDir, err := os.MkdirTemp("", "clio-plan-*")
 	if err != nil {
-		return PlanReport{}, fmt.Errorf("error creating temp dir for plan: %w", err)
+		return PlanReport{}, fmt.Errorf("cannot create temp dir for plan: %w", err)
 	}
 	defer os.RemoveAll(tempDir)
 	p.Log().Info("Temp dir created for plan", "path", tempDir)
 
 	// Clone
 	if err := p.gitClient.Clone(ctx, cfg.RepoURL, tempDir, cfg.Auth); err != nil {
-		return PlanReport{}, fmt.Errorf("failed to clone repo for plan: %w", err)
+		return PlanReport{}, fmt.Errorf("cannot clone repo for plan: %w", err)
 	}
 	p.Log().Info("Repo cloned for plan")
 
 	// Checkout target branch
 	if err := p.gitClient.Checkout(ctx, tempDir, cfg.Branch, true); err != nil {
-		return PlanReport{}, fmt.Errorf("failed to checkout branch for plan: %w", err)
+		return PlanReport{}, fmt.Errorf("cannot checkout branch for plan: %w", err)
 	}
 	p.Log().Info("Checked out branch for plan", "branch", cfg.Branch)
 
@@ -167,29 +167,29 @@ func (p *publisher) Plan(ctx context.Context, cfg PublisherConfig, sourceDir str
 	targetDir := filepath.Join(tempDir, cfg.PagesSubdir)
 	p.Log().Info("Cleaning target directory for plan", "path", targetDir)
 	if err := os.RemoveAll(targetDir); err != nil {
-		return PlanReport{}, fmt.Errorf("error cleaning target dir for plan: %w", err)
+		return PlanReport{}, fmt.Errorf("cannot clean target dir for plan: %w", err)
 	}
 
 	if err := os.MkdirAll(targetDir, 0755); err != nil {
-		return PlanReport{}, fmt.Errorf("error creating target dir for plan: %w", err)
+		return PlanReport{}, fmt.Errorf("cannot create target dir for plan: %w", err)
 	}
 
 	p.Log().Info("Copying generated site to target directory for plan")
 	if err := copyDir(sourceDir, targetDir); err != nil {
-		return PlanReport{}, fmt.Errorf("error copying site content for plan: %w", err)
+		return PlanReport{}, fmt.Errorf("cannot copy site content for plan: %w", err)
 	}
 
 	// Stage
 	p.Log().Info("Staging changes for plan")
 	if err := p.gitClient.Add(ctx, tempDir, "."); err != nil {
-		return PlanReport{}, fmt.Errorf("failed to stage changes for plan: %w", err)
+		return PlanReport{}, fmt.Errorf("cannot stage changes for plan: %w", err)
 	}
 
 	// Get status
 	p.Log().Info("Getting git status for plan")
 	statusOutput, err := p.gitClient.Status(ctx, tempDir)
 	if err != nil {
-		return PlanReport{}, fmt.Errorf("failed to get git status for plan: %w", err)
+		return PlanReport{}, fmt.Errorf("cannot get git status for plan: %w", err)
 	}
 
 	// Parse status output

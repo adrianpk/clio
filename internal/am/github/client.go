@@ -27,7 +27,7 @@ func (c *Client) Clone(ctx context.Context, repoURL, localPath string, auth am.G
 	if auth.Method == am.AuthToken {
 		u, err := url.Parse(repoURL)
 		if err != nil {
-			return fmt.Errorf("invalid repo URL: %w", err)
+			return fmt.Errorf("cannot parse repo URL: %w", err)
 		}
 		u.User = url.UserPassword("oauth2", auth.Token)
 		repoURL = u.String()
@@ -61,19 +61,19 @@ func (c *Client) Commit(ctx context.Context, localRepoPath string, commit am.Git
 	configUserCmd := exec.CommandContext(ctx, "git", "config", "user.name", commit.UserName)
 	configUserCmd.Dir = localRepoPath
 	if err := c.runCommand(configUserCmd); err != nil {
-		return "", fmt.Errorf("failed to set git user name: %w", err)
+		return "", fmt.Errorf("cannot set git user name: %w", err)
 	}
 
 	configEmailCmd := exec.CommandContext(ctx, "git", "config", "user.email", commit.UserEmail)
 	configEmailCmd.Dir = localRepoPath
 	if err := c.runCommand(configEmailCmd); err != nil {
-		return "", fmt.Errorf("failed to set git user email: %w", err)
+		return "", fmt.Errorf("cannot set git user email: %w", err)
 	}
 
 	commitCmd := exec.CommandContext(ctx, "git", "commit", "-m", commit.Message)
 	commitCmd.Dir = localRepoPath
 	if err := c.runCommand(commitCmd); err != nil {
-		return "", fmt.Errorf("git commit failed: %w", err)
+		return "", fmt.Errorf("cannot commit changes: %w", err)
 	}
 
 	hashCmd := exec.CommandContext(ctx, "git", "rev-parse", "HEAD")
@@ -81,7 +81,7 @@ func (c *Client) Commit(ctx context.Context, localRepoPath string, commit am.Git
 	var out bytes.Buffer
 	hashCmd.Stdout = &out
 	if err := c.runCommand(hashCmd); err != nil {
-		return "", fmt.Errorf("failed to get commit hash: %w", err)
+		return "", fmt.Errorf("cannot get commit hash: %w", err)
 	}
 
 	return strings.TrimSpace(out.String()), nil
@@ -99,7 +99,7 @@ func (c *Client) Status(ctx context.Context, localRepoPath string) (string, erro
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
 	if err := c.runCommand(cmd); err != nil {
-		return "", fmt.Errorf("failed to get git status: %w", err)
+		return "", fmt.Errorf("cannot get git status: %w", err)
 	}
 	return stdout.String(), nil
 }
@@ -111,7 +111,7 @@ func (c *Client) runCommand(cmd *exec.Cmd) error {
 
 	err := cmd.Run()
 	if err != nil {
-		return fmt.Errorf(`error executing command: %s\nerror: %w\noutput: %s`, cmd.String(), err, stderr.String())
+		return fmt.Errorf("cannot execute command %q: %w: %s", cmd.String(), err, stderr.String())
 	}
 
 	return nil

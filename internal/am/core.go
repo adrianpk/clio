@@ -122,7 +122,7 @@ func WithCfg(cfg *Config) Option {
 func WithConfigValue(key string, value interface{}) Option {
 	return func(c Core) {
 		if c.Cfg() == nil {
-			c.SetCfg(NewConfig()) // Assuming NewConfig exists and initializes a new Config
+			c.SetCfg(NewConfig())
 		}
 		c.Cfg().Set(key, value)
 	}

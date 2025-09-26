@@ -14,6 +14,7 @@ type GithubClient struct {
 	AddFn      func(ctx context.Context, localRepoPath, pathspec string) error
 	CommitFn   func(ctx context.Context, localRepoPath string, commit am.GitCommit) (string, error)
 	PushFn     func(ctx context.Context, localRepoPath string, auth am.GitAuth) error
+	StatusFn   func(ctx context.Context, localRepoPath string) (string, error)
 
 	// Captured arguments
 	CloneCalls []struct {
@@ -39,6 +40,10 @@ type GithubClient struct {
 		Ctx           context.Context
 		LocalRepoPath string
 		Auth          am.GitAuth
+	}
+	StatusCalls []struct {
+		Ctx           context.Context
+		LocalRepoPath string
 	}
 }
 
@@ -104,4 +109,15 @@ func (f *GithubClient) Push(ctx context.Context, localRepoPath string, auth am.G
 		return f.PushFn(ctx, localRepoPath, auth)
 	}
 	return nil
+}
+
+func (f *GithubClient) Status(ctx context.Context, localRepoPath string) (string, error) {
+	f.StatusCalls = append(f.StatusCalls, struct {
+		Ctx           context.Context
+		LocalRepoPath string
+	}{Ctx: ctx, LocalRepoPath: localRepoPath})
+	if f.StatusFn != nil {
+		return f.StatusFn(ctx, localRepoPath)
+	}
+	return " M somefile.txt\n?? anotherfile.txt", nil // Default status
 }
