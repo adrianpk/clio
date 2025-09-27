@@ -85,6 +85,11 @@ generate-html:
 	@echo "Triggering HTML generation..."
 	@./scripts/curl/ssg/generate-html.sh
 
+# Publish site
+publish:
+	@echo "Publishing site..."
+	@./scripts/curl/ssg/publish.sh
+
 gencsrfkey:
 	@if command -v openssl >/dev/null 2>&1; then \
 		echo "CSRF Key: $$(openssl rand -base64 32)"; \
@@ -164,4 +169,4 @@ reset-db:
 	@echo "A fresh database will be created on next application start"
 
 # Phony targets
-.PHONY: all build run runflags setenv clean backup-db reset-db generate-markdown generate-html test run-stacked run-overlay run-boxed run-text-only build-css
+.PHONY: all build run runflags setenv clean backup-db reset-db generate-markdown generate-html publish test run-stacked run-overlay run-boxed run-text-only build-css

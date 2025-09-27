@@ -110,7 +110,7 @@ Why we clone the repository into a temporary directory instead of just using the
 
 *   **It keeps things clean and predictable.** Every time we publish, we start with a fresh, empty copy of the destination repository. This means no leftover files from old builds and no risk of accidentally committing other project files. It's a clean slate, every time.
 
-*   **It prevents messing with your repo.** The publishing process is completely isolated from your local project. We don't have to worry about your own uncommitted changes, the branch you're on, or any other local Git state. It just works, without side effects.
+*   **It prevents messing with your repo.** The publishing process is completely isolated from your local project. We don't have to worry about your own uncommitted changes, the branch you're on, or any other Git state. It just works, without side effects.
 
 *   **It's more robust.** This approach makes the publishing process atomic. Either it all works and the changes are pushed, or it fails and the temporary folder is simply thrown away, leaving your project untouched. There's no in-between state.
 
@@ -166,5 +166,49 @@ Provide clear, actionable errors:
 - Should a helper be added to validate repository Pages settings via the GitHub API?
 - How to handle very large sites that might require chunked pushes?
 
----
+----
 *This document is an initial draft and will likely require further pruning and refinement.*
+
+# Publisher Configuration and Usage
+
+This section outlines the configuration required for the Static Site Generator (SSG) publisher, which deploys generated content to GitHub Pages, along with instructions for manual testing and troubleshooting.
+
+## Environment Variables
+
+The following environment variables are used to configure the publisher:
+
+- `CLIO_SSG_PUBLISH_REPO_URL`: The full HTTPS URL of the GitHub repository where the site will be published. This URL must include the Personal Access Token (PAT) for authentication.
+  Example: `https://oauth2:${CLIO_SSG_PUBLISH_AUTH_TOKEN}@github.com/your-username/your-repo.git`
+
+- `CLIO_SSG_PUBLISH_BRANCH`: The branch of the repository where the site content will be pushed. For `username.github.io` repositories, this is typically `main`. For project pages, it might be `gh-pages` or `main` if publishing from a `/docs` folder.
+
+- `CLIO_SSG_PUBLISH_AUTH_TOKEN`: A GitHub Personal Access Token (PAT) with `repo` scope permissions to push to the target repository. **This token is sensitive and should be kept secure.**
+
+- `CLIO_SSG_PUBLISH_COMMIT_USER_NAME`: The username to be used for the Git commit author when publishing.
+  Example: `Clio Publisher`
+
+- `CLIO_SSG_PUBLISH_COMMIT_USER_EMAIL`: The email address to be used for the Git commit author when publishing.
+  Example: `clio-publisher@example.com` (or `your-username@users.noreply.github.com` for GitHub's default)
+
+- `CLIO_SSG_PUBLISH_COMMIT_MESSAGE`: The default commit message to be used when publishing. This can be overridden by providing a `commit_message` in the API request body.
+  Example: `Automated site publish by Clio`
+
+## Manual Testing Workflow
+
+To manually test the publication process:
+
+1.  **Start the Clio server**: Ensure the Clio application is running (e.g., `make run`).
+2.  **Configure environment variables**: Load the publisher-specific environment variables into your current shell session. It is recommended to use a script like `scripts/priv/set_publish_env.sh` for this purpose.
+    ```bash
+    source scripts/priv/set_publish_env.sh
+    ```
+3.  **Trigger publication**: Execute the `make publish` command, which calls the `/api/v1/ssg/publish` endpoint.
+    ```bash
+    make publish
+    ```
+    To provide a custom commit message:
+    ```bash
+    COMMIT_MESSAGE="My custom publish message" make publish
+    ```
+
+## Troubleshooting

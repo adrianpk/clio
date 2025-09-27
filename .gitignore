@@ -9,3 +9,4 @@ __debug_bin*
 _workspace/
 node_modules/
 assets/static/css/prose.compiled.css
+scripts/priv/

@@ -3,6 +3,7 @@ package ssg
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/adrianpk/clio/internal/am"
@@ -72,8 +73,21 @@ func (h *APIHandler) wrapData(data interface{}) interface{} {
 }
 
 // Publish handles the API request to publish the site.
+// PublishRequest represents the request body for the Publish endpoint.
+type PublishRequest struct {
+	CommitMessage string `json:"commit_message"`
+}
+
+// Publish handles the API request to publish the site.
 func (h *APIHandler) Publish(w http.ResponseWriter, r *http.Request) {
 	h.Log().Info("Handling publish request")
+
+	var req PublishRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil && err != io.EOF { // io.EOF means empty body, which is fine for optional commit_message
+		h.Err(w, http.StatusBadRequest, am.ErrInvalidBody, err)
+		return
+	}
 
 	// For now, we build the config from the application's configuration.
 	cfg := PublisherConfig{
@@ -89,6 +103,11 @@ func (h *APIHandler) Publish(w http.ResponseWriter, r *http.Request) {
 			UserEmail: h.Cfg().StrValOrDef(am.Key.SSGPublishCommitUserEmail, ""),
 			Message:   h.Cfg().StrValOrDef(am.Key.SSGPublishCommitMessage, ""),
 		},
+	}
+
+	// Override commit message if provided in the request body
+	if req.CommitMessage != "" {
+		cfg.CommitAuthor.Message = req.CommitMessage
 	}
 
 	commitURL, err := h.svc.Publish(r.Context(), cfg)

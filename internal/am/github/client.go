@@ -73,6 +73,17 @@ func (c *Client) Commit(ctx context.Context, localRepoPath string, commit am.Git
 		return "", fmt.Errorf("cannot set git user email: %w", err)
 	}
 
+	// Check for pending changes before committing
+	status, err := c.Status(ctx, localRepoPath, env)
+	if err != nil {
+		return "", fmt.Errorf("cannot check git status before commit: %w", err)
+	}
+	if status == "" {
+		// No changes to commit, return without error
+		c.Log().Infof("No changes to commit in %s", localRepoPath)
+		return "", nil
+	}
+
 	commitCmd := exec.CommandContext(ctx, "git", "commit", "-m", commit.Message)
 	commitCmd.Dir = localRepoPath
 	commitCmd.Env = env
