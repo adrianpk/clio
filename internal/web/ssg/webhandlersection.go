@@ -64,7 +64,7 @@ func (h *WebHandler) EditSection(w http.ResponseWriter, r *http.Request) {
 	path := fmt.Sprintf("/ssg/sections/%s", idStr)
 	err := h.apiClient.Get(r, path, &response)
 	if err != nil {
-		h.Err(w, err, "Failed to get section from API", http.StatusInternalServerError)
+		h.Err(w, err, "Cannot get section from API", http.StatusInternalServerError)
 		return
 	}
 	section := response.Section
@@ -111,7 +111,7 @@ func (h *WebHandler) ListSections(w http.ResponseWriter, r *http.Request) {
 	}
 	err := h.apiClient.Get(r, "/ssg/sections", &response)
 	if err != nil {
-		h.Err(w, err, "Failed to get sections from API", http.StatusInternalServerError)
+		h.Err(w, err, "Cannot get sections from API", http.StatusInternalServerError)
 		return
 	}
 	sections := ToWebSections(response.Sections)
@@ -151,7 +151,7 @@ func (h *WebHandler) ShowSection(w http.ResponseWriter, r *http.Request) {
 	path := fmt.Sprintf("/ssg/sections/%s", idStr)
 	err := h.apiClient.Get(r, path, &response)
 	if err != nil {
-		h.Err(w, err, "Failed to get section from API", http.StatusInternalServerError)
+		h.Err(w, err, "Cannot get section from API", http.StatusInternalServerError)
 		return
 	}
 	section := ToWebSection(response.Section)
@@ -207,7 +207,7 @@ func (h *WebHandler) renderSectionForm(w http.ResponseWriter, r *http.Request, f
 	}
 	err := h.apiClient.Get(r, "/ssg/layouts", &response)
 	if err != nil {
-		h.Err(w, err, "Failed to get layouts from API", http.StatusInternalServerError)
+		h.Err(w, err, "Cannot get layouts from API", http.StatusInternalServerError)
 		return
 	}
 	layouts := response.Layouts

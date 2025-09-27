@@ -63,7 +63,7 @@ func (h *WebHandler) EditLayout(w http.ResponseWriter, r *http.Request) {
 	path := fmt.Sprintf("/ssg/layouts/%s", idStr)
 	err := h.apiClient.Get(r, path, &response)
 	if err != nil {
-		h.Err(w, err, "Failed to get layout from API", http.StatusInternalServerError)
+		h.Err(w, err, "Cannot get layout from API", http.StatusInternalServerError)
 		return
 	}
 	layout := response.Layout
@@ -110,7 +110,7 @@ func (h *WebHandler) ListLayouts(w http.ResponseWriter, r *http.Request) {
 	}
 	err := h.apiClient.Get(r, "/ssg/layouts", &response)
 	if err != nil {
-		h.Err(w, err, "Failed to get layouts from API", http.StatusInternalServerError)
+		h.Err(w, err, "Cannot get layouts from API", http.StatusInternalServerError)
 		return
 	}
 	layouts := ToWebLayouts(response.Layouts)
@@ -151,9 +151,10 @@ func (h *WebHandler) ShowLayout(w http.ResponseWriter, r *http.Request) {
 	path := fmt.Sprintf("/ssg/layouts/%s", idStr)
 	err := h.apiClient.Get(r, path, &response)
 	if err != nil {
-		h.Err(w, err, "Failed to get layout from API", http.StatusInternalServerError)
+		h.Err(w, err, "Cannot get layout from API", http.StatusInternalServerError)
 		return
 	}
+
 	layout := ToWebLayout(response.Layout)
 
 	page := am.NewPage(r, layout)

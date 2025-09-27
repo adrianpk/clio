@@ -18,6 +18,7 @@ var (
 	resMeta    = "meta"
 	resSection = "section"
 	resTag     = "tag"
+	resParam   = "param"
 )
 
 // Content related
@@ -524,6 +525,103 @@ func (repo *ClioRepo) DeleteTag(ctx context.Context, id uuid.UUID) error {
 
 	_, err = repo.db.ExecContext(ctx, query, id)
 	return err
+}
+
+// Param related
+
+func (repo *ClioRepo) CreateParam(ctx context.Context, p *ssg.Param) (err error) {
+	query, err := repo.Query().Get(featSSG, resParam, "Create")
+	if err != nil {
+		return fmt.Errorf("cannot get create param query: %w", err)
+	}
+	if _, err = repo.db.NamedExecContext(ctx, query, p); err != nil {
+		return fmt.Errorf("cannot create param: %w", err)
+	}
+	return nil
+}
+
+func (repo *ClioRepo) GetParam(ctx context.Context, id uuid.UUID) (ssg.Param, error) {
+	query, err := repo.Query().Get(featSSG, resParam, "Get")
+	if err != nil {
+		return ssg.Param{}, fmt.Errorf("cannot get get param query: %w", err)
+	}
+	var param ssg.Param
+	err = repo.db.GetContext(ctx, &param, query, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ssg.Param{}, errors.New("param not found")
+		}
+		return ssg.Param{}, fmt.Errorf("cannot get param: %w", err)
+	}
+	return param, nil
+}
+
+func (repo *ClioRepo) GetParamByName(ctx context.Context, name string) (ssg.Param, error) {
+	query, err := repo.Query().Get(featSSG, resParam, "GetByName")
+	if err != nil {
+		return ssg.Param{}, fmt.Errorf("cannot get get param by name query: %w", err)
+	}
+	var param ssg.Param
+	err = repo.db.GetContext(ctx, &param, query, name)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ssg.Param{}, errors.New("param not found")
+		}
+		return ssg.Param{}, fmt.Errorf("cannot get param by name: %w", err)
+	}
+	return param, nil
+}
+
+func (repo *ClioRepo) GetParamByRefKey(ctx context.Context, refKey string) (ssg.Param, error) {
+	query, err := repo.Query().Get(featSSG, resParam, "GetByRefKey")
+	if err != nil {
+		return ssg.Param{}, fmt.Errorf("cannot get get param by ref key query: %w", err)
+	}
+	var param ssg.Param
+	err = repo.db.GetContext(ctx, &param, query, refKey)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ssg.Param{}, errors.New("param not found")
+		}
+		return ssg.Param{}, fmt.Errorf("cannot get param by ref key: %w", err)
+	}
+	return param, nil
+}
+
+func (repo *ClioRepo) ListParams(ctx context.Context) ([]ssg.Param, error) {
+	query, err := repo.Query().Get(featSSG, resParam, "List")
+	if err != nil {
+		return nil, fmt.Errorf("cannot get list params query: %w", err)
+	}
+	var params []ssg.Param
+	err = repo.db.SelectContext(ctx, &params, query)
+	if err != nil {
+		return nil, fmt.Errorf("cannot list params: %w", err)
+	}
+	return params, nil
+}
+
+func (repo *ClioRepo) UpdateParam(ctx context.Context, p *ssg.Param) (err error) {
+	query, err := repo.Query().Get(featSSG, resParam, "Update")
+	if err != nil {
+		return fmt.Errorf("cannot get update param query: %w", err)
+	}
+	if _, err = repo.db.NamedExecContext(ctx, query, p); err != nil {
+		return fmt.Errorf("cannot update param: %w", err)
+	}
+	return nil
+}
+
+func (repo *ClioRepo) DeleteParam(ctx context.Context, id uuid.UUID) error {
+	query, err := repo.Query().Get(featSSG, resParam, "Delete")
+	if err != nil {
+		return fmt.Errorf("cannot get delete param query: %w", err)
+	}
+	_, err = repo.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return fmt.Errorf("cannot delete param: %w", err)
+	}
+	return nil
 }
 
 // ContentTag related

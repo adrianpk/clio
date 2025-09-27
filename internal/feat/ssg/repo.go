@@ -36,6 +36,14 @@ type Repo interface {
 	UpdateTag(ctx context.Context, tag Tag) error
 	DeleteTag(ctx context.Context, id uuid.UUID) error
 
+	CreateParam(ctx context.Context, param *Param) error
+	GetParam(ctx context.Context, id uuid.UUID) (Param, error)
+	GetParamByName(ctx context.Context, name string) (Param, error)
+	GetParamByRefKey(ctx context.Context, refKey string) (Param, error)
+	ListParams(ctx context.Context) ([]Param, error)
+	UpdateParam(ctx context.Context, param *Param) error
+	DeleteParam(ctx context.Context, id uuid.UUID) error
+
 	AddTagToContent(ctx context.Context, contentID, tagID uuid.UUID) error
 	RemoveTagFromContent(ctx context.Context, contentID, tagID uuid.UUID) error
 	GetTagsForContent(ctx context.Context, contentID uuid.UUID) ([]Tag, error)

@@ -54,6 +54,7 @@ func main() {
 	ssgPublisher := ssg.NewPublisher(gitClient, opts...)
 	ssgSeeder := ssg.NewSeeder(assetsFS, engine, repo)
 	ssgGenerator := ssg.NewGenerator(opts...)
+	ssgParamManager := ssg.NewParamManager(repo, opts...)
 	ssgService := ssg.NewService(assetsFS, repo, ssgGenerator, ssgPublisher, opts...)
 	ssgAPIHandler := ssg.NewAPIHandler("ssg-api-handler", ssgService)
 	ssgAPIRouter := ssg.NewAPIRouter(ssgAPIHandler, nil) // No middleware for now
@@ -82,6 +83,7 @@ func main() {
 	app.Add(gitClient)
 	app.Add(ssgPublisher)
 	app.Add(ssgGenerator)
+	app.Add(ssgParamManager)
 	app.Add(ssgService)
 	app.Add(ssgAPIHandler)
 	app.Add(ssgAPIRouter)

@@ -61,7 +61,7 @@ func (h *Handler) ShowItem(w http.ResponseWriter, r *http.Request, getter func(u
 
 	item, err := getter(id)
 	if err != nil {
-		h.Err(w, err, "Failed to get item", http.StatusInternalServerError)
+		h.Err(w, err, "Cannot get item", http.StatusInternalServerError)
 		return false
 	}
 

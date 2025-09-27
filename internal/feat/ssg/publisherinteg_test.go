@@ -275,7 +275,7 @@ func TestPublisherIntegration(t *testing.T) {
 				cmd = exec.Command("git", "log", "-1", "--pretty=format:%s")
 				cmd.Dir = checkDir
 				output, err = cmd.CombinedOutput()
-				require.NoError(t, err, "Failed to get git log from checkDir: %s", string(output))
+				require.NoError(t, err, "Cannot get git log from checkDir: %s", string(output))
 				lastCommitMessage := strings.TrimSpace(string(output))
 				assert.Equal(t, tt.commitMessage, lastCommitMessage, "Last commit message in remote does not match expected")
 				t.Logf("DEBUG: Last commit message in remote: %s", lastCommitMessage)

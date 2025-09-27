@@ -48,5 +48,14 @@ func NewAPIRouter(handler *APIHandler, mw []am.Middleware, opts ...am.Option) *a
 	core.Put("/tags/{id}", handler.UpdateTag)
 	core.Delete("/tags/{id}", handler.DeleteTag)
 
+	// Param API routes
+	core.Get("/params", handler.ListParams)
+	core.Get("/params/{id}", handler.GetParam)
+	core.Get("/params/name/{name}", handler.GetParamByName)
+	core.Get("/params/refkey/{ref_key}", handler.GetParamByRefKey)
+	core.Post("/params", handler.CreateParam)
+	core.Put("/params/{id}", handler.UpdateParam)
+	core.Delete("/params/{id}", handler.DeleteParam)
+
 	return core
 }

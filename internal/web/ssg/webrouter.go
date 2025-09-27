@@ -43,5 +43,14 @@ func NewWebRouter(handler *WebHandler, mw []am.Middleware, opts ...am.Option) *a
 	core.Get("/show-layout", handler.ShowLayout)
 	core.Post("/delete-layout", handler.DeleteLayout)
 
+	// Param routes
+	core.Get("/new-param", handler.NewParam)
+	core.Post("/create-param", handler.CreateParam)
+	core.Get("/edit-param", handler.EditParam)
+	core.Post("/update-param", handler.UpdateParam)
+	core.Get("/list-params", handler.ListParams)
+	core.Get("/show-param", handler.ShowParam)
+	core.Post("/delete-param", handler.DeleteParam)
+
 	return core
 }
