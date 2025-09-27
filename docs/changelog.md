@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Resolved various internal issues to ensure stable and correct rendering of site content and features.
 
+## [2025-10-27]
+
+### Added
+- **GitHub Pages Publication**: Implemented the functionality to publish generated static site content to a GitHub Pages repository. This includes API endpoint for triggering publication and configuration via environment variables.
+
 ## [2025-09-23]
 
 ### Added

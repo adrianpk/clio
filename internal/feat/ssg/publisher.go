@@ -99,7 +99,7 @@ func (p *publisher) Publish(ctx context.Context, cfg PublisherConfig, sourceDir 
 	p.Log().Info("Repo cloned")
 
 	// Checkout target branch
-	if err := p.gitClient.Checkout(ctx, tempDir, cfg.Branch, true, env); err != nil {
+	if err := p.gitClient.Checkout(ctx, tempDir, cfg.Branch, false, env); err != nil {
 		return "", fmt.Errorf("cannot checkout branch: %w", err)
 	}
 	p.Log().Info("Checked out branch", "branch", cfg.Branch)
@@ -209,7 +209,7 @@ func (p *publisher) Plan(ctx context.Context, cfg PublisherConfig, sourceDir str
 	}
 	p.Log().Info("Repo cloned for plan")
 
-	if err := p.gitClient.Checkout(ctx, tempDir, cfg.Branch, true, env); err != nil {
+	if err := p.gitClient.Checkout(ctx, tempDir, cfg.Branch, false, env); err != nil {
 		return PlanReport{}, fmt.Errorf("cannot checkout branch for plan: %w", err)
 	}
 	p.Log().Info("Checked out branch for plan", "branch", cfg.Branch)

@@ -268,6 +268,96 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 		}
 	}
 
+	// Generate index pages
+	svc.Log().Info("Building site indexes...")
+	indexes := BuildIndexes(contents, sections)
+
+	// Create a lookup map for manual index pages
+	manualIndexPages := make(map[string]bool)
+	for _, c := range contents {
+		if strings.ToLower(c.Kind) == "page" && c.Slug() == "index" {
+			manualIndexPages[c.SectionPath] = true
+		}
+	}
+
+	postsPerPage := int(svc.Cfg().IntVal(am.Key.SSGIndexMaxItems, 9))
+
+	for _, index := range indexes {
+		// Check if a manual index page exists for this path
+		if manualIndexPages[index.Path] {
+			svc.Log().Info(fmt.Sprintf("Skipping index generation for '%s': manual index page found.", index.Path))
+			continue
+		}
+
+		// Paginate the content
+		totalContent := len(index.Content)
+		if totalContent == 0 {
+			continue
+		}
+		totalPages := (totalContent + postsPerPage - 1) / postsPerPage
+
+		for page := 1; page <= totalPages; page++ {
+			start := (page - 1) * postsPerPage
+			end := start + postsPerPage
+			if end > totalContent {
+				end = totalContent
+			}
+			pageContent := index.Content[start:end]
+
+			// Determine output path for the index page
+			var outputPath string
+			if page == 1 {
+				outputPath = filepath.Join(htmlPath, index.Path, "index.html")
+			} else {
+				outputPath = filepath.Join(htmlPath, index.Path, "page", fmt.Sprintf("%d", page), "index.html")
+			}
+
+			assetPath := "/"
+
+			// Prepare pagination data
+			pagination := &PaginationData{
+				CurrentPage: page,
+				TotalPages:  totalPages,
+			}
+			if page > 1 {
+				if page == 2 {
+					pagination.PrevPageURL = assetPath + strings.TrimSuffix(index.Path, "/")
+				} else {
+					pagination.PrevPageURL = fmt.Sprintf("%spage/%d", assetPath, page-1)
+				}
+			}
+			if page < totalPages {
+				pagination.NextPageURL = fmt.Sprintf("%spage/%d", assetPath, page+1)
+			}
+
+			data := PageData{
+				HeaderStyle:     headerStyle,
+				AssetPath:       assetPath,
+				Menu:            menuSections,
+				IsIndex:         true,
+				ListPageContent: pageContent,
+				Pagination:      pagination,
+				Search:          searchData,
+			}
+
+			var buf bytes.Buffer
+			if err := tmpl.Execute(&buf, data); err != nil {
+				svc.Log().Error("Error executing template for index", "path", index.Path, "error", err)
+				continue
+			}
+
+			if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
+				svc.Log().Error("Error creating directory for index file", "path", outputPath, "error", err)
+				continue
+			}
+
+			if err := os.WriteFile(outputPath, buf.Bytes(), 0644); err != nil {
+				svc.Log().Error("Error writing index HTML file", "path", outputPath, "error", err)
+				continue
+			}
+		}
+	}
+
 	svc.Log().Info("Service HTML generation finished")
 	return nil
 }
