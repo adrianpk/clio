@@ -405,3 +405,73 @@ func (f *TagForm) Validate() {
 	}
 	f.SetValidation(&validation)
 }
+
+// ParamForm represents the form data for a param.
+type ParamForm struct {
+	*am.BaseForm
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Value       string `json:"value"`
+	RefKey      string `json:"ref_key"`
+}
+
+// NewParamForm creates a new ParamForm from a request.
+func NewParamForm(r *http.Request) ParamForm {
+	return ParamForm{
+		BaseForm: am.NewBaseForm(r),
+	}
+}
+
+// ParamFormFromRequest creates a ParamForm from an HTTP request.
+func ParamFormFromRequest(r *http.Request) (ParamForm, error) {
+	if err := r.ParseForm(); err != nil {
+		return ParamForm{}, fmt.Errorf("error parsing form: %w", err)
+	}
+
+	form := NewParamForm(r)
+	form.ID = r.Form.Get("id")
+	form.Name = r.Form.Get("name")
+	form.Description = r.Form.Get("description")
+	form.Value = r.Form.Get("value")
+	form.RefKey = r.Form.Get("ref_key")
+
+	return form, nil
+}
+
+// ToFeatParam converts a ParamForm to a feat.Param model.
+func ToFeatParam(form ParamForm) feat.Param {
+	param := feat.NewParam(form.Name, form.Value)
+	param.Description = form.Description
+	param.RefKey = form.RefKey
+	if form.ID != "" {
+		id, err := uuid.Parse(form.ID)
+		if err == nil {
+			param.ID = id
+		}
+	}
+	return param
+}
+
+// ToParamForm converts a feat.Param model to a ParamForm.
+func ToParamForm(r *http.Request, featParam feat.Param) ParamForm {
+	form := NewParamForm(r)
+	form.ID = featParam.GetID().String()
+	form.Name = featParam.Name
+	form.Description = featParam.Description
+	form.Value = featParam.Value
+	form.RefKey = featParam.RefKey
+	return form
+}
+
+// Validate validates the ParamForm.
+func (f *ParamForm) Validate() {
+	validation := f.Validation()
+	if f.Name == "" {
+		validation.AddFieldError("name", f.Name, "Name is required")
+	}
+	if f.Value == "" {
+		validation.AddFieldError("value", f.Value, "Value is required")
+	}
+	f.SetValidation(&validation)
+}

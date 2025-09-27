@@ -71,7 +71,7 @@ func (h *WebHandler) EditContent(w http.ResponseWriter, r *http.Request) {
 	path := fmt.Sprintf("/ssg/contents/%s", idStr)
 	err := h.apiClient.Get(r, path, &response)
 	if err != nil {
-		h.Err(w, err, "Failed to get content from API", http.StatusInternalServerError)
+		h.Err(w, err, "Cannot get content from API", http.StatusInternalServerError)
 		return
 	}
 	content := response.Content
@@ -127,7 +127,7 @@ func (h *WebHandler) ListContent(w http.ResponseWriter, r *http.Request) {
 	h.Log().Infof("h.apiClient: %+v", h.apiClient)
 	err := h.apiClient.Get(r, "/ssg/contents", &response)
 	if err != nil {
-		h.Err(w, err, "Failed to get contents from API", http.StatusInternalServerError)
+		h.Err(w, err, "Cannot get contents from API", http.StatusInternalServerError)
 		return
 	}
 	contents := response.Contents
@@ -177,7 +177,7 @@ func (h *WebHandler) ShowContent(w http.ResponseWriter, r *http.Request) {
 	path := fmt.Sprintf("/ssg/contents/%s", idStr)
 	err := h.apiClient.Get(r, path, &response)
 	if err != nil {
-		h.Err(w, err, "Failed to get content from API", http.StatusInternalServerError)
+		h.Err(w, err, "Cannot get content from API", http.StatusInternalServerError)
 		return
 	}
 	content := response.Content
@@ -236,8 +236,8 @@ func (h *WebHandler) renderContentForm(w http.ResponseWriter, r *http.Request, f
 	h.Log().Debug("Calling API to get sections")
 	err := h.apiClient.Get(r, "/ssg/sections", &sectionsResponse)
 	if err != nil {
-		h.Log().Errorf("Failed to get sections from API: %v", err)
-		h.Err(w, err, "Failed to get sections from API", http.StatusInternalServerError)
+		h.Log().Errorf("Cannot get sections from API: %v", err)
+		h.Err(w, err, "Cannot get sections from API", http.StatusInternalServerError)
 		return
 	}
 	sections := sectionsResponse.Sections
@@ -249,8 +249,8 @@ func (h *WebHandler) renderContentForm(w http.ResponseWriter, r *http.Request, f
 	h.Log().Debug("Calling API to get users")
 	err = h.apiClient.Get(r, "/auth/users", &usersResponse)
 	if err != nil {
-		h.Log().Errorf("Failed to get users from API: %v", err)
-		h.Err(w, err, "Failed to get users from API", http.StatusInternalServerError)
+		h.Log().Errorf("Cannot get users from API: %v", err)
+		h.Err(w, err, "Cannot get users from API", http.StatusInternalServerError)
 		return
 	}
 	users := usersResponse.Users
@@ -262,8 +262,8 @@ func (h *WebHandler) renderContentForm(w http.ResponseWriter, r *http.Request, f
 	h.Log().Debug("Calling API to get tags")
 	err = h.apiClient.Get(r, "/ssg/tags", &tagsResponse)
 	if err != nil {
-		h.Log().Errorf("Failed to get tags from API: %v", err)
-		h.Err(w, err, "Failed to get tags from API", http.StatusInternalServerError)
+		h.Log().Errorf("Cannot get tags from API: %v", err)
+		h.Err(w, err, "Cannot get tags from API", http.StatusInternalServerError)
 		return
 	}
 	tags := tagsResponse.Tags

@@ -70,7 +70,7 @@ func (h *WebHandler) EditTag(w http.ResponseWriter, r *http.Request) {
 	path := fmt.Sprintf("/ssg/tags/%s", idStr)
 	err := h.apiClient.Get(r, path, &response)
 	if err != nil {
-		h.Err(w, err, "Failed to get tag from API", http.StatusInternalServerError)
+		h.Err(w, err, "Cannot get tag from API", http.StatusInternalServerError)
 		return
 	}
 	webTag := ToWebTag(response.Tag)
@@ -124,7 +124,7 @@ func (h *WebHandler) ListTags(w http.ResponseWriter, r *http.Request) {
 	}
 	err := h.apiClient.Get(r, "/ssg/tags", &response)
 	if err != nil {
-		h.Err(w, err, "Failed to get tags from API", http.StatusInternalServerError)
+		h.Err(w, err, "Cannot get tags from API", http.StatusInternalServerError)
 		return
 	}
 	webTags := ToWebTags(response.Tags)
@@ -167,7 +167,7 @@ func (h *WebHandler) ShowTag(w http.ResponseWriter, r *http.Request) {
 	path := fmt.Sprintf("/ssg/tags/%s", idStr)
 	err := h.apiClient.Get(r, path, &response)
 	if err != nil {
-		h.Err(w, err, "Failed to get tag from API", http.StatusInternalServerError)
+		h.Err(w, err, "Cannot get tag from API", http.StatusInternalServerError)
 		return
 	}
 	tag := ToWebTag(response.Tag)

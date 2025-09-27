@@ -44,6 +44,14 @@ type Service interface {
 	UpdateTag(ctx context.Context, tag Tag) error
 	DeleteTag(ctx context.Context, id uuid.UUID) error
 
+	CreateParam(ctx context.Context, param *Param) error
+	GetParam(ctx context.Context, id uuid.UUID) (Param, error)
+	GetParamByName(ctx context.Context, name string) (Param, error)
+	GetParamByRefKey(ctx context.Context, refKey string) (Param, error)
+	ListParams(ctx context.Context) ([]Param, error)
+	UpdateParam(ctx context.Context, param *Param) error
+	DeleteParam(ctx context.Context, id uuid.UUID) error
+
 	AddTagToContent(ctx context.Context, contentID uuid.UUID, tagName string) error
 	RemoveTagFromContent(ctx context.Context, contentID, tagID uuid.UUID) error
 	GetTagsForContent(ctx context.Context, contentID uuid.UUID) ([]Tag, error)
@@ -449,6 +457,35 @@ func (svc *BaseService) UpdateTag(ctx context.Context, tag Tag) error {
 
 func (svc *BaseService) DeleteTag(ctx context.Context, id uuid.UUID) error {
 	return svc.repo.DeleteTag(ctx, id)
+}
+
+// Param related
+func (svc *BaseService) CreateParam(ctx context.Context, param *Param) error {
+	return svc.repo.CreateParam(ctx, param)
+}
+
+func (svc *BaseService) GetParam(ctx context.Context, id uuid.UUID) (Param, error) {
+	return svc.repo.GetParam(ctx, id)
+}
+
+func (svc *BaseService) GetParamByName(ctx context.Context, name string) (Param, error) {
+	return svc.repo.GetParamByName(ctx, name)
+}
+
+func (svc *BaseService) GetParamByRefKey(ctx context.Context, refKey string) (Param, error) {
+	return svc.repo.GetParamByRefKey(ctx, refKey)
+}
+
+func (svc *BaseService) ListParams(ctx context.Context) ([]Param, error) {
+	return svc.repo.ListParams(ctx)
+}
+
+func (svc *BaseService) UpdateParam(ctx context.Context, param *Param) error {
+	return svc.repo.UpdateParam(ctx, param)
+}
+
+func (svc *BaseService) DeleteParam(ctx context.Context, id uuid.UUID) error {
+	return svc.repo.DeleteParam(ctx, id)
 }
 
 // ContentTag related

@@ -1,0 +1,35 @@
+package ssg
+
+import (
+	"context"
+
+	"github.com/adrianpk/clio/internal/am"
+)
+
+type ParamManager struct {
+	am.Core
+	repo Repo
+}
+
+func NewParamManager(repo Repo, opts ...am.Option) *ParamManager {
+	core := am.NewCore("param-manager", opts...)
+	return &ParamManager{
+		Core: core,
+		repo: repo,
+	}
+}
+
+func (pm *ParamManager) FindParam(ctx context.Context, ref string) (Param, error) {
+	return pm.findParamByName(ctx, ref)
+
+}
+
+func (pm *ParamManager) findParamByName(ctx context.Context, name string) (Param, error) {
+	// TODO: This is a simple wrapper for now but a simple caching strategy can be added here.
+	return pm.repo.GetParamByName(ctx, name)
+}
+
+func (pm *ParamManager) FindParamByRef(ctx context.Context, refKey string) (Param, error) {
+	// TODO: This is a simple wrapper for now but a simple caching strategy can be added here.
+	return pm.repo.GetParamByRefKey(ctx, refKey)
+}

@@ -20,6 +20,8 @@ const (
 	resLayoutNameCap  = "Layout"
 	resTagName        = "tag"
 	resTagNameCap     = "Tag"
+	resParamName      = "param"
+	resParamNameCap   = "Param"
 )
 
 type APIHandler struct {
@@ -55,6 +57,8 @@ func (h *APIHandler) wrapData(data interface{}) interface{} {
 		return map[string]interface{}{"content": v}
 	case Tag:
 		return map[string]interface{}{"tag": v}
+	case Param:
+		return map[string]interface{}{"param": v}
 
 	// Slices of entities
 	case []Layout:
@@ -65,6 +69,8 @@ func (h *APIHandler) wrapData(data interface{}) interface{} {
 		return map[string]interface{}{"contents": v}
 	case []Tag:
 		return map[string]interface{}{"tags": v}
+	case []Param:
+		return map[string]interface{}{"params": v}
 
 	// Default case for nil, maps, or other types
 	default:
@@ -636,6 +642,166 @@ func (h *APIHandler) DeleteTag(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msg := fmt.Sprintf(am.MsgDeleteItem, resTagNameCap)
+	h.OK(w, msg, json.RawMessage("null"))
+}
+
+// Param related API handlers
+
+func (h *APIHandler) CreateParam(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling CreateParam", h.Name())
+
+	var param Param
+	err := json.NewDecoder(r.Body).Decode(&param)
+	if err != nil {
+		h.Err(w, http.StatusBadRequest, am.ErrInvalidBody, err)
+		return
+	}
+
+	newParam := NewParam(param.Name, param.Value)
+	newParam.Description = param.Description
+	newParam.RefKey = param.RefKey
+	newParam.GenCreateValues()
+
+	err = h.svc.CreateParam(r.Context(), &newParam)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotCreateResource, resParamName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgCreateItem, resParamNameCap)
+	h.Created(w, msg, newParam)
+}
+
+func (h *APIHandler) GetParam(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling GetParam", h.Name())
+
+	id, err := h.ID(w, r)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resParamNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	param, err := h.svc.GetParam(r.Context(), id)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotGetResource, resParamName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgGetItem, resParamNameCap)
+	h.OK(w, msg, param)
+}
+
+func (h *APIHandler) GetParamByName(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling GetParamByName", h.Name())
+
+	name, err := h.Param(w, r, "name")
+	if err != nil {
+		msg := fmt.Sprintf("%s: %s", am.ErrInvalidParam, "name")
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	param, err := h.svc.GetParamByName(r.Context(), name)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotGetResource, resParamName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgGetItem, resParamNameCap)
+	h.OK(w, msg, param)
+}
+
+func (h *APIHandler) GetParamByRefKey(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling GetParamByRefKey", h.Name())
+
+	refKey, err := h.Param(w, r, "ref_key")
+	if err != nil {
+		msg := fmt.Sprintf("%s: %s", am.ErrInvalidParam, "ref_key")
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	param, err := h.svc.GetParamByRefKey(r.Context(), refKey)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotGetResource, resParamName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgGetItem, resParamNameCap)
+	h.OK(w, msg, param)
+}
+
+func (h *APIHandler) ListParams(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling ListParams", h.Name())
+
+	params, err := h.svc.ListParams(r.Context())
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotGetResources, resParamName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgGetAllItems, resParamNameCap)
+	h.OK(w, msg, params)
+}
+
+func (h *APIHandler) UpdateParam(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling UpdateParam", h.Name())
+
+	id, err := h.ID(w, r)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resParamNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	var param Param
+	err = json.NewDecoder(r.Body).Decode(&param)
+	if err != nil {
+		h.Err(w, http.StatusBadRequest, am.ErrInvalidBody, err)
+		return
+	}
+
+	updatedParam := NewParam(param.Name, param.Value)
+	updatedParam.Description = param.Description
+	updatedParam.RefKey = param.RefKey
+	updatedParam.SetID(id, true)
+	updatedParam.GenUpdateValues()
+
+	err = h.svc.UpdateParam(r.Context(), &updatedParam)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotUpdateResource, resParamName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgUpdateItem, resParamNameCap)
+	h.OK(w, msg, updatedParam)
+}
+
+func (h *APIHandler) DeleteParam(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling DeleteParam", h.Name())
+
+	id, err := h.ID(w, r)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resParamNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	err = h.svc.DeleteParam(r.Context(), id)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotDeleteResource, resParamName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgDeleteItem, resParamNameCap)
 	h.OK(w, msg, json.RawMessage("null"))
 }
 
