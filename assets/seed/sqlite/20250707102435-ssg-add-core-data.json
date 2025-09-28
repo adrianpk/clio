@@ -9,13 +9,10 @@
   ],
   "sections": [
     {
-      "ref": "root",
       "name": "root",
-      "description": "Top-level section of the site.",
+      "description": "Root section",
       "path": "/",
-      "layout_ref": "alt",
-      "image": "",
-      "header": ""
+      "layout_id": "b1018279-be2c-440c-a52e-322239b63b93"
     },
     {
       "ref": "tech",
@@ -694,6 +691,92 @@
     {
       "content_ref": "blog-food-3",
       "tag_ref": "vegetarian"
+    }
+  ],
+  "params": [
+    {
+      "name": "SSG Blocks Max Items",
+      "description": "Maximum number of items in SSG blocks.",
+      "value": "5",
+      "ref_key": "ssg.blocks.maxitems"
+    },
+    {
+      "name": "SSG Index Max Items",
+      "description": "Maximum number of items in the SSG index.",
+      "value": "10",
+      "ref_key": "ssg.index.maxitems"
+    },
+    {
+      "name": "SSG Google Search Enabled",
+      "description": "Enables/disables Google search in SSG.",
+      "value": "false",
+      "ref_key": "ssg.search.google.enabled"
+    },
+    {
+      "name": "SSG Google Search ID",
+      "description": "Google search ID for SSG.",
+      "value": "",
+      "ref_key": "ssg.search.google.id"
+    },
+    {
+      "name": "SSG Publish Repo URL",
+      "description": "The URL of the repository where the site will be published.",
+      "value": "",
+      "ref_key": "ssg.publish.repo.url"
+    },
+    {
+      "name": "SSG Publish Branch",
+      "description": "The branch to which the site will be published.",
+      "value": "gh-pages",
+      "ref_key": "ssg.publish.branch"
+    },
+    {
+      "name": "SSG Publish Pages Subdir",
+      "description": "The subdirectory within the branch where the site will be published.",
+      "value": "",
+      "ref_key": "ssg.publish.pages.subdir"
+    },
+    {
+      "name": "SSG Publish Auth Method",
+      "description": "The authentication method to use for publishing.",
+      "value": "token",
+      "ref_key": "ssg.publish.auth.method"
+    },
+    {
+      "name": "SSG Publish Auth Token",
+      "description": "The authentication token to use for publishing.",
+      "value": "",
+      "ref_key": "ssg.publish.auth.token"
+    },
+    {
+      "name": "SSG Publish Commit User Name",
+      "description": "The name of the user to use for the commit.",
+      "value": "Clio",
+      "ref_key": "ssg.publish.commit.user.name"
+    },
+    {
+      "name": "SSG Publish Commit User Email",
+      "description": "The email of the user to use for the commit.",
+      "value": "clio@hermes.org",
+      "ref_key": "ssg.publish.commit.user.email"
+    },
+    {
+      "name": "SSG Publish Commit Message",
+      "description": "The default commit message to use when publishing.",
+      "value": "Published by Clio",
+      "ref_key": "ssg.publish.commit.message"
+    },
+    {
+      "name": "SSG Content Repo URL",
+      "description": "The repository URL for storing and versioning the markdown content.",
+      "value": "",
+      "ref_key": "ssg.content.repo.url"
+    },
+    {
+      "name": "SSG Content Branch",
+      "description": "The branch in the content repository.",
+      "value": "main",
+      "ref_key": "ssg.content.branch"
     }
   ]
 }

@@ -29,6 +29,7 @@ type SeedFile struct {
 	Metas       []map[string]any `json:"metas"`
 	Tags        []map[string]any `json:"tags"`
 	ContentTags []map[string]any `json:"content_tags"`
+	Params      []map[string]any `json:"params"`
 }
 
 func NewSeeder(assetsFS embed.FS, engine string, repo Repo) *Seeder {
@@ -111,8 +112,12 @@ func (s *Seeder) seedData(ctx context.Context, data *SeedFile) error {
 			Name:        sMap["name"].(string),
 			Description: sMap["description"].(string),
 			Path:        sMap["path"].(string),
-			Image:       sMap["image"].(string),
-			Header:      sMap["header"].(string),
+		}
+		if image, ok := sMap["image"].(string); ok {
+			sec.Image = image
+		}
+		if header, ok := sMap["header"].(string); ok {
+			sec.Header = header
 		}
 		if layoutRef, ok := sMap["layout_ref"].(string); ok {
 			if id, found := layoutRefToID[layoutRef]; found {
@@ -235,6 +240,19 @@ func (s *Seeder) seedData(ctx context.Context, data *SeedFile) error {
 			if err := s.repo.AddTagToContent(ctx, contentID, tagID); err != nil {
 				return fmt.Errorf("error adding tag '%s' to content '%s': %w", tagRef, contentRef, err)
 			}
+		}
+	}
+
+	for _, pMap := range data.Params {
+		p := Param{
+			Name:        pMap["name"].(string),
+			Description: pMap["description"].(string),
+			Value:       pMap["value"].(string),
+			RefKey:      pMap["ref_key"].(string),
+		}
+		p.GenCreateValues()
+		if err := s.repo.CreateParam(ctx, &p); err != nil {
+			return fmt.Errorf("error inserting param: %w", err)
 		}
 	}
 
