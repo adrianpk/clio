@@ -219,22 +219,22 @@ func (h *WebHandler) ShowParam(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *WebHandler) renderParamForm(w http.ResponseWriter, r *http.Request, form ParamForm, param Param, errorMessage string, statusCode int) {
-	page := am.NewPage(r, param)
-	page.SetForm(&form)
+	paramPage := NewParamPage(r, param)
+	paramPage.SetForm(&form)
 
 	if param.IsZero() {
-		page.Name = "New Param"
-		page.IsNew = true
-		page.Form.SetAction(am.CreatePath(&Param{}))
-		page.Form.SetSubmitButtonText("Create")
+		paramPage.Name = "New Param"
+		paramPage.IsNew = true
+		paramPage.Form.SetAction(am.CreatePath(&Param{}))
+		paramPage.Form.SetSubmitButtonText("Create")
 	} else {
-		page.Name = "Edit Param"
-		page.IsNew = false
-		page.Form.SetAction(am.UpdatePath(&Param{}))
-		page.Form.SetSubmitButtonText("Update")
+		paramPage.Name = "Edit Param"
+		paramPage.IsNew = false
+		paramPage.Form.SetAction(am.UpdatePath(&Param{}))
+		paramPage.Form.SetSubmitButtonText("Update")
 	}
 
-	menu := page.NewMenu(ssgPath)
+	menu := paramPage.NewMenu(ssgPath)
 	menu.AddListItem(&param, "Back")
 
 	tmpl, err := h.Tmpl().Get(ssgFeat, "new-param")
@@ -243,10 +243,10 @@ func (h *WebHandler) renderParamForm(w http.ResponseWriter, r *http.Request, for
 		return
 	}
 
-	page.SetFlash(h.GetFlash(r))
+	paramPage.SetFlash(h.GetFlash(r))
 
 	var buf bytes.Buffer
-	err = tmpl.Execute(&buf, page)
+	err = tmpl.Execute(&buf, paramPage)
 	if err != nil {
 		h.Err(w, err, am.ErrCannotRenderTemplate, http.StatusInternalServerError)
 		return

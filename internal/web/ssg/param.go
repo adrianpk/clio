@@ -18,6 +18,7 @@ type Param struct {
 	Description string    `json:"description"`
 	Value       string    `json:"value"`
 	RefKey      string    `json:"ref_key"`
+	System      int       `json:"system"`
 }
 
 // NewParam creates a new Param for the web layer.
@@ -84,6 +85,11 @@ func (p *Param) Slug() string {
 	return am.Normalize(p.Name) + "-" + p.GetShortID()
 }
 
+// IsSystem returns true if the param is a system parameter.
+func (p *Param) IsSystem() bool {
+	return p.System == 1
+}
+
 // ToWebParam converts a feat.Param model to a web.Param model.
 func ToWebParam(featParam feat.Param) Param {
 	return Param{
@@ -93,6 +99,7 @@ func ToWebParam(featParam feat.Param) Param {
 		Description: featParam.Description,
 		Value:       featParam.Value,
 		RefKey:      featParam.RefKey,
+		System:      featParam.System,
 	}
 }
 

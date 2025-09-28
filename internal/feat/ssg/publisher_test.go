@@ -46,7 +46,7 @@ func TestPublisherPublishFakeClient(t *testing.T) {
 				"css/style.css": "body { color: red; }",
 			},
 			gitClient: &fake.GithubClient{
-				CloneFn:    func(ctx context.Context, repoURL, localPath string, auth am.GitAuth, env []string) error {
+				CloneFn: func(ctx context.Context, repoURL, localPath string, auth am.GitAuth, env []string) error {
 					if err := os.MkdirAll(localPath, 0755); err != nil {
 						return err
 					}
@@ -57,7 +57,9 @@ func TestPublisherPublishFakeClient(t *testing.T) {
 				CommitFn: func(ctx context.Context, localRepoPath string, commit am.GitCommit, env []string) (string, error) {
 					return "fake-hash", nil
 				},
-				PushFn: func(ctx context.Context, localRepoPath string, auth am.GitAuth, remote, branch string, env []string) error { return nil },
+				PushFn: func(ctx context.Context, localRepoPath string, auth am.GitAuth, remote, branch string, env []string) error {
+					return nil
+				},
 			},
 			expectedError:         nil,
 			expectedCloneCalls:    1,
