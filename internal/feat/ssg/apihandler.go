@@ -95,28 +95,7 @@ func (h *APIHandler) Publish(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For now, we build the config from the application's configuration.
-	cfg := PublisherConfig{
-		RepoURL: h.Cfg().StrValOrDef(am.Key.SSGPublishRepoURL, ""),
-		Branch:  h.Cfg().StrValOrDef(am.Key.SSGPublishBranch, ""),
-		Auth: am.GitAuth{
-			// NOTE: This is oversimplified. We need to work out a bit more here.
-			Method: am.AuthToken,
-			Token:  h.Cfg().StrValOrDef(am.Key.SSGPublishAuthToken, ""),
-		},
-		CommitAuthor: am.GitCommit{
-			UserName:  h.Cfg().StrValOrDef(am.Key.SSGPublishCommitUserName, ""),
-			UserEmail: h.Cfg().StrValOrDef(am.Key.SSGPublishCommitUserEmail, ""),
-			Message:   h.Cfg().StrValOrDef(am.Key.SSGPublishCommitMessage, ""),
-		},
-	}
-
-	// Override commit message if provided in the request body
-	if req.CommitMessage != "" {
-		cfg.CommitAuthor.Message = req.CommitMessage
-	}
-
-	commitURL, err := h.svc.Publish(r.Context(), cfg)
+	commitURL, err := h.svc.Publish(r.Context(), req.CommitMessage)
 	if err != nil {
 		h.Err(w, http.StatusInternalServerError, "error publishing site", err)
 		return

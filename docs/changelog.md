@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025-09-28]
+
+### Added
+- **Parameter Management Layer**: Implemented a `ParamManager` that intercepts configuration value access. It prioritizes providing values that the user has updated through the web interface, falling back to the application's environment configuration if a web-configured value is not present.
+
+### Changed
+- **Architectural Refactoring**: Moved the business logic for site publication from the API handler to the service layer.
+
 ## [2025-10-27]
 
 ### Added

@@ -33,3 +33,13 @@ func (pm *ParamManager) FindParamByRef(ctx context.Context, refKey string) (Para
 	// TODO: This is a simple wrapper for now but a simple caching strategy can be added here.
 	return pm.repo.GetParamByRefKey(ctx, refKey)
 }
+
+func (pm *ParamManager) Get(ctx context.Context, refKey string, defVal string) string {
+	param, err := pm.repo.GetParamByRefKey(ctx, refKey)
+	if err == nil && !param.IsZero() {
+		return param.Value
+	}
+
+	// Fallback to configuration
+	return pm.Cfg().StrValOrDef(refKey, defVal)
+}

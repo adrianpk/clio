@@ -59,8 +59,8 @@ type Service interface {
 
 	GenerateMarkdown(ctx context.Context) error
 	GenerateHTMLFromContent(ctx context.Context) error
-	Publish(ctx context.Context, cfg PublisherConfig) (string, error)
-	Plan(ctx context.Context, cfg PublisherConfig) (PlanReport, error)
+	Publish(ctx context.Context, commitMessage string) (string, error)
+	Plan(ctx context.Context) (PlanReport, error)
 }
 
 // BaseService is the concrete implementation of the Service interface.
@@ -70,22 +70,45 @@ type BaseService struct {
 	repo     Repo
 	gen      *Generator
 	pub      Publisher
+	pm       *ParamManager
 }
 
 // NewService creates a new BaseService.
-func NewService(assetsFS embed.FS, repo Repo, gen *Generator, publisher Publisher, opts ...am.Option) *BaseService {
+func NewService(assetsFS embed.FS, repo Repo, gen *Generator, publisher Publisher, pm *ParamManager, opts ...am.Option) *BaseService {
 	return &BaseService{
 		Service:  am.NewService("ssg-svc", opts...),
 		assetsFS: assetsFS,
 		repo:     repo,
 		gen:      gen,
 		pub:      publisher,
+		pm:       pm,
 	}
 }
 
 // Publish delegates the publishing task to the underlying pub.
-func (svc *BaseService) Publish(ctx context.Context, cfg PublisherConfig) (string, error) {
+func (svc *BaseService) Publish(ctx context.Context, commitMessage string) (string, error) {
 	svc.Log().Info("Service starting publish process")
+
+	// For now, we build the config from the application's configuration.
+	cfg := PublisherConfig{
+		RepoURL: svc.pm.Get(ctx, am.Key.SSGPublishRepoURL, ""),
+		Branch:  svc.pm.Get(ctx, am.Key.SSGPublishBranch, ""),
+		Auth: am.GitAuth{
+			// NOTE: This is oversimplified. We need to work out a bit more here.
+			Method: am.AuthToken,
+			Token:  svc.pm.Get(ctx, am.Key.SSGPublishAuthToken, ""),
+		},
+		CommitAuthor: am.GitCommit{
+			UserName:  svc.pm.Get(ctx, am.Key.SSGPublishCommitUserName, ""),
+			UserEmail: svc.pm.Get(ctx, am.Key.SSGPublishCommitUserEmail, ""),
+			Message:   svc.pm.Get(ctx, am.Key.SSGPublishCommitMessage, ""),
+		},
+	}
+
+	// Override commit message if provided in the request body
+	if commitMessage != "" {
+		cfg.CommitAuthor.Message = commitMessage
+	}
 
 	// Get the output directory for HTML files, which is the source for publishing
 	sourceDir := svc.Cfg().StrValOrDef(am.Key.SSGHTMLPath, "_workspace/documents/html")
@@ -100,8 +123,24 @@ func (svc *BaseService) Publish(ctx context.Context, cfg PublisherConfig) (strin
 }
 
 // Plan delegates the plan task to the underlying pub.
-func (svc *BaseService) Plan(ctx context.Context, cfg PublisherConfig) (PlanReport, error) {
+func (svc *BaseService) Plan(ctx context.Context) (PlanReport, error) {
 	svc.Log().Info("Service starting plan process")
+
+	// For now, we build the config from the application's configuration.
+	cfg := PublisherConfig{
+		RepoURL: svc.pm.Get(ctx, am.Key.SSGPublishRepoURL, ""),
+		Branch:  svc.pm.Get(ctx, am.Key.SSGPublishBranch, ""),
+		Auth: am.GitAuth{
+			// NOTE: This is oversimplified. We need to work out a bit more here.
+			Method: am.AuthToken,
+			Token:  svc.pm.Get(ctx, am.Key.SSGPublishAuthToken, ""),
+		},
+		CommitAuthor: am.GitCommit{
+			UserName:  svc.pm.Get(ctx, am.Key.SSGPublishCommitUserName, ""),
+			UserEmail: svc.pm.Get(ctx, am.Key.SSGPublishCommitUserEmail, ""),
+			Message:   svc.pm.Get(ctx, am.Key.SSGPublishCommitMessage, ""),
+		},
+	}
 
 	// Get the output directory for HTML files, which is the source for planning
 	sourceDir := svc.Cfg().StrValOrDef(am.Key.SSGHTMLPath, "_workspace/documents/html")
