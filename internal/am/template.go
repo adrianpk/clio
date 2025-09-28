@@ -196,7 +196,16 @@ func RegisterFuncs(tmpl *template.Template) *template.Template {
 		"UpdatePath": UpdatePath,
 		"ShowPath":   ShowPath,
 		"DeletePath": DeletePath,
+		"Truncate":   Truncate,
 	})
+}
+
+// Truncate truncates a string to a specified length and appends an ellipsis if truncated.
+func Truncate(s string, length int) string {
+	if len(s) <= length {
+		return s
+	}
+	return s[:length] + "..."
 }
 
 func FieldMsg(form Form, field string, classes ...string) template.HTML {
