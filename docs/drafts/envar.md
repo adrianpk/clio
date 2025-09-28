@@ -59,6 +59,16 @@ These parameters will be used for versioning content in a separate Git repositor
 - **`ssg.content.repo.url`**: The repository URL for storing and versioning the markdown content.
 - **`ssg.content.branch`**: The branch in the content repository.
 
+### Security Considerations for Storing Secrets
+
+For a single-user desktop application, storing secrets like the `ssg.publish.auth.token` in the database is a reasonable compromise. Here is a brief analysis:
+
+- **Database vs. Environment Variable**: Storing the token in the SQLite database is not necessarily riskier than using an environment variable. The primary difference is the scope of exposure. An environment variable, often set in a user's shell profile for persistence, can be inspected by other processes running as the same user (not system-wide) and is inherited by any child processes the application might spawn. This creates a broader exposure than necessary. A value in the database is only loaded into the application's memory when needed and is not automatically inherited by child processes.
+- **Risk at Rest**: The main risk of database storage is that the token is persisted on disk in plain text. Anyone with access to the database file can read it.
+- **Future Enhancement**: The standard solution to mitigate this risk is encryption at rest. A future improvement could be to encrypt sensitive parameters in the database, using a key protected by the user's OS-level credentials.
+
+Given the context, the current approach is a pragmatic choice, balancing security and implementation simplicity.
+
 ## Configuration Keys in `internal/am/key.go`
 
 This file defines a `Keys` struct and a `Key` variable containing configuration keys in `xxx.yyy.zzz` format. These `CLIO_XXX_YYY_ZZZ` environment variables are read and mapped to the internal `xxx.yyy.zzz` properties somewhere in the code (likely within the `am` package during configuration loading).
