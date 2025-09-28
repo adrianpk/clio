@@ -198,7 +198,7 @@ func (f *ContentForm) Validate() {
 	if f.Body == "" {
 		validation.AddFieldError("body", f.Body, "Body cannot be empty")
 	}
-	f.SetValidation(&validation)
+	f.SetValidation(validation)
 }
 
 // LayoutForm represents the form for creating or updating a layout.
@@ -264,7 +264,7 @@ func (f *LayoutForm) Validate() {
 	if f.Code == "" {
 		validation.AddFieldError("code", f.Code, "Code is required")
 	}
-	f.SetValidation(&validation)
+	f.SetValidation(validation)
 }
 
 // SectionForm represents the form for creating or updating a section.
@@ -347,7 +347,7 @@ func (f *SectionForm) Validate() {
 	if f.LayoutID == "" {
 		validation.AddFieldError("layout_id", f.LayoutID, "Layout is required")
 	}
-	f.SetValidation(&validation)
+	f.SetValidation(validation)
 }
 
 // TagForm represents the form data for a tag.
@@ -403,7 +403,7 @@ func (f *TagForm) Validate() {
 	if f.Name == "" {
 		validation.AddFieldError("name", f.Name, "Name cannot be empty")
 	}
-	f.SetValidation(&validation)
+	f.SetValidation(validation)
 }
 
 // ParamForm represents the form data for a param.
@@ -473,5 +473,5 @@ func (f *ParamForm) Validate() {
 	if f.Value == "" {
 		validation.AddFieldError("value", f.Value, "Value is required")
 	}
-	f.SetValidation(&validation)
+	f.SetValidation(validation)
 }

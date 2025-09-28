@@ -12,13 +12,15 @@ import (
 )
 
 var (
-	featSSG    = "ssg"
-	resLayout  = "layout"
-	resContent = "content"
-	resMeta    = "meta"
-	resSection = "section"
-	resTag     = "tag"
-	resParam   = "param"
+	featSSG         = "ssg"
+	resLayout       = "layout"
+	resContent      = "content"
+	resMeta         = "meta"
+	resSection      = "section"
+	resTag          = "tag"
+	resParam        = "param"
+	resImage        = "image"
+	resImageVariant = "image_variant"
 )
 
 // Content related
@@ -620,6 +622,222 @@ func (repo *ClioRepo) DeleteParam(ctx context.Context, id uuid.UUID) error {
 	_, err = repo.db.ExecContext(ctx, query, id)
 	if err != nil {
 		return fmt.Errorf("cannot delete param: %w", err)
+	}
+	return nil
+}
+
+// Image related
+
+func (repo *ClioRepo) CreateImage(ctx context.Context, img *ssg.Image) (err error) {
+	tx, err := repo.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("cannot begin transaction: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			if rbErr := tx.Rollback(); rbErr != nil {
+				err = fmt.Errorf("cannot rollback transaction: %v (original error: %w)", rbErr, err)
+			}
+			return
+		}
+		err = tx.Commit()
+	}()
+
+	imageQuery, err := repo.Query().Get(featSSG, resImage, "CreateImage")
+	if err != nil {
+		return fmt.Errorf("cannot get create image query: %w", err)
+	}
+	if _, err = tx.NamedExecContext(ctx, imageQuery, img); err != nil {
+		return fmt.Errorf("cannot create image: %w", err)
+	}
+
+	return nil
+}
+
+func (repo *ClioRepo) GetImage(ctx context.Context, id uuid.UUID) (ssg.Image, error) {
+	query, err := repo.Query().Get(featSSG, resImage, "GetImage")
+	if err != nil {
+		return ssg.Image{}, fmt.Errorf("cannot get image query: %w", err)
+	}
+
+	var img ssg.Image
+	err = repo.db.GetContext(ctx, &img, query, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ssg.Image{}, errors.New("image not found")
+		}
+		return ssg.Image{}, fmt.Errorf("cannot get image: %w", err)
+	}
+
+	return img, nil
+}
+
+func (repo *ClioRepo) GetImageByShortID(ctx context.Context, shortID string) (ssg.Image, error) {
+	query, err := repo.Query().Get(featSSG, resImage, "GetImageByShortID")
+	if err != nil {
+		return ssg.Image{}, fmt.Errorf("cannot get image by short ID query: %w", err)
+	}
+
+	var img ssg.Image
+	err = repo.db.GetContext(ctx, &img, query, shortID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ssg.Image{}, errors.New("image not found")
+		}
+		return ssg.Image{}, fmt.Errorf("cannot get image by short ID: %w", err)
+	}
+
+	return img, nil
+}
+
+func (repo *ClioRepo) ListImages(ctx context.Context) ([]ssg.Image, error) {
+	query, err := repo.Query().Get(featSSG, resImage, "ListImages")
+	if err != nil {
+		return nil, fmt.Errorf("cannot get list images query: %w", err)
+	}
+
+	var images []ssg.Image
+	err = repo.db.SelectContext(ctx, &images, query)
+	if err != nil {
+		return nil, fmt.Errorf("cannot list images: %w", err)
+	}
+
+	return images, nil
+}
+
+func (repo *ClioRepo) UpdateImage(ctx context.Context, img *ssg.Image) (err error) {
+	tx, err := repo.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("cannot begin transaction: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			if rbErr := tx.Rollback(); rbErr != nil {
+				err = fmt.Errorf("cannot rollback transaction: %v (original error: %w)", rbErr, err)
+			}
+			return
+		}
+		err = tx.Commit()
+	}()
+
+	imageQuery, err := repo.Query().Get(featSSG, resImage, "UpdateImage")
+	if err != nil {
+		return fmt.Errorf("cannot get update image query: %w", err)
+	}
+	if _, err = tx.NamedExecContext(ctx, imageQuery, img); err != nil {
+		return fmt.Errorf("cannot update image: %w", err)
+	}
+
+	return nil
+}
+
+func (repo *ClioRepo) DeleteImage(ctx context.Context, id uuid.UUID) error {
+	query, err := repo.Query().Get(featSSG, resImage, "DeleteImage")
+	if err != nil {
+		return fmt.Errorf("cannot get delete image query: %w", err)
+	}
+	_, err = repo.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return fmt.Errorf("cannot delete image: %w", err)
+	}
+	return nil
+}
+
+// ImageVariant related
+
+func (repo *ClioRepo) CreateImageVariant(ctx context.Context, variant *ssg.ImageVariant) (err error) {
+	tx, err := repo.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("cannot begin transaction: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			if rbErr := tx.Rollback(); rbErr != nil {
+				err = fmt.Errorf("cannot rollback transaction: %v (original error: %w)", rbErr, err)
+			}
+			return
+		}
+		err = tx.Commit()
+	}()
+
+	variantQuery, err := repo.Query().Get(featSSG, resImageVariant, "CreateImageVariant")
+	if err != nil {
+		return fmt.Errorf("cannot get create image variant query: %w", err)
+	}
+	if _, err = tx.NamedExecContext(ctx, variantQuery, variant); err != nil {
+		return fmt.Errorf("cannot create image variant: %w", err)
+	}
+
+	return nil
+}
+
+func (repo *ClioRepo) GetImageVariant(ctx context.Context, id uuid.UUID) (ssg.ImageVariant, error) {
+	query, err := repo.Query().Get(featSSG, resImageVariant, "GetImageVariantByID")
+	if err != nil {
+		return ssg.ImageVariant{}, fmt.Errorf("cannot get image variant query: %w", err)
+	}
+
+	var variant ssg.ImageVariant
+	err = repo.db.GetContext(ctx, &variant, query, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ssg.ImageVariant{}, errors.New("image variant not found")
+		}
+		return ssg.ImageVariant{}, fmt.Errorf("cannot get image variant: %w", err)
+	}
+
+	return variant, nil
+}
+
+func (repo *ClioRepo) ListImageVariantsByImageID(ctx context.Context, imageID uuid.UUID) ([]ssg.ImageVariant, error) {
+	query, err := repo.Query().Get(featSSG, resImageVariant, "GetImageVariantsByImageID")
+	if err != nil {
+		return nil, fmt.Errorf("cannot get image variants by image ID query: %w", err)
+	}
+
+	var variants []ssg.ImageVariant
+	err = repo.db.SelectContext(ctx, &variants, query, imageID)
+	if err != nil {
+		return nil, fmt.Errorf("cannot list image variants by image ID: %w", err)
+	}
+
+	return variants, nil
+}
+
+func (repo *ClioRepo) UpdateImageVariant(ctx context.Context, variant *ssg.ImageVariant) (err error) {
+	tx, err := repo.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("cannot begin transaction: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			if rbErr := tx.Rollback(); rbErr != nil {
+				err = fmt.Errorf("cannot rollback transaction: %v (original error: %w)", rbErr, err)
+			}
+			return
+		}
+		err = tx.Commit()
+	}()
+
+	variantQuery, err := repo.Query().Get(featSSG, resImageVariant, "UpdateImageVariant")
+	if err != nil {
+		return fmt.Errorf("cannot get update image variant query: %w", err)
+	}
+	if _, err = tx.NamedExecContext(ctx, variantQuery, variant); err != nil {
+		return fmt.Errorf("cannot update image variant: %w", err)
+	}
+
+	return nil
+}
+
+func (repo *ClioRepo) DeleteImageVariant(ctx context.Context, id uuid.UUID) error {
+	query, err := repo.Query().Get(featSSG, resImageVariant, "DeleteImageVariant")
+	if err != nil {
+		return fmt.Errorf("cannot get delete image variant query: %w", err)
+	}
+	_, err = repo.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return fmt.Errorf("cannot delete image variant: %w", err)
 	}
 	return nil
 }

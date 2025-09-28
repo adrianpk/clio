@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2025-09-28]
 
 ### Added
+- **Image Asset Registry**: Implemented repository methods (including `GetImageByShortID`) and SQL query files for `Image` and `ImageVariant` entities, enabling basic CRUD operations for image assets and their different renditions.
 - **Parameter Management Layer**: Implemented a `ParamManager` that intercepts configuration value access. It prioritizes providing values that the user has updated through the web interface, falling back to the application's environment configuration if a web-configured value is not present.
 
 ### Changed

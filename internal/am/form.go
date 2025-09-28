@@ -26,7 +26,7 @@ type Form interface {
 	SetSubmitButtonStyle(style string)
 	GenCSRFToken(r *http.Request)
 	SetValidation(validation *Validation)
-	Validation() Validation
+	Validation() *Validation // Changed return type to *Validation
 	HasErrors() bool
 }
 
@@ -77,8 +77,8 @@ func (f *BaseForm) SetValidation(validation *Validation) {
 	f.validation = validation
 }
 
-func (f *BaseForm) Validation() Validation {
-	return *f.validation
+func (f *BaseForm) Validation() *Validation {
+	return f.validation
 }
 
 func (f *BaseForm) HasErrors() bool {

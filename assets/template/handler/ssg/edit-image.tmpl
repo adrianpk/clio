@@ -1,0 +1,16 @@
+{{ define "page" }}
+{{ template "layout" . }}
+{{ end }}
+
+{{ define "title" }}
+Edit Image
+{{ end }}
+
+{{ define "content" }}
+<h1>Edit Image</h1>
+{{ template "image-form-new" . }}
+{{ end }}
+
+{{ define "submenu" }}
+{{ template "menu" . }}
+{{ end }}
