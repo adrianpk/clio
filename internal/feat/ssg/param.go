@@ -22,6 +22,7 @@ type Param struct {
 	Description string `json:"description" db:"description"`
 	Value       string `json:"value" db:"value"`
 	RefKey      string `json:"ref_key" db:"ref_key"` // Should match xxx.yyy.zzz congfig property
+	System      int    `json:"system" db:"system"`
 
 	// Audit
 	CreatedBy uuid.UUID `json:"-" db:"created_by"`

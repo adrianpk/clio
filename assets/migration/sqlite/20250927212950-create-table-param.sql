@@ -6,6 +6,7 @@ CREATE TABLE param (
     description TEXT,
     value TEXT NOT NULL,
     ref_key TEXT UNIQUE,
+    system INTEGER NOT NULL DEFAULT 0,
     created_by TEXT NOT NULL,
     updated_by TEXT NOT NULL,
     created_at DATETIME NOT NULL,

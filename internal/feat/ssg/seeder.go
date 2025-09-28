@@ -244,11 +244,17 @@ func (s *Seeder) seedData(ctx context.Context, data *SeedFile) error {
 	}
 
 	for _, pMap := range data.Params {
+		var systemVal int
+		if system, ok := pMap["system"].(float64); ok {
+			systemVal = int(system)
+		}
+
 		p := Param{
 			Name:        pMap["name"].(string),
 			Description: pMap["description"].(string),
 			Value:       pMap["value"].(string),
 			RefKey:      pMap["ref_key"].(string),
+			System:      systemVal, // Assign System here
 		}
 		p.GenCreateValues()
 		if err := s.repo.CreateParam(ctx, &p); err != nil {

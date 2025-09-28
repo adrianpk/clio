@@ -739,6 +739,14 @@ func (h *APIHandler) UpdateParam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get existing param to check if it's a system param
+	existingParam, err := h.svc.GetParam(r.Context(), id)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotGetResource, resParamName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
 	var param Param
 	err = json.NewDecoder(r.Body).Decode(&param)
 	if err != nil {
@@ -746,9 +754,30 @@ func (h *APIHandler) UpdateParam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+			if existingParam.System == 1 {
+		// For system params, only Value can be updated
+		if param.Name != existingParam.Name {
+			h.Err(w, http.StatusBadRequest, "cannot change name of system parameter", nil)
+			return
+		}
+		if param.RefKey != existingParam.RefKey {
+			h.Err(w, http.StatusBadRequest, "cannot change ref key of system parameter", nil)
+			return
+		}
+		if param.Description != existingParam.Description {
+			h.Err(w, http.StatusBadRequest, "cannot change description of system parameter", nil)
+			return
+		}
+		// Use existing param's Name, RefKey, and Description, only update Value
+		param.Name = existingParam.Name
+		param.RefKey = existingParam.RefKey
+		param.Description = existingParam.Description
+	}
+
 	updatedParam := NewParam(param.Name, param.Value)
 	updatedParam.Description = param.Description
 	updatedParam.RefKey = param.RefKey
+	updatedParam.System = existingParam.System // Preserve system flag
 	updatedParam.SetID(id, true)
 	updatedParam.GenUpdateValues()
 
@@ -770,6 +799,19 @@ func (h *APIHandler) DeleteParam(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrInvalidID, resParamNameCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	// Get existing param to check if it's a system param
+	existingParam, err := h.svc.GetParam(r.Context(), id)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotGetResource, resParamName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	if existingParam.System == 1 {
+		h.Err(w, http.StatusForbidden, "cannot delete system parameter", nil)
 		return
 	}
 

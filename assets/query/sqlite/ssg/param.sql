@@ -1,34 +1,34 @@
 -- Res: ssg
 -- Table: param
 -- Create
-INSERT INTO param (id, name, description, value, ref_key, created_by, updated_by, created_at, updated_at)
-VALUES (:id, :name, :description, :value, :ref_key, :created_by, :updated_by, :created_at, :updated_at);
+INSERT INTO param (id, name, description, value, ref_key, system, created_by, updated_by, created_at, updated_at)
+VALUES (:id, :name, :description, :value, :ref_key, :system, :created_by, :updated_by, :created_at, :updated_at);
 
 -- Res: ssg
 -- Table: param
 -- Get
-SELECT id, name, description, value, ref_key, created_by, updated_by, created_at, updated_at
+SELECT id, name, description, value, ref_key, system, created_by, updated_by, created_at, updated_at
 FROM param
 WHERE id = ?;
 
 -- Res: ssg
 -- Table: param
 -- GetByName
-SELECT id, name, description, value, ref_key, created_by, updated_by, created_at, updated_at
+SELECT id, name, description, value, ref_key, system, created_by, updated_by, created_at, updated_at
 FROM param
 WHERE name = ?;
 
 -- Res: ssg
 -- Table: param
 -- GetByRefKey
-SELECT id, name, description, value, ref_key, created_by, updated_by, created_at, updated_at
+SELECT id, name, description, value, ref_key, system, created_by, updated_by, created_at, updated_at
 FROM param
 WHERE ref_key = ?;
 
 -- Res: ssg
 -- Table: param
 -- List
-SELECT id, name, description, value, ref_key, created_by, updated_by, created_at, updated_at
+SELECT id, name, description, value, ref_key, system, created_by, updated_by, created_at, updated_at
 FROM param;
 
 -- Res: ssg
