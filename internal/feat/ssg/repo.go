@@ -44,6 +44,21 @@ type Repo interface {
 	UpdateParam(ctx context.Context, param *Param) error
 	DeleteParam(ctx context.Context, id uuid.UUID) error
 
+	// Image related
+	CreateImage(ctx context.Context, image *Image) error
+	GetImage(ctx context.Context, id uuid.UUID) (Image, error)
+	GetImageByShortID(ctx context.Context, shortID string) (Image, error)
+	UpdateImage(ctx context.Context, image *Image) error
+	DeleteImage(ctx context.Context, id uuid.UUID) error
+	ListImages(ctx context.Context) ([]Image, error)
+
+	// ImageVariant related
+	CreateImageVariant(ctx context.Context, variant *ImageVariant) error
+	GetImageVariant(ctx context.Context, id uuid.UUID) (ImageVariant, error)
+	UpdateImageVariant(ctx context.Context, variant *ImageVariant) error
+	DeleteImageVariant(ctx context.Context, id uuid.UUID) error
+	ListImageVariantsByImageID(ctx context.Context, imageID uuid.UUID) ([]ImageVariant, error)
+
 	AddTagToContent(ctx context.Context, contentID, tagID uuid.UUID) error
 	RemoveTagFromContent(ctx context.Context, contentID, tagID uuid.UUID) error
 	GetTagsForContent(ctx context.Context, contentID uuid.UUID) ([]Tag, error)

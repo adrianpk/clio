@@ -52,5 +52,23 @@ func NewWebRouter(handler *WebHandler, mw []am.Middleware, opts ...am.Option) *a
 	core.Get("/show-param", handler.ShowParam)
 	core.Post("/delete-param", handler.DeleteParam)
 
+	// Image routes
+	core.Get("/new-image", handler.NewImage)
+	core.Post("/create-image", handler.CreateImage)
+	core.Get("/edit-image", handler.EditImage)
+	core.Post("/update-image", handler.UpdateImage)
+	core.Get("/list-images", handler.ListImages)
+	core.Get("/show-image", handler.ShowImage)
+	core.Post("/delete-image", handler.DeleteImage)
+
+	// Image Variant routes
+	core.Get("/images/:imageID/variants/new", handler.NewImageVariant)
+	core.Post("/images/:imageID/variants", handler.CreateImageVariant)
+	core.Get("/images/:imageID/variants/:id/edit", handler.EditImageVariant)
+	core.Post("/images/:imageID/variants/:id", handler.UpdateImageVariant) // Using POST for simplicity, could be PUT
+	core.Get("/images/:imageID/variants", handler.ListImageVariants)
+	core.Get("/images/:imageID/variants/:id", handler.ShowImageVariant)
+	core.Post("/images/:imageID/variants/:id/delete", handler.DeleteImageVariant) // Using POST for simplicity, could be DELETE
+
 	return core
 }

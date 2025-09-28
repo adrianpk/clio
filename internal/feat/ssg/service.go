@@ -52,6 +52,22 @@ type Service interface {
 	UpdateParam(ctx context.Context, param *Param) error
 	DeleteParam(ctx context.Context, id uuid.UUID) error
 
+	// Image related
+	CreateImage(ctx context.Context, image *Image) error
+	GetImage(ctx context.Context, id uuid.UUID) (Image, error)
+	GetImageByShortID(ctx context.Context, shortID string) (Image, error)
+	ListImages(ctx context.Context) ([]Image, error)
+	UpdateImage(ctx context.Context, image *Image) error
+	DeleteImage(ctx context.Context, id uuid.UUID) error
+
+	// ImageVariant related
+	CreateImageVariant(ctx context.Context, variant *ImageVariant) error
+	GetImageVariant(ctx context.Context, id uuid.UUID) (ImageVariant, error)
+	ListImageVariantsByImageID(ctx context.Context, imageID uuid.UUID) ([]ImageVariant, error)
+	UpdateImageVariant(ctx context.Context, variant *ImageVariant) error
+	DeleteImageVariant(ctx context.Context, id uuid.UUID) error
+
+	// ContentTag related
 	AddTagToContent(ctx context.Context, contentID uuid.UUID, tagName string) error
 	RemoveTagFromContent(ctx context.Context, contentID, tagID uuid.UUID) error
 	GetTagsForContent(ctx context.Context, contentID uuid.UUID) ([]Tag, error)
@@ -525,6 +541,52 @@ func (svc *BaseService) UpdateParam(ctx context.Context, param *Param) error {
 
 func (svc *BaseService) DeleteParam(ctx context.Context, id uuid.UUID) error {
 	return svc.repo.DeleteParam(ctx, id)
+}
+
+// Image related
+func (svc *BaseService) CreateImage(ctx context.Context, image *Image) error {
+	return svc.repo.CreateImage(ctx, image)
+}
+
+func (svc *BaseService) GetImage(ctx context.Context, id uuid.UUID) (Image, error) {
+	return svc.repo.GetImage(ctx, id)
+}
+
+func (svc *BaseService) GetImageByShortID(ctx context.Context, shortID string) (Image, error) {
+	return svc.repo.GetImageByShortID(ctx, shortID)
+}
+
+func (svc *BaseService) ListImages(ctx context.Context) ([]Image, error) {
+	return svc.repo.ListImages(ctx)
+}
+
+func (svc *BaseService) UpdateImage(ctx context.Context, image *Image) error {
+	return svc.repo.UpdateImage(ctx, image)
+}
+
+func (svc *BaseService) DeleteImage(ctx context.Context, id uuid.UUID) error {
+	return svc.repo.DeleteImage(ctx, id)
+}
+
+// ImageVariant related
+func (svc *BaseService) CreateImageVariant(ctx context.Context, variant *ImageVariant) error {
+	return svc.repo.CreateImageVariant(ctx, variant)
+}
+
+func (svc *BaseService) GetImageVariant(ctx context.Context, id uuid.UUID) (ImageVariant, error) {
+	return svc.repo.GetImageVariant(ctx, id)
+}
+
+func (svc *BaseService) ListImageVariantsByImageID(ctx context.Context, imageID uuid.UUID) ([]ImageVariant, error) {
+	return svc.repo.ListImageVariantsByImageID(ctx, imageID)
+}
+
+func (svc *BaseService) UpdateImageVariant(ctx context.Context, variant *ImageVariant) error {
+	return svc.repo.UpdateImageVariant(ctx, variant)
+}
+
+func (svc *BaseService) DeleteImageVariant(ctx context.Context, id uuid.UUID) error {
+	return svc.repo.DeleteImageVariant(ctx, id)
 }
 
 // ContentTag related

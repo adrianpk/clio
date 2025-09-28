@@ -12,16 +12,20 @@ import (
 )
 
 const (
-	resContentName    = "content"
-	resContentNameCap = "Content"
-	resSectionName    = "section"
-	resSectionNameCap = "Section"
-	resLayoutName     = "layout"
-	resLayoutNameCap  = "Layout"
-	resTagName        = "tag"
-	resTagNameCap     = "Tag"
-	resParamName      = "param"
-	resParamNameCap   = "Param"
+	resContent         = "content"
+	resContentCap      = "Content"
+	resSection         = "section"
+	resSectionCap      = "Section"
+	resLayout          = "layout"
+	resLayoutCap       = "Layout"
+	resTag             = "tag"
+	resTagCap          = "Tag"
+	resParam           = "param"
+	resParamCap        = "Param"
+	resImage           = "image"
+	resImageCap        = "Image"
+	resImageVariant    = "image variant"
+	resImageVariantCap = "Image variant"
 )
 
 type APIHandler struct {
@@ -59,6 +63,10 @@ func (h *APIHandler) wrapData(data interface{}) interface{} {
 		return map[string]interface{}{"tag": v}
 	case Param:
 		return map[string]interface{}{"param": v}
+	case Image:
+		return map[string]interface{}{"image": v}
+	case ImageVariant:
+		return map[string]interface{}{"image_variant": v}
 
 	// Slices of entities
 	case []Layout:
@@ -71,6 +79,10 @@ func (h *APIHandler) wrapData(data interface{}) interface{} {
 		return map[string]interface{}{"tags": v}
 	case []Param:
 		return map[string]interface{}{"params": v}
+	case []Image:
+		return map[string]interface{}{"images": v}
+	case []ImageVariant:
+		return map[string]interface{}{"image_variants": v}
 
 	// Default case for nil, maps, or other types
 	default:
@@ -89,13 +101,15 @@ func (h *APIHandler) Publish(w http.ResponseWriter, r *http.Request) {
 	h.Log().Info("Handling publish request")
 
 	var req PublishRequest
-	err := json.NewDecoder(r.Body).Decode(&req)
+	var err error
+	err = json.NewDecoder(r.Body).Decode(&req)
 	if err != nil && err != io.EOF { // io.EOF means empty body, which is fine for optional commit_message
 		h.Err(w, http.StatusBadRequest, am.ErrInvalidBody, err)
 		return
 	}
 
-	commitURL, err := h.svc.Publish(r.Context(), req.CommitMessage)
+	var commitURL string
+	commitURL, err = h.svc.Publish(r.Context(), req.CommitMessage)
 	if err != nil {
 		h.Err(w, http.StatusInternalServerError, "error publishing site", err)
 		return
@@ -109,14 +123,17 @@ func (h *APIHandler) Publish(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) GetLayout(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling GetLayout", h.Name())
 
-	id, err := h.ID(w, r)
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrInvalidID, resLayoutNameCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
 
-	layout, err := h.svc.GetLayout(r.Context(), id)
+	var layout Layout
+	layout, err = h.svc.GetLayout(r.Context(), id)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrCannotGetResource, resLayoutName)
 		h.Err(w, http.StatusInternalServerError, msg, err)
@@ -131,7 +148,8 @@ func (h *APIHandler) CreateLayout(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling CreateLayout", h.Name())
 
 	var layout Layout
-	err := json.NewDecoder(r.Body).Decode(&layout)
+	var err error
+	err = json.NewDecoder(r.Body).Decode(&layout)
 	if err != nil {
 		h.Err(w, http.StatusBadRequest, am.ErrInvalidBody, err)
 		return
@@ -154,7 +172,9 @@ func (h *APIHandler) CreateLayout(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) UpdateLayout(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling UpdateLayout", h.Name())
 
-	id, err := h.ID(w, r)
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrInvalidID, resLayoutNameCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
@@ -170,6 +190,7 @@ func (h *APIHandler) UpdateLayout(w http.ResponseWriter, r *http.Request) {
 
 	updatedLayout := Newlayout(layout.Name, layout.Description, layout.Code)
 	updatedLayout.SetID(id, true)
+	updatedLayout.GenUpdateValues()
 
 	err = h.svc.UpdateLayout(r.Context(), updatedLayout)
 	if err != nil {
@@ -185,7 +206,9 @@ func (h *APIHandler) UpdateLayout(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) DeleteLayout(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling DeleteLayout", h.Name())
 
-	id, err := h.ID(w, r)
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrInvalidID, resLayoutNameCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
@@ -206,7 +229,9 @@ func (h *APIHandler) DeleteLayout(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) GetAllLayouts(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling GetAllLayouts", h.Name())
 
-	layouts, err := h.svc.GetAllLayouts(r.Context())
+	var layouts []Layout
+	var err error
+	layouts, err = h.svc.GetAllLayouts(r.Context())
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrCannotGetResources, resLayoutName)
 		h.Err(w, http.StatusInternalServerError, msg, err)
@@ -222,7 +247,9 @@ func (h *APIHandler) GetAllLayouts(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) GetAllSections(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling GetAllSections", h.Name())
 
-	sections, err := h.svc.GetSections(r.Context())
+	var sections []Section
+	var err error
+	sections, err = h.svc.GetSections(r.Context())
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrCannotGetResources, resSectionName)
 		h.Err(w, http.StatusInternalServerError, msg, err)
@@ -236,14 +263,17 @@ func (h *APIHandler) GetAllSections(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) GetSection(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling GetSection", h.Name())
 
-	id, err := h.ID(w, r)
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrInvalidID, resSectionNameCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
 
-	section, err := h.svc.GetSection(r.Context(), id)
+	var section Section
+	section, err = h.svc.GetSection(r.Context(), id)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrCannotGetResource, resSectionName)
 		h.Err(w, http.StatusInternalServerError, msg, err)
@@ -258,7 +288,8 @@ func (h *APIHandler) CreateSection(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling CreateSection", h.Name())
 
 	var section Section
-	err := json.NewDecoder(r.Body).Decode(&section)
+	var err error
+	err = json.NewDecoder(r.Body).Decode(&section)
 	if err != nil {
 		h.Err(w, http.StatusBadRequest, am.ErrInvalidBody, err)
 		return
@@ -281,7 +312,9 @@ func (h *APIHandler) CreateSection(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) UpdateSection(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling UpdateSection", h.Name())
 
-	id, err := h.ID(w, r)
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrInvalidID, resSectionNameCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
@@ -297,6 +330,7 @@ func (h *APIHandler) UpdateSection(w http.ResponseWriter, r *http.Request) {
 
 	updatedSection := NewSection(section.Name, section.Description, section.Path, section.LayoutID)
 	updatedSection.SetID(id, true)
+	updatedSection.GenUpdateValues()
 
 	err = h.svc.UpdateSection(r.Context(), updatedSection)
 	if err != nil {
@@ -312,7 +346,9 @@ func (h *APIHandler) UpdateSection(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) DeleteSection(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling DeleteSection", h.Name())
 
-	id, err := h.ID(w, r)
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrInvalidID, resSectionNameCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
@@ -335,30 +371,35 @@ func (h *APIHandler) DeleteSection(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) GetAllContent(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling GetAllContentWithMeta", h.Name())
 
-	contents, err := h.svc.GetAllContentWithMeta(r.Context())
+	var contents []Content
+	var err error
+	contents, err = h.svc.GetAllContentWithMeta(r.Context())
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrCannotGetResources, resContentName)
+		msg := fmt.Sprintf(am.ErrCannotGetResources, resContent)
 		h.Err(w, http.StatusInternalServerError, msg, err)
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetAllItems, resContentNameCap)
+	msg := fmt.Sprintf(am.MsgGetAllItems, resContentCap)
 	h.OK(w, msg, contents)
 }
 
 func (h *APIHandler) GetContent(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling GetContent", h.Name())
 
-	id, err := h.ID(w, r)
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, resContentCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
 
-	content, err := h.svc.GetContent(r.Context(), id)
+	var content Content
+	content, err = h.svc.GetContent(r.Context(), id)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrCannotGetResource, resContentName)
+		msg := fmt.Sprintf(am.ErrCannotGetResource, resContent)
 		h.Err(w, http.StatusInternalServerError, msg, err)
 		return
 	}
@@ -366,7 +407,8 @@ func (h *APIHandler) GetContent(w http.ResponseWriter, r *http.Request) {
 	// The new GetContent service method should already include tags.
 	// If not, this logic is a fallback.
 	if len(content.Tags) == 0 {
-		tags, err := h.svc.GetTagsForContent(r.Context(), id)
+		var tags []Tag
+		tags, err = h.svc.GetTagsForContent(r.Context(), id)
 		if err != nil {
 			msg := fmt.Sprintf("Cannot get tags for content %s", id)
 			h.Err(w, http.StatusInternalServerError, msg, err)
@@ -375,7 +417,7 @@ func (h *APIHandler) GetContent(w http.ResponseWriter, r *http.Request) {
 		content.Tags = tags
 	}
 
-	msg := fmt.Sprintf(am.MsgGetItem, resContentNameCap)
+	msg := fmt.Sprintf(am.MsgGetItem, resContentCap)
 	h.OK(w, msg, content)
 }
 
@@ -383,7 +425,8 @@ func (h *APIHandler) CreateContent(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling CreateContent", h.Name())
 
 	var content Content
-	err := json.NewDecoder(r.Body).Decode(&content)
+	var err error
+	err = json.NewDecoder(r.Body).Decode(&content)
 	if err != nil {
 		h.Err(w, http.StatusBadRequest, am.ErrInvalidBody, err)
 		return
@@ -393,7 +436,7 @@ func (h *APIHandler) CreateContent(w http.ResponseWriter, r *http.Request) {
 
 	err = h.svc.CreateContent(r.Context(), &content)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrCannotCreateResource, resContentName)
+		msg := fmt.Sprintf(am.ErrCannotCreateResource, resContent)
 		h.Err(w, http.StatusInternalServerError, msg, err)
 		return
 	}
@@ -407,16 +450,18 @@ func (h *APIHandler) CreateContent(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	msg := fmt.Sprintf(am.MsgCreateItem, resContentNameCap)
+	msg := fmt.Sprintf(am.MsgCreateItem, resContentCap)
 	h.Created(w, msg, content)
 }
 
 func (h *APIHandler) UpdateContent(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling UpdateContent", h.Name())
 
-	id, err := h.ID(w, r)
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, resContentCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -433,13 +478,14 @@ func (h *APIHandler) UpdateContent(w http.ResponseWriter, r *http.Request) {
 
 	err = h.svc.UpdateContent(r.Context(), &content)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrCannotUpdateResource, resContentName)
+		msg := fmt.Sprintf(am.ErrCannotUpdateResource, resContent)
 		h.Err(w, http.StatusInternalServerError, msg, err)
 		return
 	}
 
 	// Remove existing tags
-	existingTags, err := h.svc.GetTagsForContent(r.Context(), id)
+	var existingTags []Tag
+	existingTags, err = h.svc.GetTagsForContent(r.Context(), id)
 	if err != nil {
 		msg := fmt.Sprintf("Cannot get existing tags for content %s", id)
 		h.Err(w, http.StatusInternalServerError, msg, err)
@@ -464,28 +510,30 @@ func (h *APIHandler) UpdateContent(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	msg := fmt.Sprintf(am.MsgUpdateItem, resContentNameCap)
+	msg := fmt.Sprintf(am.MsgUpdateItem, resContentCap)
 	h.OK(w, msg, content)
 }
 
 func (h *APIHandler) DeleteContent(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling DeleteContent", h.Name())
 
-	id, err := h.ID(w, r)
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, resContentCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
 
 	err = h.svc.DeleteContent(r.Context(), id)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrCannotDeleteResource, resContentName)
+		msg := fmt.Sprintf(am.ErrCannotDeleteResource, resContent)
 		h.Err(w, http.StatusInternalServerError, msg, err)
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgDeleteItem, resContentNameCap)
+	msg := fmt.Sprintf(am.MsgDeleteItem, resContentCap)
 	h.OK(w, msg, json.RawMessage("null"))
 }
 
@@ -495,7 +543,8 @@ func (h *APIHandler) CreateTag(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling CreateTag", h.Name())
 
 	var tag Tag
-	err := json.NewDecoder(r.Body).Decode(&tag)
+	var err error
+	err = json.NewDecoder(r.Body).Decode(&tag)
 	if err != nil {
 		h.Err(w, http.StatusBadRequest, am.ErrInvalidBody, err)
 		return
@@ -518,14 +567,17 @@ func (h *APIHandler) CreateTag(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) GetTag(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling GetTag", h.Name())
 
-	id, err := h.ID(w, r)
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrInvalidID, resTagNameCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
 
-	tag, err := h.svc.GetTag(r.Context(), id)
+	var tag Tag
+	tag, err = h.svc.GetTag(r.Context(), id)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrCannotGetResource, resTagName)
 		h.Err(w, http.StatusInternalServerError, msg, err)
@@ -539,14 +591,17 @@ func (h *APIHandler) GetTag(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) GetTagByName(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling GetTagByName", h.Name())
 
-	name, err := h.Param(w, r, "name")
+	var err error
+	var name string
+	name, err = h.Param(w, r, "name")
 	if err != nil {
 		msg := fmt.Sprintf("%s: %s", am.ErrInvalidParam, "name")
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
 
-	tag, err := h.svc.GetTagByName(r.Context(), name)
+	var tag Tag
+	tag, err = h.svc.GetTagByName(r.Context(), name)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrCannotGetResource, resTagName)
 		h.Err(w, http.StatusInternalServerError, msg, err)
@@ -560,7 +615,9 @@ func (h *APIHandler) GetTagByName(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) GetAllTags(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling GetAllTags", h.Name())
 
-	tags, err := h.svc.GetAllTags(r.Context())
+	var tags []Tag
+	var err error
+	tags, err = h.svc.GetAllTags(r.Context())
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrCannotGetResources, resTagName)
 		h.Err(w, http.StatusInternalServerError, msg, err)
@@ -574,7 +631,9 @@ func (h *APIHandler) GetAllTags(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) UpdateTag(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling UpdateTag", h.Name())
 
-	id, err := h.ID(w, r)
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrInvalidID, resTagNameCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
@@ -606,7 +665,9 @@ func (h *APIHandler) UpdateTag(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) DeleteTag(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling DeleteTag", h.Name())
 
-	id, err := h.ID(w, r)
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrInvalidID, resTagNameCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
@@ -630,7 +691,8 @@ func (h *APIHandler) CreateParam(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling CreateParam", h.Name())
 
 	var param Param
-	err := json.NewDecoder(r.Body).Decode(&param)
+	var err error
+	err = json.NewDecoder(r.Body).Decode(&param)
 	if err != nil {
 		h.Err(w, http.StatusBadRequest, am.ErrInvalidBody, err)
 		return
@@ -655,14 +717,17 @@ func (h *APIHandler) CreateParam(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) GetParam(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling GetParam", h.Name())
 
-	id, err := h.ID(w, r)
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrInvalidID, resParamNameCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
 
-	param, err := h.svc.GetParam(r.Context(), id)
+	var param Param
+	param, err = h.svc.GetParam(r.Context(), id)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrCannotGetResource, resParamName)
 		h.Err(w, http.StatusInternalServerError, msg, err)
@@ -676,14 +741,17 @@ func (h *APIHandler) GetParam(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) GetParamByName(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling GetParamByName", h.Name())
 
-	name, err := h.Param(w, r, "name")
+	var err error
+	var name string
+	name, err = h.Param(w, r, "name")
 	if err != nil {
 		msg := fmt.Sprintf("%s: %s", am.ErrInvalidParam, "name")
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
 
-	param, err := h.svc.GetParamByName(r.Context(), name)
+	var param Param
+	param, err = h.svc.GetParamByName(r.Context(), name)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrCannotGetResource, resParamName)
 		h.Err(w, http.StatusInternalServerError, msg, err)
@@ -697,14 +765,17 @@ func (h *APIHandler) GetParamByName(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) GetParamByRefKey(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling GetParamByRefKey", h.Name())
 
-	refKey, err := h.Param(w, r, "ref_key")
+	var err error
+	var refKey string
+	refKey, err = h.Param(w, r, "ref_key")
 	if err != nil {
 		msg := fmt.Sprintf("%s: %s", am.ErrInvalidParam, "ref_key")
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
 
-	param, err := h.svc.GetParamByRefKey(r.Context(), refKey)
+	var param Param
+	param, err = h.svc.GetParamByRefKey(r.Context(), refKey)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrCannotGetResource, resParamName)
 		h.Err(w, http.StatusInternalServerError, msg, err)
@@ -718,7 +789,9 @@ func (h *APIHandler) GetParamByRefKey(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) ListParams(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling ListParams", h.Name())
 
-	params, err := h.svc.ListParams(r.Context())
+	var params []Param
+	var err error
+	params, err = h.svc.ListParams(r.Context())
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrCannotGetResources, resParamName)
 		h.Err(w, http.StatusInternalServerError, msg, err)
@@ -732,7 +805,9 @@ func (h *APIHandler) ListParams(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) UpdateParam(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling UpdateParam", h.Name())
 
-	id, err := h.ID(w, r)
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrInvalidID, resParamNameCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
@@ -740,7 +815,8 @@ func (h *APIHandler) UpdateParam(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get existing param to check if it's a system param
-	existingParam, err := h.svc.GetParam(r.Context(), id)
+	var existingParam Param
+	existingParam, err = h.svc.GetParam(r.Context(), id)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrCannotGetResource, resParamName)
 		h.Err(w, http.StatusInternalServerError, msg, err)
@@ -754,7 +830,7 @@ func (h *APIHandler) UpdateParam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-			if existingParam.System == 1 {
+	if existingParam.System == 1 {
 		// For system params, only Value can be updated
 		if param.Name != existingParam.Name {
 			h.Err(w, http.StatusBadRequest, "cannot change name of system parameter", nil)
@@ -795,7 +871,9 @@ func (h *APIHandler) UpdateParam(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) DeleteParam(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling DeleteParam", h.Name())
 
-	id, err := h.ID(w, r)
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrInvalidID, resParamNameCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
@@ -803,7 +881,8 @@ func (h *APIHandler) DeleteParam(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get existing param to check if it's a system param
-	existingParam, err := h.svc.GetParam(r.Context(), id)
+	var existingParam Param
+	existingParam, err = h.svc.GetParam(r.Context(), id)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrCannotGetResource, resParamName)
 		h.Err(w, http.StatusInternalServerError, msg, err)
@@ -826,6 +905,343 @@ func (h *APIHandler) DeleteParam(w http.ResponseWriter, r *http.Request) {
 	h.OK(w, msg, json.RawMessage("null"))
 }
 
+// Image related API handlers
+
+func (h *APIHandler) CreateImage(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling CreateImage", h.Name())
+
+	var image Image
+	var err error
+	err = json.NewDecoder(r.Body).Decode(&image)
+	if err != nil {
+		h.Err(w, http.StatusBadRequest, am.ErrInvalidBody, err)
+		return
+	}
+
+	newImage := NewImage() // Call constructor without arguments
+	// Assign fields from the decoded JSON to the newImage instance
+	newImage.ContentHash = image.ContentHash
+	newImage.Mime = image.Mime
+	newImage.Width = image.Width
+	newImage.Height = image.Height
+	newImage.FilesizeByte = image.FilesizeByte
+	newImage.Etag = image.Etag
+	newImage.Title = image.Title
+	newImage.AltText = image.AltText
+	newImage.AltLang = image.AltLang
+	newImage.LongDescription = image.LongDescription
+	newImage.Caption = image.Caption
+	newImage.Decorative = image.Decorative
+	newImage.DescribedByID = image.DescribedByID
+
+	newImage.GenCreateValues()
+
+	err = h.svc.CreateImage(r.Context(), &newImage)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotCreateResource, resImageName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgCreateItem, resImageNameCap)
+	h.Created(w, msg, newImage)
+}
+
+func (h *APIHandler) GetImage(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling GetImage", h.Name())
+
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resImageNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	var image Image
+	image, err = h.svc.GetImage(r.Context(), id)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotGetResource, resImageName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgGetItem, resImageNameCap)
+	h.OK(w, msg, image)
+}
+
+func (h *APIHandler) GetImageByShortID(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling GetImageByShortID", h.Name())
+
+	var err error
+	var shortID string
+	shortID, err = h.Param(w, r, "short_id")
+	if err != nil {
+		msg := fmt.Sprintf("%s: %s", am.ErrInvalidParam, "short_id")
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	var image Image
+	image, err = h.svc.GetImageByShortID(r.Context(), shortID)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotGetResource, resImageName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgGetItem, resImageNameCap)
+	h.OK(w, msg, image)
+}
+
+func (h *APIHandler) ListImages(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling ListImages", h.Name())
+
+	var images []Image
+	var err error
+	images, err = h.svc.ListImages(r.Context())
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotGetResources, resImageName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgGetAllItems, resImageNameCap)
+	h.OK(w, msg, images)
+}
+
+func (h *APIHandler) UpdateImage(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling UpdateImage", h.Name())
+
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resImageNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	var image Image
+	err = json.NewDecoder(r.Body).Decode(&image)
+	if err != nil {
+		h.Err(w, http.StatusBadRequest, am.ErrInvalidBody, err)
+		return
+	}
+
+	updatedImage := NewImage()   // Call constructor without arguments
+	updatedImage.SetID(id, true) // Set the ID from the URL on the decoded content
+
+	// Assign fields from the decoded JSON to the updatedImage instance
+	updatedImage.ContentHash = image.ContentHash
+	updatedImage.Mime = image.Mime
+	updatedImage.Width = image.Width
+	updatedImage.Height = image.Height
+	updatedImage.FilesizeByte = image.FilesizeByte
+	updatedImage.Etag = image.Etag
+	updatedImage.Title = image.Title
+	updatedImage.AltText = image.AltText
+	updatedImage.AltLang = image.AltLang
+	updatedImage.LongDescription = image.LongDescription
+	updatedImage.Caption = image.Caption
+	updatedImage.Decorative = image.Decorative
+	updatedImage.DescribedByID = image.DescribedByID
+
+	updatedImage.GenUpdateValues()
+
+	err = h.svc.UpdateImage(r.Context(), &updatedImage)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotUpdateResource, resImageName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgUpdateItem, resImageNameCap)
+	h.OK(w, msg, updatedImage)
+}
+
+func (h *APIHandler) DeleteImage(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling DeleteImage", h.Name())
+
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resImageNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	err = h.svc.DeleteImage(r.Context(), id)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotDeleteResource, resImageName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgDeleteItem, resImageNameCap)
+	h.OK(w, msg, json.RawMessage("null"))
+}
+
+// ImageVariant related API handlers
+
+func (h *APIHandler) CreateImageVariant(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling CreateImageVariant", h.Name())
+
+	var variant ImageVariant
+	var err error
+	err = json.NewDecoder(r.Body).Decode(&variant)
+	if err != nil {
+		h.Err(w, http.StatusBadRequest, am.ErrInvalidBody, err)
+		return
+	}
+
+	newVariant := NewImageVariant() // Call constructor without arguments
+	// Assign fields from the decoded JSON to the newVariant instance
+	newVariant.ImageID = variant.ImageID
+	newVariant.Kind = variant.Kind
+	newVariant.Width = variant.Width
+	newVariant.Height = variant.Height
+	newVariant.FilesizeByte = variant.FilesizeByte
+	newVariant.Mime = variant.Mime
+	newVariant.BlobRef = variant.BlobRef
+
+	newVariant.GenCreateValues()
+
+	err = h.svc.CreateImageVariant(r.Context(), &newVariant)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotCreateResource, resImageVariantName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgCreateItem, resImageVariantNameCap)
+	h.Created(w, msg, newVariant)
+}
+
+func (h *APIHandler) GetImageVariant(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling GetImageVariant", h.Name())
+
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resImageVariantNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	var variant ImageVariant
+	variant, err = h.svc.GetImageVariant(r.Context(), id)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotGetResource, resImageVariantName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgGetItem, resImageVariantNameCap)
+	h.OK(w, msg, variant)
+}
+
+func (h *APIHandler) ListImageVariantsByImageID(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling ListImageVariantsByImageID", h.Name())
+
+	var err error
+	var imageIDStr string
+	imageIDStr, err = h.Param(w, r, "image_id")
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resImageNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+	var imageID uuid.UUID
+	imageID, err = uuid.Parse(imageIDStr)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resImageNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	var variants []ImageVariant
+	variants, err = h.svc.ListImageVariantsByImageID(r.Context(), imageID)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotGetResources, resImageVariantName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgGetAllItems, resImageVariantNameCap)
+	h.OK(w, msg, variants)
+}
+
+func (h *APIHandler) UpdateImageVariant(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling UpdateImageVariant", h.Name())
+
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resImageVariantNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	var variant ImageVariant
+	err = json.NewDecoder(r.Body).Decode(&variant)
+	if err != nil {
+		h.Err(w, http.StatusBadRequest, am.ErrInvalidBody, err)
+		return
+	}
+
+	updatedVariant := NewImageVariant() // Call constructor without arguments
+	updatedVariant.SetID(id, true)      // Set the ID from the URL on the decoded content
+
+	// Assign fields from the decoded JSON to the updatedVariant instance
+	updatedVariant.ImageID = variant.ImageID
+	updatedVariant.Kind = variant.Kind
+	updatedVariant.Width = variant.Width
+	updatedVariant.Height = variant.Height
+	updatedVariant.FilesizeByte = variant.FilesizeByte
+	updatedVariant.Mime = variant.Mime
+	updatedVariant.BlobRef = variant.BlobRef
+
+	updatedVariant.GenUpdateValues()
+
+	err = h.svc.UpdateImageVariant(r.Context(), &updatedVariant)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotUpdateResource, resImageVariantName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgUpdateItem, resImageVariantNameCap)
+	h.OK(w, msg, updatedVariant)
+}
+
+func (h *APIHandler) DeleteImageVariant(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling DeleteImageVariant", h.Name())
+
+	var err error
+	var id uuid.UUID
+	id, err = h.ID(w, r)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrInvalidID, resImageVariantNameCap)
+		h.Err(w, http.StatusBadRequest, msg, err)
+		return
+	}
+
+	err = h.svc.DeleteImageVariant(r.Context(), id)
+	if err != nil {
+		msg := fmt.Sprintf(am.ErrCannotDeleteResource, resImageVariantName)
+		h.Err(w, http.StatusInternalServerError, msg, err)
+		return
+	}
+
+	msg := fmt.Sprintf(am.MsgDeleteItem, resImageVariantNameCap)
+	h.OK(w, msg, json.RawMessage("null"))
+}
+
 // AddTagToContentForm represents the data for adding a tag to content.
 type AddTagToContentForm struct {
 	Name string `json:"name"`
@@ -836,15 +1252,18 @@ type AddTagToContentForm struct {
 func (h *APIHandler) AddTagToContent(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling AddTagToContent", h.Name())
 
-	contentIDStr, err := h.Param(w, r, "content_id")
+	var err error
+	var contentIDStr string
+	contentIDStr, err = h.Param(w, r, "content_id")
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, resContentCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
-	contentID, err := uuid.Parse(contentIDStr)
+	var contentID uuid.UUID
+	contentID, err = uuid.Parse(contentIDStr)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, resContentCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -870,26 +1289,31 @@ func (h *APIHandler) AddTagToContent(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) RemoveTagFromContent(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling RemoveTagFromContent", h.Name())
 
-	contentIDStr, err := h.Param(w, r, "content_id")
+	var err error
+	var contentIDStr string
+	contentIDStr, err = h.Param(w, r, "content_id")
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, resContentCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
-	contentID, err := uuid.Parse(contentIDStr)
+	var contentID uuid.UUID
+	contentID, err = uuid.Parse(contentIDStr)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, resContentCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
 
-	tagIDStr, err := h.Param(w, r, "tag_id")
+	var tagIDStr string
+	tagIDStr, err = h.Param(w, r, "tag_id")
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrInvalidID, resTagNameCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
-	tagID, err := uuid.Parse(tagIDStr)
+	var tagID uuid.UUID
+	tagID, err = uuid.Parse(tagIDStr)
 	if err != nil {
 		msg := fmt.Sprintf(am.ErrInvalidID, resTagNameCap)
 		h.Err(w, http.StatusBadRequest, msg, err)
@@ -910,7 +1334,8 @@ func (h *APIHandler) RemoveTagFromContent(w http.ResponseWriter, r *http.Request
 func (h *APIHandler) GenerateMarkdown(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling GenerateMarkdown", h.Name())
 
-	err := h.svc.GenerateMarkdown(r.Context())
+	var err error
+	err = h.svc.GenerateMarkdown(r.Context())
 	if err != nil {
 		msg := fmt.Sprintf("Cannot generate markdown: %v", err)
 		h.Err(w, http.StatusInternalServerError, msg, err)
@@ -924,7 +1349,8 @@ func (h *APIHandler) GenerateMarkdown(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) GenerateHTML(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling GenerateHTML", h.Name())
 
-	err := h.svc.GenerateHTMLFromContent(r.Context())
+	var err error
+	err = h.svc.GenerateHTMLFromContent(r.Context())
 	if err != nil {
 		msg := fmt.Sprintf("Cannot generate HTML: %v", err)
 		h.Err(w, http.StatusInternalServerError, msg, err)

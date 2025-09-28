@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"net/http"
 
 	"github.com/adrianpk/clio/internal/am"
 	"github.com/adrianpk/clio/internal/am/github"
@@ -30,7 +31,7 @@ func main() {
 	opts := am.DefOpts(log, cfg)
 
 	fm := am.NewFlashManager()
-	workspace := ssg.NewWorkspace(opts...)
+	workspace := core.NewWorkspace(opts...)
 	app := core.NewApp(name, version, assetsFS, opts...)
 	queryManager := am.NewQueryManager(assetsFS, engine)
 	templateManager := am.NewTemplateManager(assetsFS)
@@ -39,6 +40,11 @@ func main() {
 	fileServer := am.NewFileServer(assetsFS)
 
 	app.MountFileServer("/", fileServer)
+
+	// Serve uploaded images from the filesystem
+	imagesPath := cfg.StrValOrDef(am.Key.SSGImagesPath, "_workspace/documents/images")
+	imageFileServer := http.FileServer(http.Dir(imagesPath))
+	app.Router.Handle("/static/images/*", http.StripPrefix("/static/images/", imageFileServer))
 
 	apiRouter := am.NewAPIRouter("api-router", opts...)
 

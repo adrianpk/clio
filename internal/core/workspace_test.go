@@ -1,4 +1,4 @@
-package ssg_test
+package core_test
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/adrianpk/clio/internal/am"
-	"github.com/adrianpk/clio/internal/feat/ssg"
+	"github.com/adrianpk/clio/internal/core"
 )
 
 func TestWorkspaceSetup(t *testing.T) {
@@ -69,7 +69,7 @@ func TestWorkspaceSetup(t *testing.T) {
 			cfg.Set(am.Key.AppEnv, tc.env)
 
 			logger := am.NewLogger("")
-			ws := ssg.NewWorkspace(am.WithCfg(cfg), am.WithLog(logger))
+			ws := core.NewWorkspace(am.WithCfg(cfg), am.WithLog(logger))
 
 			if err := ws.Setup(context.Background()); err != nil {
 				t.Fatalf("ws.Setup() failed: %v", err)
