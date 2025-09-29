@@ -10,20 +10,13 @@ import (
 )
 
 const (
-	resContentName         = "content"
-	resContentNameCap      = "Content"
-	resSectionName         = "section"
-	resSectionNameCap      = "Section"
-	resLayoutName          = "layout"
-	resLayoutNameCap       = "Layout"
-	resTagName             = "tag"
-	resTagNameCap          = "Tag"
-	resParamName           = "param"
-	resParamNameCap        = "Param"
-	resImageName           = "image"
-	resImageNameCap        = "Image"
-	resImageVariantName    = "image variant"
-	resImageVariantNameCap = "Image variant"
+	resContentName      = "content"
+	resSectionName      = "section"
+	resLayoutName       = "layout"
+	resTagName          = "tag"
+	resParamName        = "param"
+	resImageName        = "image"
+	resImageVariantName = "image variant"
 )
 
 type APIHandler struct {
@@ -49,15 +42,42 @@ func (h *APIHandler) Created(w http.ResponseWriter, message string, data interfa
 }
 
 func (h *APIHandler) wrapData(data interface{}) interface{} {
-	if data == nil {
-		return map[string]interface{}{
-			"status": "success",
-			"data":   nil,
-		}
-	}
-	return map[string]interface{}{
-		"status": "success",
-		"data":   data,
+	switch v := data.(type) {
+	// Single entities
+	case Layout:
+		return map[string]interface{}{"layout": v}
+	case Section:
+		return map[string]interface{}{"section": v}
+	case Content:
+		return map[string]interface{}{"content": v}
+	case Tag:
+		return map[string]interface{}{"tag": v}
+	case Param:
+		return map[string]interface{}{"param": v}
+	case Image:
+		return map[string]interface{}{"image": v}
+	case ImageVariant:
+		return map[string]interface{}{"image_variant": v}
+
+	// Slices of entities
+	case []Layout:
+		return map[string]interface{}{"layouts": v}
+	case []Section:
+		return map[string]interface{}{"sections": v}
+	case []Content:
+		return map[string]interface{}{"contents": v}
+	case []Tag:
+		return map[string]interface{}{"tags": v}
+	case []Param:
+		return map[string]interface{}{"params": v}
+	case []Image:
+		return map[string]interface{}{"images": v}
+	case []ImageVariant:
+		return map[string]interface{}{"image_variants": v}
+
+	// Default case for nil, maps, or other types
+	default:
+		return data
 	}
 }
 

@@ -31,7 +31,7 @@ func (h *APIHandler) CreateTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgCreateItem, resTagNameCap)
+	msg := fmt.Sprintf(am.MsgCreateItem, am.Cap(resTagName))
 	h.Created(w, msg, newTag)
 }
 
@@ -42,7 +42,7 @@ func (h *APIHandler) GetTag(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resTagNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resTagName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -55,7 +55,7 @@ func (h *APIHandler) GetTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetItem, resTagNameCap)
+	msg := fmt.Sprintf(am.MsgGetItem, am.Cap(resTagName))
 	h.OK(w, msg, tag)
 }
 
@@ -79,7 +79,7 @@ func (h *APIHandler) GetTagByName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetItem, resTagNameCap)
+	msg := fmt.Sprintf(am.MsgGetItem, am.Cap(resTagName))
 	h.OK(w, msg, tag)
 }
 
@@ -95,7 +95,7 @@ func (h *APIHandler) GetAllTags(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetAllItems, resTagNameCap)
+	msg := fmt.Sprintf(am.MsgGetAllItems, am.Cap(resTagName))
 	h.OK(w, msg, tags)
 }
 
@@ -106,7 +106,7 @@ func (h *APIHandler) UpdateTag(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resTagNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resTagName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -129,7 +129,7 @@ func (h *APIHandler) UpdateTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgUpdateItem, resTagNameCap)
+	msg := fmt.Sprintf(am.MsgUpdateItem, am.Cap(resTagName))
 	h.OK(w, msg, updatedTag)
 }
 
@@ -140,7 +140,7 @@ func (h *APIHandler) DeleteTag(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resTagNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resTagName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -152,6 +152,6 @@ func (h *APIHandler) DeleteTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgDeleteItem, resTagNameCap)
+	msg := fmt.Sprintf(am.MsgDeleteItem, am.Cap(resTagName))
 	h.OK(w, msg, json.RawMessage("null"))
 }

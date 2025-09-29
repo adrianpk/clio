@@ -57,5 +57,20 @@ func NewAPIRouter(handler *APIHandler, mw []am.Middleware, opts ...am.Option) *a
 	core.Put("/params/{id}", handler.UpdateParam)
 	core.Delete("/params/{id}", handler.DeleteParam)
 
+	// Image API routes
+	core.Get("/images", handler.ListImages)
+	core.Get("/images/{id}", handler.GetImage)
+	core.Get("/images/short/{short_id}", handler.GetImageByShortID)
+	core.Post("/images", handler.CreateImage)
+	core.Put("/images/{id}", handler.UpdateImage)
+	core.Delete("/images/{id}", handler.DeleteImage)
+
+	// Image Variant API routes
+	core.Get("/images/{image_id}/variants", handler.ListImageVariantsByImageID)
+	core.Get("/images/{image_id}/variants/{id}", handler.GetImageVariant)
+	core.Post("/images/{image_id}/variants", handler.CreateImageVariant)
+	core.Put("/images/{image_id}/variants/{id}", handler.UpdateImageVariant)
+	core.Delete("/images/{image_id}/variants/{id}", handler.DeleteImageVariant)
+
 	return core
 }

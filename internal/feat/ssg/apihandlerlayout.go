@@ -17,7 +17,7 @@ func (h *APIHandler) GetLayout(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resLayoutNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resLayoutName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -30,7 +30,7 @@ func (h *APIHandler) GetLayout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetItem, resLayoutNameCap)
+	msg := fmt.Sprintf(am.MsgGetItem, am.Cap(resLayoutName))
 	h.OK(w, msg, layout)
 }
 
@@ -55,7 +55,7 @@ func (h *APIHandler) CreateLayout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgCreateItem, resLayoutNameCap)
+	msg := fmt.Sprintf(am.MsgCreateItem, am.Cap(resLayoutName))
 	h.Created(w, msg, newLayout)
 }
 
@@ -66,7 +66,7 @@ func (h *APIHandler) UpdateLayout(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resLayoutNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resLayoutName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -89,7 +89,7 @@ func (h *APIHandler) UpdateLayout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgUpdateItem, resLayoutNameCap)
+	msg := fmt.Sprintf(am.MsgUpdateItem, am.Cap(resLayoutName))
 	h.OK(w, msg, updatedLayout)
 }
 
@@ -100,7 +100,7 @@ func (h *APIHandler) DeleteLayout(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resLayoutNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resLayoutName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -112,7 +112,7 @@ func (h *APIHandler) DeleteLayout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgDeleteItem, resLayoutNameCap)
+	msg := fmt.Sprintf(am.MsgDeleteItem, am.Cap(resLayoutName))
 	h.OK(w, msg, json.RawMessage("null"))
 }
 
@@ -128,6 +128,6 @@ func (h *APIHandler) GetAllLayouts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetAllItems, resLayoutNameCap)
+	msg := fmt.Sprintf(am.MsgGetAllItems, am.Cap(resLayoutName))
 	h.OK(w, msg, layouts)
 }

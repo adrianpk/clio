@@ -22,7 +22,7 @@ func (h *APIHandler) GetAllContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetAllItems, resContentNameCap)
+	msg := fmt.Sprintf(am.MsgGetAllItems, am.Cap(resContentName))
 	h.OK(w, msg, contents)
 }
 
@@ -33,7 +33,7 @@ func (h *APIHandler) GetContent(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resContentName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -59,7 +59,7 @@ func (h *APIHandler) GetContent(w http.ResponseWriter, r *http.Request) {
 		content.Tags = tags
 	}
 
-	msg := fmt.Sprintf(am.MsgGetItem, resContentNameCap)
+	msg := fmt.Sprintf(am.MsgGetItem, am.Cap(resContentName))
 	h.OK(w, msg, content)
 }
 
@@ -92,7 +92,7 @@ func (h *APIHandler) CreateContent(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	msg := fmt.Sprintf(am.MsgCreateItem, resContentNameCap)
+	msg := fmt.Sprintf(am.MsgCreateItem, am.Cap(resContentName))
 	h.Created(w, msg, content)
 }
 
@@ -103,7 +103,7 @@ func (h *APIHandler) UpdateContent(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resContentName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -152,7 +152,7 @@ func (h *APIHandler) UpdateContent(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	msg := fmt.Sprintf(am.MsgUpdateItem, resContentNameCap)
+	msg := fmt.Sprintf(am.MsgUpdateItem, am.Cap(resContentName))
 	h.OK(w, msg, content)
 }
 
@@ -163,7 +163,7 @@ func (h *APIHandler) DeleteContent(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resContentName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -175,7 +175,7 @@ func (h *APIHandler) DeleteContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgDeleteItem, resContentNameCap)
+	msg := fmt.Sprintf(am.MsgDeleteItem, am.Cap(resContentName))
 	h.OK(w, msg, json.RawMessage("null"))
 }
 
@@ -186,14 +186,14 @@ func (h *APIHandler) AddTagToContent(w http.ResponseWriter, r *http.Request) {
 	var contentIDStr string
 	contentIDStr, err = h.Param(w, r, "content_id")
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resContentName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
 	var contentID uuid.UUID
 	contentID, err = uuid.Parse(contentIDStr)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resContentName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -223,14 +223,14 @@ func (h *APIHandler) RemoveTagFromContent(w http.ResponseWriter, r *http.Request
 	var contentIDStr string
 	contentIDStr, err = h.Param(w, r, "content_id")
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resContentName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
 	var contentID uuid.UUID
 	contentID, err = uuid.Parse(contentIDStr)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resContentNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resContentName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -238,14 +238,14 @@ func (h *APIHandler) RemoveTagFromContent(w http.ResponseWriter, r *http.Request
 	var tagIDStr string
 	tagIDStr, err = h.Param(w, r, "tag_id")
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resTagNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resTagName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
 	var tagID uuid.UUID
 	tagID, err = uuid.Parse(tagIDStr)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resTagNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resTagName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}

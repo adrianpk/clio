@@ -33,7 +33,7 @@ func (h *APIHandler) CreateParam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgCreateItem, resParamNameCap)
+	msg := fmt.Sprintf(am.MsgCreateItem, am.Cap(resParamName))
 	h.Created(w, msg, newParam)
 }
 
@@ -44,7 +44,7 @@ func (h *APIHandler) GetParam(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resParamNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resParamName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -57,7 +57,7 @@ func (h *APIHandler) GetParam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetItem, resParamNameCap)
+	msg := fmt.Sprintf(am.MsgGetItem, am.Cap(resParamName))
 	h.OK(w, msg, param)
 }
 
@@ -81,7 +81,7 @@ func (h *APIHandler) GetParamByName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetItem, resParamNameCap)
+	msg := fmt.Sprintf(am.MsgGetItem, am.Cap(resParamName))
 	h.OK(w, msg, param)
 }
 
@@ -105,7 +105,7 @@ func (h *APIHandler) GetParamByRefKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetItem, resParamNameCap)
+	msg := fmt.Sprintf(am.MsgGetItem, am.Cap(resParamName))
 	h.OK(w, msg, param)
 }
 
@@ -121,7 +121,7 @@ func (h *APIHandler) ListParams(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetAllItems, resParamNameCap)
+	msg := fmt.Sprintf(am.MsgGetAllItems, am.Cap(resParamName))
 	h.OK(w, msg, params)
 }
 
@@ -132,7 +132,7 @@ func (h *APIHandler) UpdateParam(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resParamNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resParamName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -187,7 +187,7 @@ func (h *APIHandler) UpdateParam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgUpdateItem, resParamNameCap)
+	msg := fmt.Sprintf(am.MsgUpdateItem, am.Cap(resParamName))
 	h.OK(w, msg, updatedParam)
 }
 
@@ -198,7 +198,7 @@ func (h *APIHandler) DeleteParam(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resParamNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resParamName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -224,6 +224,6 @@ func (h *APIHandler) DeleteParam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgDeleteItem, resParamNameCap)
+	msg := fmt.Sprintf(am.MsgDeleteItem, am.Cap(resParamName))
 	h.OK(w, msg, json.RawMessage("null"))
 }

@@ -691,7 +691,7 @@ func (repo *ClioRepo) GetImageByShortID(ctx context.Context, shortID string) (ss
 }
 
 func (repo *ClioRepo) ListImages(ctx context.Context) ([]ssg.Image, error) {
-	query, err := repo.Query().Get(featSSG, resImage, "ListImages")
+	query, err := repo.Query().Get(featSSG, resImage, "List")
 	if err != nil {
 		return nil, fmt.Errorf("cannot get list images query: %w", err)
 	}

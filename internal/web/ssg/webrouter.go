@@ -65,10 +65,10 @@ func NewWebRouter(handler *WebHandler, mw []am.Middleware, opts ...am.Option) *a
 	core.Get("/images/:imageID/variants/new", handler.NewImageVariant)
 	core.Post("/images/:imageID/variants", handler.CreateImageVariant)
 	core.Get("/images/:imageID/variants/:id/edit", handler.EditImageVariant)
-	core.Post("/images/:imageID/variants/:id", handler.UpdateImageVariant) // Using POST for simplicity, could be PUT
+	core.Post("/images/:imageID/variants/:id", handler.UpdateImageVariant)
 	core.Get("/images/:imageID/variants", handler.ListImageVariants)
 	core.Get("/images/:imageID/variants/:id", handler.ShowImageVariant)
-	core.Post("/images/:imageID/variants/:id/delete", handler.DeleteImageVariant) // Using POST for simplicity, could be DELETE
+	core.Post("/images/:imageID/variants/:id/delete", handler.DeleteImageVariant)
 
 	return core
 }

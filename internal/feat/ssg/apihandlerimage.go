@@ -46,7 +46,7 @@ func (h *APIHandler) CreateImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgCreateItem, resImageNameCap)
+	msg := fmt.Sprintf(am.MsgCreateItem, am.Cap(resImageName))
 	h.Created(w, msg, newImage)
 }
 
@@ -57,7 +57,7 @@ func (h *APIHandler) GetImage(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resImageNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resImageName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -70,7 +70,7 @@ func (h *APIHandler) GetImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetItem, resImageNameCap)
+	msg := fmt.Sprintf(am.MsgGetItem, am.Cap(resImageName))
 	h.OK(w, msg, image)
 }
 
@@ -94,7 +94,7 @@ func (h *APIHandler) GetImageByShortID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetItem, resImageNameCap)
+	msg := fmt.Sprintf(am.MsgGetItem, am.Cap(resImageName))
 	h.OK(w, msg, image)
 }
 
@@ -110,7 +110,7 @@ func (h *APIHandler) ListImages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetAllItems, resImageNameCap)
+	msg := fmt.Sprintf(am.MsgGetAllItems, am.Cap(resImageName))
 	h.OK(w, msg, images)
 }
 
@@ -121,7 +121,7 @@ func (h *APIHandler) UpdateImage(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resImageNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resImageName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -160,7 +160,7 @@ func (h *APIHandler) UpdateImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgUpdateItem, resImageNameCap)
+	msg := fmt.Sprintf(am.MsgUpdateItem, am.Cap(resImageName))
 	h.OK(w, msg, updatedImage)
 }
 
@@ -171,7 +171,7 @@ func (h *APIHandler) DeleteImage(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resImageNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resImageName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -183,7 +183,7 @@ func (h *APIHandler) DeleteImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgDeleteItem, resImageNameCap)
+	msg := fmt.Sprintf(am.MsgDeleteItem, am.Cap(resImageName))
 	h.OK(w, msg, json.RawMessage("null"))
 }
 
@@ -217,7 +217,7 @@ func (h *APIHandler) CreateImageVariant(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgCreateItem, resImageVariantNameCap)
+	msg := fmt.Sprintf(am.MsgCreateItem, am.Cap(resImageVariantName))
 	h.Created(w, msg, newVariant)
 }
 
@@ -228,7 +228,7 @@ func (h *APIHandler) GetImageVariant(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resImageVariantNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resImageVariantName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -241,7 +241,7 @@ func (h *APIHandler) GetImageVariant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetItem, resImageVariantNameCap)
+	msg := fmt.Sprintf(am.MsgGetItem, am.Cap(resImageVariantName))
 	h.OK(w, msg, variant)
 }
 
@@ -252,14 +252,14 @@ func (h *APIHandler) ListImageVariantsByImageID(w http.ResponseWriter, r *http.R
 	var imageIDStr string
 	imageIDStr, err = h.Param(w, r, "image_id")
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resImageNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resImageName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
 	var imageID uuid.UUID
 	imageID, err = uuid.Parse(imageIDStr)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resImageNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resImageName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -272,7 +272,7 @@ func (h *APIHandler) ListImageVariantsByImageID(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetAllItems, resImageVariantNameCap)
+	msg := fmt.Sprintf(am.MsgGetAllItems, am.Cap(resImageVariantName))
 	h.OK(w, msg, variants)
 }
 
@@ -283,7 +283,7 @@ func (h *APIHandler) UpdateImageVariant(w http.ResponseWriter, r *http.Request) 
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resImageVariantNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resImageVariantName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -316,7 +316,7 @@ func (h *APIHandler) UpdateImageVariant(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgUpdateItem, resImageVariantNameCap)
+	msg := fmt.Sprintf(am.MsgUpdateItem, am.Cap(resImageVariantName))
 	h.OK(w, msg, updatedVariant)
 }
 
@@ -327,7 +327,7 @@ func (h *APIHandler) DeleteImageVariant(w http.ResponseWriter, r *http.Request) 
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resImageVariantNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resImageVariantName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -339,6 +339,6 @@ func (h *APIHandler) DeleteImageVariant(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgDeleteItem, resImageVariantNameCap)
+	msg := fmt.Sprintf(am.MsgDeleteItem, am.Cap(resImageVariantName))
 	h.OK(w, msg, json.RawMessage("null"))
 }
