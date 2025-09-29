@@ -19,8 +19,8 @@ type Section struct {
 	Description string    `json:"description"`
 	Path        string    `json:"path"`
 	LayoutID    uuid.UUID `json:"layout_id"`
-	Image       string    `json:"image"`
 	Header      string    `json:"header"`
+	BlogHeader  string    `json:"blog_header"`
 	LayoutName  string    `json:"layout_name"`
 }
 
@@ -110,8 +110,8 @@ func ToWebSection(featSection feat.Section) Section {
 		Description: featSection.Description,
 		Path:        featSection.Path,
 		LayoutID:    featSection.LayoutID,
-		Image:       featSection.Image,
 		Header:      featSection.Header,
+		BlogHeader:  featSection.BlogHeader,
 		LayoutName:  featSection.LayoutName,
 	}
 }

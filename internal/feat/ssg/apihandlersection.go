@@ -131,3 +131,99 @@ func (h *APIHandler) DeleteSection(w http.ResponseWriter, r *http.Request) {
 	msg := fmt.Sprintf(am.MsgDeleteItem, am.Cap(resSectionName))
 	h.OK(w, msg, json.RawMessage("null"))
 }
+
+// UploadSectionImage handles image upload for sections (section header or blog header)
+func (h *APIHandler) UploadSectionImage(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling UploadSectionImage", h.Name())
+
+	// Parse section ID from URL
+	sectionIDStr, err := h.Param(w, r, "section_id")
+	if err != nil {
+		h.Err(w, http.StatusBadRequest, "Invalid section ID", err)
+		return
+	}
+
+	sectionID, err := uuid.Parse(sectionIDStr)
+	if err != nil {
+		h.Err(w, http.StatusBadRequest, "Invalid section ID format", err)
+		return
+	}
+
+	// Parse image type from form
+	imageTypeStr := r.FormValue("image_type")
+	if imageTypeStr == "" {
+		h.Err(w, http.StatusBadRequest, "Missing image_type parameter", nil)
+		return
+	}
+
+	imageType := ImageType(imageTypeStr)
+	if imageType != ImageTypeSectionHeader && imageType != ImageTypeBlogHeader {
+		h.Err(w, http.StatusBadRequest, "Invalid image_type for section", nil)
+		return
+	}
+
+	// Parse uploaded file
+	file, header, err := r.FormFile("image")
+	if err != nil {
+		h.Err(w, http.StatusBadRequest, "Failed to parse uploaded file", err)
+		return
+	}
+	defer file.Close()
+
+	// Process upload through service
+	result, err := h.svc.UploadSectionImage(r.Context(), sectionID, file, header, imageType)
+	if err != nil {
+		h.Err(w, http.StatusInternalServerError, "Failed to upload image", err)
+		return
+	}
+
+	// Return success response
+	msg := fmt.Sprintf("Section image uploaded successfully: %s", result.Filename)
+	h.OK(w, msg, map[string]interface{}{
+		"filename":      result.Filename,
+		"relative_path": result.RelativePath,
+		"metadata":      result.Metadata,
+	})
+}
+
+// DeleteSectionImage handles deletion of section images (section header or blog header)
+func (h *APIHandler) DeleteSectionImage(w http.ResponseWriter, r *http.Request) {
+	h.Log().Debugf("%s: Handling DeleteSectionImage", h.Name())
+
+	// Parse section ID from URL
+	sectionIDStr, err := h.Param(w, r, "section_id")
+	if err != nil {
+		h.Err(w, http.StatusBadRequest, "Invalid section ID", err)
+		return
+	}
+
+	sectionID, err := uuid.Parse(sectionIDStr)
+	if err != nil {
+		h.Err(w, http.StatusBadRequest, "Invalid section ID format", err)
+		return
+	}
+
+	// Parse image type from URL
+	imageTypeStr, err := h.Param(w, r, "image_type")
+	if err != nil {
+		h.Err(w, http.StatusBadRequest, "Invalid image type", err)
+		return
+	}
+
+	imageType := ImageType(imageTypeStr)
+	if imageType != ImageTypeSectionHeader && imageType != ImageTypeBlogHeader {
+		h.Err(w, http.StatusBadRequest, "Invalid image_type for section", nil)
+		return
+	}
+
+	// Delete image through service
+	err = h.svc.DeleteSectionImage(r.Context(), sectionID, imageType)
+	if err != nil {
+		h.Err(w, http.StatusInternalServerError, "Failed to delete image", err)
+		return
+	}
+
+	// Return success response
+	msg := fmt.Sprintf("Section image deleted successfully")
+	h.OK(w, msg, nil)
+}

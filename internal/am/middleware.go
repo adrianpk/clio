@@ -143,6 +143,23 @@ func InternalAuthMiddleware(app *App) func(next http.Handler) http.Handler {
 	}
 }
 
+// CORSMw is a middleware that handles Cross-Origin Resource Sharing (CORS) headers.
+func CORSMw(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+
+		// Handle preflight requests
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 // AuthMw is a middleware that handles authentication for both internal and external requests.
 func AuthMw(app *App, sessionStore SessionStore, userService UserService) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {

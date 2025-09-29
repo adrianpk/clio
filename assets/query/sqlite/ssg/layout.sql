@@ -3,9 +3,9 @@
 
 -- Create
 INSERT INTO layout (
-    id, short_id, name, description, code, created_by, updated_by, created_at, updated_at
+    id, short_id, name, description, code, created_by, updated_by, created_at, updated_at, header_image_id
 ) VALUES (
-    :id, :shortID, :name, :description, :code, :created_by, :updated_by, :created_at, :updated_at
+    :id, :shortID, :name, :description, :code, :created_by, :updated_by, :created_at, :updated_at, :header_image_id
 );
 
 -- GetAll
@@ -20,7 +20,8 @@ UPDATE layout SET
     description = :description,
     code = :code,
     updated_by = :updated_by,
-    updated_at = :updated_at
+    updated_at = :updated_at,
+    header_image_id = :header_image_id
 WHERE id = :id;
 
 -- Delete

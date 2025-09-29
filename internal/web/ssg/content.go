@@ -21,6 +21,7 @@ type Content struct {
 	SectionID   uuid.UUID  `json:"section_id"`
 	Heading     string     `json:"heading"`
 	Body        string     `json:"body"`
+	Image       string     `json:"image"`
 	Draft       bool       `json:"draft"`
 	Featured    bool       `json:"featured"`
 	PublishedAt *time.Time `json:"published_at"`
@@ -113,6 +114,7 @@ func ToWebContent(featContent feat.Content) Content {
 		SectionID:   featContent.SectionID,
 		Heading:     featContent.Heading,
 		Body:        featContent.Body,
+		Image:       featContent.Image,
 		Draft:       featContent.Draft,
 		Featured:    featContent.Featured,
 		PublishedAt: featContent.PublishedAt,

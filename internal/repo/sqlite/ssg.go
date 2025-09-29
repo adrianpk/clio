@@ -223,8 +223,8 @@ func (repo *ClioRepo) CreateSection(ctx context.Context, section ssg.Section) er
 		section.Description,
 		section.Path,
 		section.LayoutID,
-		section.Image,
 		section.Header,
+		section.BlogHeader,
 		section.GetCreatedBy(),
 		section.GetUpdatedBy(),
 		section.GetCreatedAt(),
@@ -249,7 +249,7 @@ func (repo *ClioRepo) GetSections(ctx context.Context) ([]ssg.Section, error) {
 		var s ssg.Section
 		var layoutName sql.NullString
 		err := rows.Scan(
-			&s.ID, &s.ShortID, &s.Name, &s.Description, &s.Path, &s.LayoutID, &s.Image, &s.Header,
+			&s.ID, &s.ShortID, &s.Name, &s.Description, &s.Path, &s.LayoutID, &s.Header, &s.BlogHeader,
 			&s.CreatedBy, &s.UpdatedBy, &s.CreatedAt, &s.UpdatedAt, &layoutName,
 		)
 		if err != nil {
@@ -275,8 +275,8 @@ func (repo *ClioRepo) GetSection(ctx context.Context, id uuid.UUID) (ssg.Section
 		description string
 		path        string
 		layoutID    uuid.UUID
-		image       string
 		header      string
+		blogHeader  string
 		shortID     string
 		createdBy   uuid.UUID
 		updatedBy   uuid.UUID
@@ -286,7 +286,7 @@ func (repo *ClioRepo) GetSection(ctx context.Context, id uuid.UUID) (ssg.Section
 	)
 
 	err = row.Scan(
-		&sectionID, &shortID, &name, &description, &path, &layoutID, &image, &header,
+		&sectionID, &shortID, &name, &description, &path, &layoutID, &header, &blogHeader,
 		&createdBy, &updatedBy, &createdAt, &updatedAt, &layoutName,
 	)
 	if err != nil {
@@ -298,8 +298,8 @@ func (repo *ClioRepo) GetSection(ctx context.Context, id uuid.UUID) (ssg.Section
 
 	section := ssg.NewSection(name, description, path, layoutID)
 	section.SetID(sectionID)
-	section.Image = image
 	section.Header = header
+	section.BlogHeader = blogHeader
 	section.LayoutName = layoutName.String
 	section.SetShortID(shortID)
 	section.SetCreatedBy(createdBy)
@@ -316,18 +316,7 @@ func (repo *ClioRepo) UpdateSection(ctx context.Context, section ssg.Section) er
 		return err
 	}
 
-	_, err = repo.db.ExecContext(ctx, query,
-		section.Name,
-		section.Description,
-		section.Path,
-		section.LayoutID,
-		section.Image,
-		section.Header,
-		section.GetShortID(),
-		section.GetUpdatedBy(),
-		section.GetUpdatedAt(),
-		section.GetID(),
-	)
+	_, err = repo.db.NamedExecContext(ctx, query, section)
 	return err
 }
 
@@ -358,6 +347,7 @@ func (repo *ClioRepo) CreateLayout(ctx context.Context, layout ssg.Layout) error
 		layout.GetUpdatedBy(),
 		layout.GetCreatedAt(),
 		layout.GetUpdatedAt(),
+		layout.GetHeaderImageID(),
 	)
 	return err
 }
@@ -377,20 +367,21 @@ func (repo *ClioRepo) GetAllLayouts(ctx context.Context) ([]ssg.Layout, error) {
 	var layouts []ssg.Layout
 	for rows.Next() {
 		var (
-			id          uuid.UUID
-			shortID     string
-			name        string
-			description string
-			code        string
-			createdBy   uuid.UUID
-			updatedBy   uuid.UUID
-			createdAt   time.Time
-			updatedAt   time.Time
+			id            uuid.UUID
+			shortID       string
+			name          string
+			description   string
+			code          string
+			createdBy     uuid.UUID
+			updatedBy     uuid.UUID
+			createdAt     time.Time
+			updatedAt     time.Time
+			headerImageID sql.NullString
 		)
 
 		err := rows.Scan(
 			&id, &shortID, &name, &description, &code,
-			&createdBy, &updatedBy, &createdAt, &updatedAt,
+			&createdBy, &updatedBy, &createdAt, &updatedAt, &headerImageID,
 		)
 		if err != nil {
 			return nil, err
@@ -403,6 +394,14 @@ func (repo *ClioRepo) GetAllLayouts(ctx context.Context) ([]ssg.Layout, error) {
 		layout.SetUpdatedBy(updatedBy)
 		layout.SetCreatedAt(createdAt)
 		layout.SetUpdatedAt(updatedAt)
+
+		// Set header image ID if present
+		if headerImageID.Valid {
+			imageID, err := uuid.Parse(headerImageID.String)
+			if err == nil {
+				layout.SetHeaderImageID(&imageID)
+			}
+		}
 
 		layouts = append(layouts, layout)
 	}
@@ -437,6 +436,7 @@ func (repo *ClioRepo) UpdateLayout(ctx context.Context, layout ssg.Layout) error
 		layout.Code,
 		layout.GetUpdatedBy(),
 		layout.GetUpdatedAt(),
+		layout.GetHeaderImageID(),
 		layout.GetID(),
 	)
 	return err

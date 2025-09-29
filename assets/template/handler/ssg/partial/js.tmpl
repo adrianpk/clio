@@ -3,7 +3,26 @@
 <script>
   function updatePreview() {
     const md = document.getElementById('body').value;
-    document.getElementById('preview').innerHTML = window.marked.parse(md);
+    const preview = document.getElementById('preview');
+    preview.innerHTML = window.marked.parse(md);
+
+    // Force reload of images that might be cached
+    const images = preview.querySelectorAll('img');
+    images.forEach(img => {
+      const originalSrc = img.src;
+      if (originalSrc.includes('/static/images/')) {
+        // Add a timestamp parameter to bust cache for recently uploaded images
+        const url = new URL(originalSrc, window.location.origin);
+        url.searchParams.set('t', Date.now());
+        img.src = url.toString();
+
+        // Fallback: if image fails to load, try original URL
+        img.onerror = function() {
+          this.onerror = null; // Prevent infinite loop
+          this.src = originalSrc;
+        };
+      }
+    });
   }
   document.getElementById('body').addEventListener('input', updatePreview);
   updatePreview();

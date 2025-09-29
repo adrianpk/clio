@@ -16,6 +16,9 @@
   {{ end }}
 </h1>
 {{ template "content-form-new" . }}
+
+{{ template "image-upload-modal" . }}
+
 {{ if not .IsNew }}
 <script>
 let lastUpdate = Date.now();
