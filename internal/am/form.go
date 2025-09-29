@@ -26,7 +26,7 @@ type Form interface {
 	SetSubmitButtonStyle(style string)
 	GenCSRFToken(r *http.Request)
 	SetValidation(validation *Validation)
-	Validation() *Validation // Changed return type to *Validation
+	Validation() *Validation
 	HasErrors() bool
 }
 

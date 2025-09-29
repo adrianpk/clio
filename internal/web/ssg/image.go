@@ -191,6 +191,4 @@ func (f *ImageForm) Validate() {
 	if f.File == nil || f.File.Size == 0 {
 		validation.AddFieldError("file", "", "Image file is required")
 	}
-	// No need to call f.SetValidation(validation) here, as validation is already a pointer
-	// and modifications are directly applied.
 }

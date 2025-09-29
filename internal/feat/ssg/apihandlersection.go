@@ -22,7 +22,7 @@ func (h *APIHandler) GetAllSections(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetAllItems, resSectionNameCap)
+	msg := fmt.Sprintf(am.MsgGetAllItems, am.Cap(resSectionName))
 	h.OK(w, msg, sections)
 }
 
@@ -33,7 +33,7 @@ func (h *APIHandler) GetSection(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resSectionNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resSectionName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -46,7 +46,7 @@ func (h *APIHandler) GetSection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgGetItem, resSectionNameCap)
+	msg := fmt.Sprintf(am.MsgGetItem, am.Cap(resSectionName))
 	h.OK(w, msg, section)
 }
 
@@ -71,7 +71,7 @@ func (h *APIHandler) CreateSection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgCreateItem, resSectionNameCap)
+	msg := fmt.Sprintf(am.MsgCreateItem, am.Cap(resSectionName))
 	h.Created(w, msg, newSection)
 }
 
@@ -82,7 +82,7 @@ func (h *APIHandler) UpdateSection(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resSectionNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resSectionName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -105,7 +105,7 @@ func (h *APIHandler) UpdateSection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgUpdateItem, resSectionNameCap)
+	msg := fmt.Sprintf(am.MsgUpdateItem, am.Cap(resSectionName))
 	h.OK(w, msg, updatedSection)
 }
 
@@ -116,7 +116,7 @@ func (h *APIHandler) DeleteSection(w http.ResponseWriter, r *http.Request) {
 	var id uuid.UUID
 	id, err = h.ID(w, r)
 	if err != nil {
-		msg := fmt.Sprintf(am.ErrInvalidID, resSectionNameCap)
+		msg := fmt.Sprintf(am.ErrInvalidID, am.Cap(resSectionName))
 		h.Err(w, http.StatusBadRequest, msg, err)
 		return
 	}
@@ -128,6 +128,6 @@ func (h *APIHandler) DeleteSection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf(am.MsgDeleteItem, resSectionNameCap)
+	msg := fmt.Sprintf(am.MsgDeleteItem, am.Cap(resSectionName))
 	h.OK(w, msg, json.RawMessage("null"))
 }
