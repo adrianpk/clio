@@ -25,8 +25,8 @@ type Section struct {
 	Description string    `json:"description" db:"description"`
 	Path        string    `json:"path" db:"path"`
 	LayoutID    uuid.UUID `json:"layout_id" db:"layout_id"`
-	Image       string    `json:"image" db:"image"`
 	Header      string    `json:"header" db:"header"`
+	BlogHeader  string    `json:"blog_header" db:"blog_header"`
 	LayoutName  string    `json:"layout_name" db:"layout_name"`
 
 	// Audit

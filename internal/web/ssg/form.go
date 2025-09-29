@@ -24,6 +24,7 @@ type ContentForm struct {
 	Kind        string `json:"kind"`
 	Heading     string `json:"heading"`
 	Body        string `json:"body"`
+	Image       string `json:"image"`
 	Draft       bool   `json:"draft"`
 	Featured    bool   `json:"featured"`
 	PublishedAt string `json:"published_at"`
@@ -60,6 +61,7 @@ func ContentFormFromRequest(r *http.Request) (ContentForm, error) {
 	form.Kind = r.Form.Get("kind")
 	form.Heading = r.Form.Get("heading")
 	form.Body = r.Form.Get("body")
+	form.Image = r.Form.Get("image")
 	form.Tags = r.Form.Get("tags")
 	form.Draft, _ = strconv.ParseBool(r.Form.Get("draft"))
 	form.Featured, _ = strconv.ParseBool(r.Form.Get("featured"))
@@ -104,6 +106,7 @@ func ToFeatContent(form ContentForm) feat.Content {
 	}
 
 	content.Kind = form.Kind
+	content.Image = form.Image
 	content.Draft = form.Draft
 	content.Featured = form.Featured
 
@@ -163,6 +166,7 @@ func ToContentForm(r *http.Request, content feat.Content) ContentForm {
 	form.Kind = content.Kind
 	form.Heading = content.Heading
 	form.Body = content.Body
+	form.Image = content.Image
 	form.Draft = content.Draft
 	form.Featured = content.Featured
 	if content.PublishedAt != nil {
@@ -275,8 +279,8 @@ type SectionForm struct {
 	Description string `json:"description"`
 	Path        string `json:"path"`
 	LayoutID    string `json:"layout_id"`
-	Image       string `json:"image"`
 	Header      string `json:"header"`
+	BlogHeader  string `json:"blog_header"`
 }
 
 // NewSectionForm creates a new SectionForm.
@@ -298,8 +302,8 @@ func SectionFormFromRequest(r *http.Request) (SectionForm, error) {
 	form.Description = r.Form.Get("description")
 	form.Path = r.Form.Get("path")
 	form.LayoutID = r.Form.Get("layout_id")
-	form.Image = r.Form.Get("image")
 	form.Header = r.Form.Get("header")
+	form.BlogHeader = r.Form.Get("blog_header")
 
 	return form, nil
 }
@@ -308,8 +312,8 @@ func SectionFormFromRequest(r *http.Request) (SectionForm, error) {
 func ToFeatSection(form SectionForm) feat.Section {
 	layoutID, _ := uuid.Parse(form.LayoutID)
 	section := feat.NewSection(form.Name, form.Description, form.Path, layoutID)
-	section.Image = form.Image
 	section.Header = form.Header
+	section.BlogHeader = form.BlogHeader
 	if form.ID != "" {
 		id, err := uuid.Parse(form.ID)
 		if err == nil {
@@ -328,8 +332,8 @@ func ToSectionForm(r *http.Request, section feat.Section) SectionForm {
 	form.Description = section.Description
 	form.Path = section.Path
 	form.LayoutID = section.LayoutID.String()
-	form.Image = section.Image
 	form.Header = section.Header
+	form.BlogHeader = section.BlogHeader
 	return form
 }
 

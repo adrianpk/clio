@@ -7,6 +7,17 @@
   <input type="hidden" name="_method" value="{{ $form.Method }}" />
   <input type="hidden" name="aquamarine.csrf.token" value="{{ $form.CSRF }}" />
   <input type="hidden" name="id" value="{{ .Data.ID }}" />
+  <!-- Hidden field for header image path -->
+  <input type="hidden" id="image" name="image" value="{{ .Data.Image }}" />
+
+  <!-- Header Image Selector -->
+  <div class="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+    <h4 class="text-sm font-medium text-gray-700 mb-3">Header Image</h4>
+    <div id="content-header-gallery" class="w-full">
+      <!-- Header image will be populated here -->
+    </div>
+  </div>
+
   <div>
     <label for="section_id" class="block text-sm font-medium text-gray-700">Section:</label>
     <select
@@ -80,7 +91,27 @@
   </script>
   {{ end }}
   {{ template "js.tmpl" . }}
-  
+
+  <!-- Images Section - moved above buttons -->
+  <div id="images-section" class="hidden mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+    <div class="flex justify-between items-center mb-3">
+      <h4 class="text-sm font-medium text-gray-700">Content Images</h4>
+      <button
+        type="button"
+        onclick="openImageUploadModal('{{ .Data.ID }}', 'content', 'content', 'content')"
+        class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+      >
+        📷 Upload Image
+      </button>
+    </div>
+
+    <!-- Image Gallery -->
+    <div id="image-gallery" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <!-- Images will be populated here -->
+    </div>
+
+    <p class="text-xs text-gray-500 mt-2">Click on content images to insert them into your markdown at the cursor position.</p>
+  </div>
 
   <div class="flex items-center justify-between gap-4">
     <div>
@@ -95,6 +126,13 @@
         <button type="button" id="meta-modal-btn" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
             Meta
         </button>
+        <button
+          type="button"
+          onclick="toggleImageSection()"
+          class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400"
+        >
+          📷 Images
+        </button>
     </div>
     <div class="static-action-buttons flex items-center gap-2">
         <button type="button" id="zen-mode-btn-static" class="p-2 rounded-md border" title="Zen mode (alt+z)">🧘</button>
@@ -104,6 +142,7 @@
   
 
 </form>
+
 
   {{/* Meta Modal */}}
   <div id="meta-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity">
@@ -224,5 +263,297 @@
       }
     }
   });
+
+// Toggle image section visibility
+function toggleImageSection() {
+  const section = document.getElementById('images-section');
+  if (section.classList.contains('hidden')) {
+    section.classList.remove('hidden');
+    loadImageGallery();
+  } else {
+    section.classList.add('hidden');
+  }
+}
+
+// Load images for gallery
+async function loadImageGallery() {
+  const contentId = document.querySelector('input[name="id"]').value;
+  if (!contentId || contentId === '00000000-0000-0000-0000-000000000000') {
+    return;
+  }
+
+  try {
+    // TODO: Make API base URL configurable instead of hardcoded localhost:8081
+    const response = await fetch(`http://localhost:8081/api/v1/ssg/contents/${contentId}/images`);
+    if (response.ok) {
+      const data = await response.json();
+      displayImages(data.data.images || []);
+    }
+  } catch (error) {
+    console.error('Failed to load images:', error);
+  }
+}
+
+// Display images in gallery
+function displayImages(images) {
+  const gallery = document.getElementById('image-gallery');
+  gallery.innerHTML = '';
+
+  if (images.length === 0) {
+    gallery.innerHTML = '<p class="text-gray-500 text-sm col-span-full">No images uploaded yet.</p>';
+    return;
+  }
+
+  images.forEach(imagePath => {
+    // Skip header images - they're handled separately now
+    if (imagePath.includes('_header_')) {
+      return;
+    }
+
+    const div = document.createElement('div');
+    div.className = 'relative group border border-gray-300 rounded-lg overflow-hidden hover:border-blue-500';
+
+    const imageUrl = `/static/images/${imagePath}`;
+
+    div.innerHTML = `
+      <img src="${imageUrl}" alt="Content image" class="w-full h-20 object-cover cursor-pointer" onclick="insertImageIntoMarkdown('${imagePath}')">
+      <div class="absolute top-2 right-2 z-10">
+        <button
+          type="button"
+          class="delete-image-btn bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+          title="Remove image"
+          data-image-path="${imagePath}"
+        >
+          ×
+        </button>
+      </div>
+      <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center transition-all pointer-events-none">
+        <span class="text-white text-xs opacity-0 group-hover:opacity-100">Insert</span>
+      </div>
+    `;
+
+    // Add event listener for delete button
+    const deleteBtn = div.querySelector('.delete-image-btn');
+    deleteBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      removeContentImage(imagePath);
+    });
+
+    gallery.appendChild(div);
+  });
+}
+
+// Insert image into markdown at cursor position
+function insertImageIntoMarkdown(imagePath) {
+  const textarea = document.getElementById('body');
+  const cursorPos = textarea.selectionStart;
+  const textBefore = textarea.value.substring(0, cursorPos);
+  const textAfter = textarea.value.substring(cursorPos);
+
+  const filename = imagePath.split('/').pop().replace(/\.[^/.]+$/, ""); // Remove extension for alt text
+  const imageMarkdown = `![${filename}](/static/images/${imagePath})`;
+
+  textarea.value = textBefore + imageMarkdown + textAfter;
+
+  // Set cursor after inserted text
+  const newCursorPos = cursorPos + imageMarkdown.length;
+  textarea.focus();
+  textarea.setSelectionRange(newCursorPos, newCursorPos);
+
+  // Trigger preview update
+  if (typeof updatePreview === 'function') {
+    updatePreview();
+  }
+}
+
+// Update gallery after successful upload
+function onImageUploadSuccess(result) {
+  // Update hidden field if it's a header image
+  if (result.imageType === 'header') {
+    document.getElementById('image').value = result.relative_path;
+  }
+
+  // Refresh galleries
+  const section = document.getElementById('images-section');
+  if (!section.classList.contains('hidden')) {
+    loadImageGallery();
+  }
+
+  // Also refresh header gallery if header image was uploaded
+  if (result.imageType === 'header') {
+    loadHeaderImageGallery();
+  }
+}
+
+// Header Image Gallery Functions
+function loadHeaderImageGallery() {
+  const headerImagePath = document.getElementById('image').value;
+  displayHeaderImage(headerImagePath);
+}
+
+function displayHeaderImage(headerImagePath) {
+  const gallery = document.getElementById('content-header-gallery');
+  gallery.innerHTML = '';
+
+  if (headerImagePath) {
+    const imageDiv = createHeaderImageCard(headerImagePath);
+    gallery.appendChild(imageDiv);
+  } else {
+    const placeholderDiv = createHeaderImagePlaceholder();
+    gallery.appendChild(placeholderDiv);
+  }
+}
+
+function createHeaderImageCard(imagePath) {
+  const div = document.createElement('div');
+  div.className = 'relative border border-gray-300 rounded-lg overflow-hidden bg-white w-full';
+
+  const imageUrl = `/static/images/${imagePath}`;
+
+  div.innerHTML = `
+    <img src="${imageUrl}" alt="Header Image" class="w-full h-48 object-cover">
+    <div class="absolute top-2 right-2">
+      <button
+        type="button"
+        onclick="removeHeaderImage()"
+        class="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+        title="Remove header image"
+      >
+        ×
+      </button>
+    </div>
+    <div class="p-2 text-center">
+      <span class="text-xs text-gray-500">Header Image</span>
+    </div>
+  `;
+
+  return div;
+}
+
+function createHeaderImagePlaceholder() {
+  const div = document.createElement('div');
+  div.className = 'border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 h-48 flex flex-col items-center justify-center w-full';
+
+  div.innerHTML = `
+    <div class="text-gray-400 text-2xl mb-2">📷</div>
+    <span class="text-xs text-gray-500 mb-2">Header Image</span>
+    <button
+      type="button"
+      onclick="uploadHeaderImage()"
+      class="text-xs text-blue-500 hover:text-blue-700"
+    >
+      Click to upload
+    </button>
+  `;
+
+  return div;
+}
+
+function uploadHeaderImage() {
+  const contentId = document.querySelector('input[name="id"]').value;
+  openImageUploadModal(contentId, 'content', 'image', 'header');
+}
+
+function removeHeaderImage() {
+  if (!confirm('Are you sure you want to remove the header image?')) {
+    return;
+  }
+
+  const contentId = document.querySelector('input[name="id"]').value;
+
+  // Clear the hidden field first
+  document.getElementById('image').value = '';
+
+  // Refresh gallery immediately
+  loadHeaderImageGallery();
+
+  // Make API call to delete from server and filesystem
+  deleteHeaderImageFromServer(contentId);
+}
+
+async function deleteHeaderImageFromServer(contentId) {
+  if (!contentId || contentId === '00000000-0000-0000-0000-000000000000') {
+    return;
+  }
+
+  try {
+    // TODO: Should get API base URL from config
+    const response = await fetch(`http://localhost:8081/api/v1/ssg/contents/${contentId}/images/header`, {
+      method: 'DELETE'
+    });
+
+    if (!response.ok) {
+      console.error('Failed to delete header image from server:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Error deleting header image from server:', error);
+  }
+}
+
+// Remove content image
+function removeContentImage(imagePath) {
+  console.log('removeContentImage called with:', imagePath);
+  if (!confirm('Are you sure you want to remove this image?')) {
+    return;
+  }
+
+  const contentId = document.querySelector('input[name="id"]').value;
+  console.log('contentId:', contentId);
+
+  // Refresh gallery immediately to show removal
+  loadImageGallery();
+
+  // Make API call to delete from server and filesystem
+  deleteContentImageFromServer(contentId, imagePath);
+}
+
+// Delete content image from server
+async function deleteContentImageFromServer(contentId, imagePath) {
+  console.log('deleteContentImageFromServer called with:', contentId, imagePath);
+  if (!contentId || contentId === '00000000-0000-0000-0000-000000000000') {
+    console.log('Invalid contentId, returning');
+    return;
+  }
+
+  try {
+    // URL encode the image path for the API call
+    // Send image path in request body instead of URL
+    // TODO: Hardcoded port will break if backend moves to different port
+    const url = `http://localhost:8081/api/v1/ssg/contents/${contentId}/images/delete`;
+    console.log('Making DELETE request to:', url);
+
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        image_path: imagePath
+      })
+    });
+
+    console.log('Response status:', response.status);
+    console.log('Response ok:', response.ok);
+
+    if (!response.ok) {
+      console.error('Failed to delete image from server:', response.statusText);
+      // Refresh gallery to show current state
+      loadImageGallery();
+    } else {
+      console.log('Image deleted successfully');
+      // Refresh gallery after successful deletion
+      setTimeout(() => loadImageGallery(), 500);
+    }
+  } catch (error) {
+    console.error('Error deleting image from server:', error);
+    // Refresh gallery to show current state
+    loadImageGallery();
+  }
+}
+
+// Initialize header gallery on page load
+document.addEventListener('DOMContentLoaded', function() {
+  loadHeaderImageGallery();
+});
 </script>
 {{ end }}

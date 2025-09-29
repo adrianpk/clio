@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"mime/multipart"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -67,6 +68,15 @@ type Service interface {
 	UpdateImageVariant(ctx context.Context, variant *ImageVariant) error
 	DeleteImageVariant(ctx context.Context, id uuid.UUID) error
 
+	// Content Image Management
+	UploadContentImage(ctx context.Context, contentID uuid.UUID, file multipart.File, header *multipart.FileHeader, imageType ImageType) (*ImageProcessResult, error)
+	GetContentImages(ctx context.Context, contentID uuid.UUID) ([]string, error)
+	DeleteContentImage(ctx context.Context, contentID uuid.UUID, imagePath string) error
+
+	// Section Image Management
+	UploadSectionImage(ctx context.Context, sectionID uuid.UUID, file multipart.File, header *multipart.FileHeader, imageType ImageType) (*ImageProcessResult, error)
+	DeleteSectionImage(ctx context.Context, sectionID uuid.UUID, imageType ImageType) error
+
 	// ContentTag related
 	AddTagToContent(ctx context.Context, contentID uuid.UUID, tagName string) error
 	RemoveTagFromContent(ctx context.Context, contentID, tagID uuid.UUID) error
@@ -87,10 +97,11 @@ type BaseService struct {
 	gen      *Generator
 	pub      Publisher
 	pm       *ParamManager
+	im       *ImageManager
 }
 
 // NewService creates a new BaseService.
-func NewService(assetsFS embed.FS, repo Repo, gen *Generator, publisher Publisher, pm *ParamManager, opts ...am.Option) *BaseService {
+func NewService(assetsFS embed.FS, repo Repo, gen *Generator, publisher Publisher, pm *ParamManager, im *ImageManager, opts ...am.Option) *BaseService {
 	return &BaseService{
 		Service:  am.NewService("ssg-svc", opts...),
 		assetsFS: assetsFS,
@@ -98,6 +109,7 @@ func NewService(assetsFS embed.FS, repo Repo, gen *Generator, publisher Publishe
 		gen:      gen,
 		pub:      publisher,
 		pm:       pm,
+		im:       im,
 	}
 }
 
@@ -632,4 +644,164 @@ func (svc *BaseService) removeFirstH1(htmlContent string) string {
 		}
 		return match
 	})
+}
+
+// Content Image Management
+
+// UploadContentImage handles uploading images for content (header or content images)
+func (svc *BaseService) UploadContentImage(ctx context.Context, contentID uuid.UUID, file multipart.File, header *multipart.FileHeader, imageType ImageType) (*ImageProcessResult, error) {
+	svc.Log().Debugf("Uploading content image: contentID=%s, type=%s", contentID, imageType)
+
+	// Get the content to access its slug and section
+	content, err := svc.repo.GetContent(ctx, contentID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get content: %w", err)
+	}
+
+	// Get the section if content has one
+	var section *Section
+	if content.SectionID != uuid.Nil {
+		s, err := svc.repo.GetSection(ctx, content.SectionID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get section: %w", err)
+		}
+		section = &s
+	}
+
+	// Process the upload using ImageManager
+	result, err := svc.im.ProcessUpload(ctx, file, header, &content, section, imageType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to process upload: %w", err)
+	}
+
+	// Update the content with image path if it's a header image
+	if imageType == ImageTypeHeader {
+		content.Image = result.RelativePath
+		if err := svc.repo.UpdateContent(ctx, &content); err != nil {
+			return nil, fmt.Errorf("failed to update content with header image: %w", err)
+		}
+	}
+
+	return result, nil
+}
+
+// GetContentImages returns all images for a specific content
+func (svc *BaseService) GetContentImages(ctx context.Context, contentID uuid.UUID) ([]string, error) {
+	svc.Log().Debugf("Getting content images: contentID=%s", contentID)
+
+	// Get the content to access its slug and section
+	content, err := svc.repo.GetContent(ctx, contentID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get content: %w", err)
+	}
+
+	// Get the section if content has one
+	var section *Section
+	if content.SectionID != uuid.Nil {
+		s, err := svc.repo.GetSection(ctx, content.SectionID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get section: %w", err)
+		}
+		section = &s
+	}
+
+	// Get images using ImageManager
+	return svc.im.GetContentImages(ctx, &content, section)
+}
+
+// DeleteContentImage deletes a content image by path
+func (svc *BaseService) DeleteContentImage(ctx context.Context, contentID uuid.UUID, imagePath string) error {
+	svc.Log().Infof("Deleting content image: contentID=%s, imagePath=%s", contentID, imagePath)
+
+	// Get the content to verify it exists
+	content, err := svc.repo.GetContent(ctx, contentID)
+	if err != nil {
+		svc.Log().Errorf("Failed to get content: %v", err)
+		return fmt.Errorf("failed to get content: %w", err)
+	}
+	if content.Image == imagePath {
+		content.Image = ""
+		content.GenUpdateValues()
+		if err := svc.repo.UpdateContent(ctx, &content); err != nil {
+			return fmt.Errorf("failed to update content after header image deletion: %w", err)
+		}
+	}
+
+	if err := svc.im.DeleteImage(ctx, imagePath); err != nil {
+		return fmt.Errorf("failed to delete image file: %w", err)
+	}
+	return nil
+}
+
+// Section Image Management
+
+// UploadSectionImage handles uploading images for sections (section header or blog header)
+func (svc *BaseService) UploadSectionImage(ctx context.Context, sectionID uuid.UUID, file multipart.File, header *multipart.FileHeader, imageType ImageType) (*ImageProcessResult, error) {
+	// Get the section
+	section, err := svc.repo.GetSection(ctx, sectionID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get section: %w", err)
+	}
+
+	// Process the upload using ImageManager
+	result, err := svc.im.ProcessUpload(ctx, file, header, nil, &section, imageType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to process upload: %w", err)
+	}
+
+	// Update the section with image path
+	switch imageType {
+	case ImageTypeSectionHeader:
+		section.Header = result.RelativePath
+	case ImageTypeBlogHeader:
+		section.BlogHeader = result.RelativePath
+	default:
+		return nil, fmt.Errorf("invalid image type for section: %s", imageType)
+	}
+
+	if err := svc.repo.UpdateSection(ctx, section); err != nil {
+		return nil, fmt.Errorf("failed to update section with image: %w", err)
+	}
+
+	return result, nil
+}
+
+func (svc *BaseService) DeleteSectionImage(ctx context.Context, sectionID uuid.UUID, imageType ImageType) error {
+	// Get the section
+	section, err := svc.repo.GetSection(ctx, sectionID)
+	if err != nil {
+		return fmt.Errorf("failed to get section: %w", err)
+	}
+
+	// Get the current image path to delete
+	var imagePath string
+	switch imageType {
+	case ImageTypeSectionHeader:
+		imagePath = section.Header
+		section.Header = ""
+	case ImageTypeBlogHeader:
+		imagePath = section.BlogHeader
+		section.BlogHeader = ""
+	default:
+		return fmt.Errorf("invalid image type for section: %s", imageType)
+	}
+
+	// Set update fields properly
+	section.GenUpdateValues()
+
+	// Delete the file if it exists
+	if imagePath != "" {
+		err := svc.im.DeleteImage(ctx, imagePath)
+		if err != nil {
+			svc.Log().Error("Failed to delete image file", "path", imagePath, "error", err)
+			// Continue with database update even if file deletion fails
+		}
+	}
+
+	// Update the section to remove image reference
+	if err := svc.repo.UpdateSection(ctx, section); err != nil {
+		return fmt.Errorf("failed to update section after image deletion: %w", err)
+	}
+
+	return nil
 }

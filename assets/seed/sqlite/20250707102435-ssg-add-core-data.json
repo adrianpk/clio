@@ -20,8 +20,8 @@
       "description": "Technology related content.",
       "path": "/tech",
       "layout_ref": "alt",
-      "image": "",
-      "header": ""
+      "header": "",
+      "blog_header": ""
     },
     {
       "ref": "philosophy",
@@ -29,8 +29,8 @@
       "description": "Content about philosophy.",
       "path": "/philosophy",
       "layout_ref": "alt",
-      "image": "",
-      "header": ""
+      "header": "",
+      "blog_header": ""
     },
     {
       "ref": "food",
@@ -38,8 +38,8 @@
       "description": "Content about food.",
       "path": "/food",
       "layout_ref": "alt",
-      "image": "",
-      "header": ""
+      "header": "",
+      "blog_header": ""
     }
   ],
   "contents": [

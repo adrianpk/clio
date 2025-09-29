@@ -25,6 +25,7 @@ type Layout struct {
 	Name        string `json:"name" db:"name"`
 	Description string `json:"description" db:"description"`
 	Code        string `json:"code" db:"code"`
+	HeaderImageID *uuid.UUID `json:"header_image_id,omitempty" db:"header_image_id"`
 
 	// Audit
 	CreatedBy uuid.UUID `json:"-" db:"created_by"`
@@ -144,6 +145,16 @@ func (l *Layout) SetCreatedBy(u uuid.UUID) {
 // SetUpdatedBy implements the Auditable interface.
 func (l *Layout) SetUpdatedBy(u uuid.UUID) {
 	l.UpdatedBy = u
+}
+
+// SetHeaderImageID sets the header image ID.
+func (l *Layout) SetHeaderImageID(id *uuid.UUID) {
+	l.HeaderImageID = id
+}
+
+// GetHeaderImageID returns the header image ID.
+func (l *Layout) GetHeaderImageID() *uuid.UUID {
+	return l.HeaderImageID
 }
 
 // IsZero returns true if the Layout is uninitialized.

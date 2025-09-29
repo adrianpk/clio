@@ -92,11 +92,11 @@ func (s *Seeder) seedData(ctx context.Context, data *SeedFile) error {
 
 	layoutRefToID := make(map[string]uuid.UUID)
 	for _, lMap := range data.Layouts {
-		l := Layout{
-			Name:        lMap["name"].(string),
-			Description: lMap["description"].(string),
-			Code:        lMap["code"].(string),
-		}
+		l := Newlayout(
+			lMap["name"].(string),
+			lMap["description"].(string),
+			lMap["code"].(string),
+		)
 		l.GenCreateValues()
 		if err := s.repo.CreateLayout(ctx, l); err != nil {
 			return fmt.Errorf("error inserting layout: %w", err)
@@ -113,11 +113,11 @@ func (s *Seeder) seedData(ctx context.Context, data *SeedFile) error {
 			Description: sMap["description"].(string),
 			Path:        sMap["path"].(string),
 		}
-		if image, ok := sMap["image"].(string); ok {
-			sec.Image = image
-		}
 		if header, ok := sMap["header"].(string); ok {
 			sec.Header = header
+		}
+		if blogHeader, ok := sMap["blog_header"].(string); ok {
+			sec.BlogHeader = blogHeader
 		}
 		if layoutRef, ok := sMap["layout_ref"].(string); ok {
 			if id, found := layoutRefToID[layoutRef]; found {

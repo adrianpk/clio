@@ -42,7 +42,7 @@ func main() {
 	app.MountFileServer("/", fileServer)
 
 	// Serve uploaded images from the filesystem
-	imagesPath := cfg.StrValOrDef(am.Key.SSGImagesPath, "_workspace/documents/images")
+	imagesPath := cfg.StrValOrDef(am.Key.SSGImagesPath, "_workspace/documents/assets/images")
 	imageFileServer := http.FileServer(http.Dir(imagesPath))
 	app.Router.Handle("/static/images/*", http.StripPrefix("/static/images/", imageFileServer))
 
@@ -61,9 +61,10 @@ func main() {
 	ssgSeeder := ssg.NewSeeder(assetsFS, engine, repo)
 	ssgGenerator := ssg.NewGenerator(opts...)
 	ssgParamManager := ssg.NewParamManager(repo, opts...)
-	ssgService := ssg.NewService(assetsFS, repo, ssgGenerator, ssgPublisher, ssgParamManager, opts...)
+	ssgImageManager := ssg.NewImageManager(opts...)
+	ssgService := ssg.NewService(assetsFS, repo, ssgGenerator, ssgPublisher, ssgParamManager, ssgImageManager, opts...)
 	ssgAPIHandler := ssg.NewAPIHandler("ssg-api-handler", ssgService)
-	ssgAPIRouter := ssg.NewAPIRouter(ssgAPIHandler, nil) // No middleware for now
+	ssgAPIRouter := ssg.NewAPIRouter(ssgAPIHandler, []am.Middleware{am.CORSMw})
 	apiRouter.Mount("/ssg", ssgAPIRouter)
 
 	app.MountAPI("v1", "/", apiRouter)
