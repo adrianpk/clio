@@ -114,7 +114,7 @@ func ToWebContent(featContent feat.Content) Content {
 		SectionID:   featContent.SectionID,
 		Heading:     featContent.Heading,
 		Body:        featContent.Body,
-		Image:       featContent.Image,
+		Image:       "", // TODO: Get image via relationship
 		Draft:       featContent.Draft,
 		Featured:    featContent.Featured,
 		PublishedAt: featContent.PublishedAt,

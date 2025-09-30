@@ -48,6 +48,7 @@ type Repo interface {
 	CreateImage(ctx context.Context, image *Image) error
 	GetImage(ctx context.Context, id uuid.UUID) (Image, error)
 	GetImageByShortID(ctx context.Context, shortID string) (Image, error)
+	GetImageByContentHash(ctx context.Context, contentHash string) (Image, error)
 	UpdateImage(ctx context.Context, image *Image) error
 	DeleteImage(ctx context.Context, id uuid.UUID) error
 	ListImages(ctx context.Context) ([]Image, error)
@@ -58,6 +59,16 @@ type Repo interface {
 	UpdateImageVariant(ctx context.Context, variant *ImageVariant) error
 	DeleteImageVariant(ctx context.Context, id uuid.UUID) error
 	ListImageVariantsByImageID(ctx context.Context, imageID uuid.UUID) ([]ImageVariant, error)
+
+	// ContentImage relationship methods
+	CreateContentImage(ctx context.Context, contentImage *ContentImage) error
+	DeleteContentImage(ctx context.Context, id uuid.UUID) error
+	GetContentImagesByContentID(ctx context.Context, contentID uuid.UUID) ([]ContentImage, error)
+
+	// SectionImage relationship methods
+	CreateSectionImage(ctx context.Context, sectionImage *SectionImage) error
+	DeleteSectionImage(ctx context.Context, id uuid.UUID) error
+	GetSectionImagesBySectionID(ctx context.Context, sectionID uuid.UUID) ([]SectionImage, error)
 
 	AddTagToContent(ctx context.Context, contentID, tagID uuid.UUID) error
 	RemoveTagFromContent(ctx context.Context, contentID, tagID uuid.UUID) error

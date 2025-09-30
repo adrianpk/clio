@@ -24,6 +24,7 @@ type Image struct {
 	Height       int    `json:"height" db:"height"`
 	FilesizeByte int64  `json:"filesize_bytes" db:"filesize_bytes"`
 	Etag         string `json:"etag" db:"etag"`
+	FilePath     string `json:"file_path" db:"file_path"`
 
 	// Accessibility fields
 	Title           string    `json:"title" db:"title"`
@@ -33,6 +34,9 @@ type Image struct {
 	Caption         string    `json:"caption" db:"caption"`
 	Decorative      bool      `json:"decorative" db:"decorative"`
 	DescribedByID   uuid.UUID `json:"described_by_id" db:"described_by_id"`
+
+	// Purpose from relationship (not stored in DB, populated from relationship table)
+	Purpose         string    `json:"purpose" db:"-"`
 
 	// Audit
 	CreatedBy uuid.UUID `json:"-" db:"created_by"`

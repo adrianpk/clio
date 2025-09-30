@@ -3,11 +3,13 @@ package ssg
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"database/sql"
 	"embed"
 	"errors"
 	"fmt"
 	"html/template"
+	"io"
 	"mime/multipart"
 	"os"
 	"path/filepath"
@@ -69,12 +71,12 @@ type Service interface {
 	DeleteImageVariant(ctx context.Context, id uuid.UUID) error
 
 	// Content Image Management
-	UploadContentImage(ctx context.Context, contentID uuid.UUID, file multipart.File, header *multipart.FileHeader, imageType ImageType) (*ImageProcessResult, error)
-	GetContentImages(ctx context.Context, contentID uuid.UUID) ([]string, error)
+	UploadContentImage(ctx context.Context, contentID uuid.UUID, file multipart.File, header *multipart.FileHeader, imageType ImageType, altText, caption string) (*ImageProcessResult, error)
+	GetContentImages(ctx context.Context, contentID uuid.UUID) ([]Image, error)
 	DeleteContentImage(ctx context.Context, contentID uuid.UUID, imagePath string) error
 
 	// Section Image Management
-	UploadSectionImage(ctx context.Context, sectionID uuid.UUID, file multipart.File, header *multipart.FileHeader, imageType ImageType) (*ImageProcessResult, error)
+	UploadSectionImage(ctx context.Context, sectionID uuid.UUID, file multipart.File, header *multipart.FileHeader, imageType ImageType, altText, caption string) (*ImageProcessResult, error)
 	DeleteSectionImage(ctx context.Context, sectionID uuid.UUID, imageType ImageType) error
 
 	// ContentTag related
@@ -209,10 +211,11 @@ func (svc *BaseService) GenerateHTMLFromContent(ctx context.Context) error {
 	}
 
 	// Set placeholder for content without image
-	for i := range contents {
-		if contents[i].Image == "" {
-			contents[i].Image = "/static/img/placeholder.png"
-		}
+	for range contents {
+		// TODO: Handle placeholder image via relationships
+		// if contents[i].Image == "" {
+		//	contents[i].Image = "/static/img/placeholder.png"
+		// }
 	}
 
 	sections, err := svc.repo.GetSections(ctx)
@@ -649,16 +652,14 @@ func (svc *BaseService) removeFirstH1(htmlContent string) string {
 // Content Image Management
 
 // UploadContentImage handles uploading images for content (header or content images)
-func (svc *BaseService) UploadContentImage(ctx context.Context, contentID uuid.UUID, file multipart.File, header *multipart.FileHeader, imageType ImageType) (*ImageProcessResult, error) {
+func (svc *BaseService) UploadContentImage(ctx context.Context, contentID uuid.UUID, file multipart.File, header *multipart.FileHeader, imageType ImageType, altText, caption string) (*ImageProcessResult, error) {
 	svc.Log().Debugf("Uploading content image: contentID=%s, type=%s", contentID, imageType)
 
-	// Get the content to access its slug and section
 	content, err := svc.repo.GetContent(ctx, contentID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get content: %w", err)
 	}
 
-	// Get the section if content has one
 	var section *Section
 	if content.SectionID != uuid.Nil {
 		s, err := svc.repo.GetSection(ctx, content.SectionID)
@@ -668,140 +669,317 @@ func (svc *BaseService) UploadContentImage(ctx context.Context, contentID uuid.U
 		section = &s
 	}
 
-	// Process the upload using ImageManager
-	result, err := svc.im.ProcessUpload(ctx, file, header, &content, section, imageType)
+	result, err := svc.im.ProcessUpload(ctx, file, header, &content, section, imageType, altText, caption)
 	if err != nil {
 		return nil, fmt.Errorf("failed to process upload: %w", err)
 	}
 
-	// Update the content with image path if it's a header image
-	if imageType == ImageTypeHeader {
-		content.Image = result.RelativePath
-		if err := svc.repo.UpdateContent(ctx, &content); err != nil {
-			return nil, fmt.Errorf("failed to update content with header image: %w", err)
-		}
+	contentHash, err := calculateFileHash(file)
+	if err != nil {
+		return nil, fmt.Errorf("failed to calculate file hash: %w", err)
 	}
+
+	// Create Image record with accessibility metadata - always create new record
+	image := Image{
+		Title:           result.Filename,
+		FilePath:        result.RelativePath,
+		ContentHash:     contentHash,
+		AltText:         altText,
+		Caption:         caption,
+		LongDescription:  caption, // Use caption as long description for now
+	}
+	image.GenCreateValues()
+
+	if err := svc.repo.CreateImage(ctx, &image); err != nil {
+		svc.im.DeleteImage(ctx, result.RelativePath)
+		return nil, fmt.Errorf("failed to create image record: %w", err)
+	}
+
+	contentImage := NewContentImage(contentID, image.GetID(), string(imageType))
+
+	if err := svc.repo.CreateContentImage(ctx, contentImage); err != nil {
+		svc.im.DeleteImage(ctx, result.RelativePath)
+		svc.repo.DeleteImage(ctx, image.GetID())
+		return nil, fmt.Errorf("failed to create content-image relationship: %w", err)
+	}
+
+	// TODO: Remove direct field update when we complete migration
+	// if imageType == ImageTypeHeader {
+	//	content.Image = result.RelativePath
+	//	if err := svc.repo.UpdateContent(ctx, &content); err != nil {
+	//		return nil, fmt.Errorf("failed to update content with header image: %w", err)
+	//	}
+	// }
 
 	return result, nil
 }
 
-// GetContentImages returns all images for a specific content
-func (svc *BaseService) GetContentImages(ctx context.Context, contentID uuid.UUID) ([]string, error) {
+// GetContentImages returns all images for a specific content via relationships
+func (svc *BaseService) GetContentImages(ctx context.Context, contentID uuid.UUID) ([]Image, error) {
 	svc.Log().Debugf("Getting content images: contentID=%s", contentID)
 
-	// Get the content to access its slug and section
-	content, err := svc.repo.GetContent(ctx, contentID)
+	contentImages, err := svc.repo.GetContentImagesByContentID(ctx, contentID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get content: %w", err)
+		return nil, fmt.Errorf("failed to get content images: %w", err)
 	}
 
-	// Get the section if content has one
-	var section *Section
-	if content.SectionID != uuid.Nil {
-		s, err := svc.repo.GetSection(ctx, content.SectionID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get section: %w", err)
+	var images []Image
+	for _, ci := range contentImages {
+		if !ci.IsActive {
+			continue
 		}
-		section = &s
+
+		image, err := svc.repo.GetImage(ctx, ci.ImageID)
+		if err != nil {
+			svc.Log().Info("Failed to get image %s: %v", ci.ImageID, err)
+			continue
+		}
+
+		image.Purpose = ci.Purpose
+		images = append(images, image)
 	}
 
-	// Get images using ImageManager
-	return svc.im.GetContentImages(ctx, &content, section)
+	return images, nil
+}
+
+// GetContentHeaderImage returns the header image for a specific content
+func (svc *BaseService) GetContentHeaderImage(ctx context.Context, contentID uuid.UUID) (string, error) {
+	contentImages, err := svc.repo.GetContentImagesByContentID(ctx, contentID)
+	if err != nil {
+		return "", fmt.Errorf("failed to get content images: %w", err)
+	}
+
+	for _, ci := range contentImages {
+		if ci.Purpose == "header" && ci.IsActive {
+			image, err := svc.repo.GetImage(ctx, ci.ImageID)
+			if err != nil {
+				svc.Log().Info("Failed to get header image %s: %v", ci.ImageID, err)
+				continue
+			}
+
+			return image.FilePath, nil
+		}
+	}
+
+	return "", nil // No header image found
+}
+
+// GetSectionHeaderImage returns the header image for a specific section
+func (svc *BaseService) GetSectionHeaderImage(ctx context.Context, sectionID uuid.UUID) (string, error) {
+	sectionImages, err := svc.repo.GetSectionImagesBySectionID(ctx, sectionID)
+	if err != nil {
+		return "", fmt.Errorf("failed to get layout images: %w", err)
+	}
+
+	for _, si := range sectionImages {
+		if si.Purpose == "header" && si.IsActive {
+			image, err := svc.repo.GetImage(ctx, si.ImageID)
+			if err != nil {
+				svc.Log().Info("Failed to get section header image %s: %v", si.ImageID, err)
+				continue
+			}
+
+			return image.FilePath, nil
+		}
+	}
+
+	return "", nil // No header image found
+}
+
+// GetSectionBlogHeaderImage returns the blog header image for a specific section
+func (svc *BaseService) GetSectionBlogHeaderImage(ctx context.Context, sectionID uuid.UUID) (string, error) {
+	sectionImages, err := svc.repo.GetSectionImagesBySectionID(ctx, sectionID)
+	if err != nil {
+		return "", fmt.Errorf("failed to get layout images: %w", err)
+	}
+
+	for _, si := range sectionImages {
+		if si.Purpose == "blog_header" && si.IsActive {
+			image, err := svc.repo.GetImage(ctx, si.ImageID)
+			if err != nil {
+				svc.Log().Info("Failed to get section blog header image %s: %v", si.ImageID, err)
+				continue
+			}
+
+			return image.FilePath, nil
+		}
+	}
+
+	return "", nil // No blog header image found
 }
 
 // DeleteContentImage deletes a content image by path
 func (svc *BaseService) DeleteContentImage(ctx context.Context, contentID uuid.UUID, imagePath string) error {
 	svc.Log().Infof("Deleting content image: contentID=%s, imagePath=%s", contentID, imagePath)
 
-	// Get the content to verify it exists
-	content, err := svc.repo.GetContent(ctx, contentID)
+	_, err := svc.repo.GetContent(ctx, contentID)
 	if err != nil {
 		svc.Log().Errorf("Failed to get content: %v", err)
 		return fmt.Errorf("failed to get content: %w", err)
 	}
-	if content.Image == imagePath {
-		content.Image = ""
-		content.GenUpdateValues()
-		if err := svc.repo.UpdateContent(ctx, &content); err != nil {
-			return fmt.Errorf("failed to update content after header image deletion: %w", err)
+
+	contentImages, err := svc.repo.GetContentImagesByContentID(ctx, contentID)
+	if err != nil {
+		return fmt.Errorf("failed to get content images: %w", err)
+	}
+
+	var imageToDelete *Image
+	var relationshipToDelete *ContentImage
+	for _, ci := range contentImages {
+		image, err := svc.repo.GetImage(ctx, ci.ImageID)
+		if err != nil {
+			svc.Log().Info("Failed to get image %s: %v", ci.ImageID, err)
+			continue
 		}
+		if image.FilePath == imagePath {
+			imageToDelete = &image
+			relationshipToDelete = &ci
+			break
+		}
+	}
+
+	if imageToDelete == nil {
+		svc.Log().Info("Image not found in database for path: %s", imagePath)
+		if err := svc.im.DeleteImage(ctx, imagePath); err != nil {
+			return fmt.Errorf("failed to delete image file: %w", err)
+		}
+		return nil
+	}
+
+	if err := svc.repo.DeleteContentImage(ctx, relationshipToDelete.ID); err != nil {
+		return fmt.Errorf("failed to delete content image relationship: %w", err)
+	}
+
+	if err := svc.repo.DeleteImage(ctx, imageToDelete.ID); err != nil {
+		return fmt.Errorf("failed to delete image record: %w", err)
 	}
 
 	if err := svc.im.DeleteImage(ctx, imagePath); err != nil {
 		return fmt.Errorf("failed to delete image file: %w", err)
 	}
+
 	return nil
 }
 
 // Section Image Management
 
 // UploadSectionImage handles uploading images for sections (section header or blog header)
-func (svc *BaseService) UploadSectionImage(ctx context.Context, sectionID uuid.UUID, file multipart.File, header *multipart.FileHeader, imageType ImageType) (*ImageProcessResult, error) {
-	// Get the section
+func (svc *BaseService) UploadSectionImage(ctx context.Context, sectionID uuid.UUID, file multipart.File, header *multipart.FileHeader, imageType ImageType, altText, caption string) (*ImageProcessResult, error) {
 	section, err := svc.repo.GetSection(ctx, sectionID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get section: %w", err)
 	}
 
-	// Process the upload using ImageManager
-	result, err := svc.im.ProcessUpload(ctx, file, header, nil, &section, imageType)
+	result, err := svc.im.ProcessUpload(ctx, file, header, nil, &section, imageType, altText, caption)
 	if err != nil {
 		return nil, fmt.Errorf("failed to process upload: %w", err)
 	}
 
-	// Update the section with image path
-	switch imageType {
-	case ImageTypeSectionHeader:
-		section.Header = result.RelativePath
-	case ImageTypeBlogHeader:
-		section.BlogHeader = result.RelativePath
-	default:
-		return nil, fmt.Errorf("invalid image type for section: %s", imageType)
+	contentHash, err := calculateFileHash(file)
+	if err != nil {
+		return nil, fmt.Errorf("failed to calculate file hash: %w", err)
 	}
 
-	if err := svc.repo.UpdateSection(ctx, section); err != nil {
-		return nil, fmt.Errorf("failed to update section with image: %w", err)
+	// Create Image record with accessibility metadata - always create new record
+	image := Image{
+		Title:           result.Filename,
+		FilePath:        result.RelativePath,
+		ContentHash:     contentHash,
+		AltText:         altText,
+		Caption:         caption,
+		LongDescription:  caption, // Use caption as long description for now
+	}
+	image.GenCreateValues()
+
+	if err := svc.repo.CreateImage(ctx, &image); err != nil {
+		svc.im.DeleteImage(ctx, result.RelativePath)
+		return nil, fmt.Errorf("failed to create image record: %w", err)
+	}
+
+	purposeStr := string(imageType)
+	if imageType == ImageTypeSectionHeader {
+		purposeStr = "header"
+	} else if imageType == ImageTypeBlogHeader {
+		purposeStr = "blog_header"
+	}
+	sectionImage := NewSectionImage(sectionID, image.GetID(), purposeStr)
+
+	if err := svc.repo.CreateSectionImage(ctx, sectionImage); err != nil {
+		svc.im.DeleteImage(ctx, result.RelativePath)
+		svc.repo.DeleteImage(ctx, image.GetID())
+		return nil, fmt.Errorf("failed to create section-image relationship: %w", err)
 	}
 
 	return result, nil
 }
 
 func (svc *BaseService) DeleteSectionImage(ctx context.Context, sectionID uuid.UUID, imageType ImageType) error {
-	// Get the section
-	section, err := svc.repo.GetSection(ctx, sectionID)
+	_, err := svc.repo.GetSection(ctx, sectionID)
 	if err != nil {
 		return fmt.Errorf("failed to get section: %w", err)
 	}
 
-	// Get the current image path to delete
-	var imagePath string
-	switch imageType {
-	case ImageTypeSectionHeader:
-		imagePath = section.Header
-		section.Header = ""
-	case ImageTypeBlogHeader:
-		imagePath = section.BlogHeader
-		section.BlogHeader = ""
-	default:
-		return fmt.Errorf("invalid image type for section: %s", imageType)
+	sectionImages, err := svc.repo.GetSectionImagesBySectionID(ctx, sectionID)
+	if err != nil {
+		return fmt.Errorf("failed to get layout images: %w", err)
 	}
 
-	// Set update fields properly
-	section.GenUpdateValues()
+	var imageToDelete *Image
+	var relationshipToDelete *SectionImage
+	purposeStr := string(imageType)
+	if imageType == ImageTypeSectionHeader {
+		purposeStr = "header"
+	} else if imageType == ImageTypeBlogHeader {
+		purposeStr = "blog_header"
+	}
 
-	// Delete the file if it exists
-	if imagePath != "" {
-		err := svc.im.DeleteImage(ctx, imagePath)
-		if err != nil {
-			svc.Log().Error("Failed to delete image file", "path", imagePath, "error", err)
-			// Continue with database update even if file deletion fails
+	for _, si := range sectionImages {
+		if si.Purpose == purposeStr && si.IsActive {
+			image, err := svc.repo.GetImage(ctx, si.ImageID)
+			if err != nil {
+				svc.Log().Info("Failed to get image %s: %v", si.ImageID, err)
+				continue
+			}
+			imageToDelete = &image
+			relationshipToDelete = &si
+			break
 		}
 	}
 
-	// Update the section to remove image reference
-	if err := svc.repo.UpdateSection(ctx, section); err != nil {
-		return fmt.Errorf("failed to update section after image deletion: %w", err)
+	if imageToDelete == nil {
+		svc.Log().Info("No %s image found for section %s", imageType, sectionID)
+		return nil // Nothing to delete
+	}
+
+	if err := svc.repo.DeleteSectionImage(ctx, relationshipToDelete.ID); err != nil {
+		return fmt.Errorf("failed to delete layout image relationship: %w", err)
+	}
+
+	if err := svc.repo.DeleteImage(ctx, imageToDelete.ID); err != nil {
+		return fmt.Errorf("failed to delete image record: %w", err)
+	}
+
+	if err := svc.im.DeleteImage(ctx, imageToDelete.FilePath); err != nil {
+		return fmt.Errorf("failed to delete image file: %w", err)
 	}
 
 	return nil
+}
+
+// calculateFileHash calculates SHA-256 hash of a multipart file
+func calculateFileHash(file multipart.File) (string, error) {
+	if _, err := file.Seek(0, 0); err != nil {
+		return "", fmt.Errorf("failed to reset file pointer: %w", err)
+	}
+
+	hasher := sha256.New()
+	if _, err := io.Copy(hasher, file); err != nil {
+		return "", fmt.Errorf("failed to calculate hash: %w", err)
+	}
+
+	if _, err := file.Seek(0, 0); err != nil {
+		return "", fmt.Errorf("failed to reset file pointer after hashing: %w", err)
+	}
+
+	return fmt.Sprintf("%x", hasher.Sum(nil)), nil
 }
