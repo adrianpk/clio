@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Content Image Upload System**: Implemented complete image upload functionality for content, supporting both header images and inline content images with accessibility metadata (alt text, captions).
 - **Section Image Management**: Added section header and blog header image upload capabilities with proper relationship management and image replacement logic.
-- **Image Organization & Metadata**: Images are now properly organized with accessibility information and metadata storage for better content management.
-- **Image Modal Uploader**: Created HTMX-powered modal interface for seamless image uploads with thumbnail previews and click-to-insert functionality.
+- **Image Organization & Metadata**: Images are now properly organized with accessibility information and metadata storage.
+- **Image Modal Uploader**: Created HTMX-powered modal interface for image uploads with thumbnail previews and click-to-insert functionality.
 - **Image Management Workflow**: Added complete image management with automatic cleanup and proper file organization.
 
 ## [2025-09-28]

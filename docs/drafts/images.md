@@ -97,7 +97,7 @@ Responsibilities:
 ## UX and Frontend Integration
 
 ### Modal Uploader
-- HTMX-powered for seamless experience
+- HTMX-powered 
 - Thumbnail previews with accessibility metadata
 - Click-to-insert functionality for content images
 - Progress indicators and error handling

@@ -9,8 +9,8 @@ The existing system has inconsistent approaches for handling images:
 
 ## Proposed Architecture
 
-### Core Principle: Unified Relationship Tables
-Instead of mixing direct foreign keys for some images and loose files for others, we'll use intermediate relationship tables for ALL image associations.
+### Unified Relationship Tables
+Instead of mixing direct foreign keys for some images and loose files for others, we'll use intermediate relationship tables for all image associations.
 
 ### Database Schema
 
@@ -58,7 +58,7 @@ ALTER TABLE section DROP COLUMN blog_header;
 
 ### Accessibility Metadata Storage Decision
 
-**Option 1: Store in Image table (Recommended)**
+**Option 1: Store in Image table**
 - `alt_text` and `caption` live in the `images` table
 - Simpler, one definition per image
 - Most images have consistent meaning across contexts
@@ -68,14 +68,12 @@ ALTER TABLE section DROP COLUMN blog_header;
 - More flexible, context-specific descriptions
 - More complex queries and management
 
-**Decision: Go with Option 1 initially** - we can always add relationship-level overrides later if needed.
-
 ### Benefits of This Approach
 
 1. **Consistency**: All images handled the same way
 2. **Accessibility**: Proper metadata storage for all images
 3. **Flexibility**: Easy to add new image purposes
-4. **History**: Can track image changes over time (Christmas headers, etc.)
+4. **History**: We can track image changes over time (Christmas headers, etc.)
 5. **Scalability**: 1:N relationship naturally supports multiple images per content
 
 ### Image Purposes
@@ -94,12 +92,3 @@ ALTER TABLE section DROP COLUMN blog_header;
 5. **Update APIs** to work with new structure
 6. **Update frontend** to handle new response formats
 7. **Remove old fields** after migration complete
-
-### Implementation Notes
-
-- **ImageManager.ProcessUpload()** will create both Image record AND relationship record
-- **Service layer** gets new methods like `AttachImageToContent()`, `GetSectionImages()`
-- **Queries** change from simple field access to JOIN operations
-- **Frontend** mostly unchanged - just receives better structured data
-
-This redesign positions us for future features like image versioning, automatic resizing, and advanced accessibility features while maintaining clean, consistent architecture throughout the system.
