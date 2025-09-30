@@ -26,6 +26,30 @@ A distraction-free writing environment that focuses solely on the markdown edito
 
 ![Zen Mode](../img/zen-mode.png)
 
+## Image Upload
+
+Shows the image upload interface.
+
+![Image Upload](../img/image-upload.png)
+
+## New Content Editor
+
+Shows the markdown editor with the new preview function for the header image and content images.
+
+![New Content Editor](../img/new-content-editor.png)
+
+## Insert Image
+
+Shows how pressing on a content image adds it at the document's insertion point.
+
+![Insert Image](../img/insert-image.png)
+
+## Section Images
+
+Shows how it is now possible to "load" images that define the section's hero and the associated blog's image.
+
+![Section Images](../img/section-images.png)
+
 ## Generated Markdown
 
 An example of a generated markdown file, including some related content code blocks.
