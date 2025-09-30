@@ -45,7 +45,6 @@ type ImageManager struct {
 // NewImageManager creates a new ImageManager instance
 func NewImageManager(opts ...am.Option) *ImageManager {
 	core := am.NewCore("image-manager", opts...)
-	// Use the same path configuration as the main server
 	imagesPath := core.Cfg().StrValOrDef(am.Key.SSGImagesPath, "_workspace/documents/assets/images")
 	return &ImageManager{
 		Core:          core,
@@ -54,8 +53,7 @@ func NewImageManager(opts ...am.Option) *ImageManager {
 }
 
 // ProcessUpload handles the complete upload process for any image type
-func (im *ImageManager) ProcessUpload(ctx context.Context, file multipart.File, header *multipart.FileHeader, content *Content, section *Section, imageType ImageType) (*ImageProcessResult, error) {
-	// Generate directory path based on content hierarchy
+func (im *ImageManager) ProcessUpload(ctx context.Context, file multipart.File, header *multipart.FileHeader, content *Content, section *Section, imageType ImageType, altText, caption string) (*ImageProcessResult, error) {
 	directory, err := im.generateDirectoryPath(content, section, imageType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate directory path: %w", err)
@@ -102,12 +100,10 @@ func (im *ImageManager) generateDirectoryPath(content *Content, section *Section
 			return "", fmt.Errorf("content is required for content/header images")
 		}
 
-		// If no section or section path is root, put in root
 		if section == nil || section.Path == "/" || section.Path == "" {
 			return content.Slug(), nil
 		}
 
-		// Content in a specific section
 		return filepath.Join(section.Path, content.Slug()), nil
 
 	case ImageTypeSectionHeader:
@@ -115,7 +111,7 @@ func (im *ImageManager) generateDirectoryPath(content *Content, section *Section
 			return "", fmt.Errorf("section is required for section header images")
 		}
 		if section.Path == "/" || section.Path == "" {
-			return ".", nil // Root section headers go in images root
+			return ".", nil
 		}
 		return section.Path, nil
 
@@ -124,7 +120,7 @@ func (im *ImageManager) generateDirectoryPath(content *Content, section *Section
 			return "", fmt.Errorf("section is required for blog header images")
 		}
 		if section.Path == "/" || section.Path == "" {
-			return "blog", nil // Root blog header
+			return "blog", nil
 		}
 		return filepath.Join(section.Path, "blog"), nil
 
@@ -175,7 +171,6 @@ func (im *ImageManager) ensureDirectory(path string) error {
 
 // handleReplacement removes old files for single-image types
 func (im *ImageManager) handleReplacement(directory string, imageType ImageType, content *Content, section *Section) error {
-	// Header images should be unique per content/section
 	if imageType != ImageTypeHeader && imageType != ImageTypeSectionHeader && imageType != ImageTypeBlogHeader {
 		return nil
 	}
@@ -218,7 +213,6 @@ func (im *ImageManager) saveFile(src multipart.File, destPath string) error {
 	}
 	defer dst.Close()
 
-	// Copy file content
 	if _, err := io.Copy(dst, src); err != nil {
 		return fmt.Errorf("failed to copy file content: %w", err)
 	}
@@ -258,7 +252,6 @@ func (im *ImageManager) GetContentImages(ctx context.Context, content *Content, 
 	var images []string
 	for _, file := range files {
 		filename := filepath.Base(file)
-		// Filter out header images from content image list
 		if !strings.Contains(filename, "_header_") {
 			images = append(images, filepath.Join(directory, filename))
 		}
@@ -288,12 +281,10 @@ func (im *ImageManager) DeleteImage(ctx context.Context, relativePath string) er
 
 	fullPath := filepath.Join(im.baseImagePath, relativePath)
 
-	// Check if file exists
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		return nil // File doesn't exist, consider it deleted
 	}
 
-	// Delete the file
 	if err := os.Remove(fullPath); err != nil {
 		return fmt.Errorf("failed to delete image file %s: %w", fullPath, err)
 	}

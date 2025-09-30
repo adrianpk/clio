@@ -110,8 +110,8 @@ func ToWebSection(featSection feat.Section) Section {
 		Description: featSection.Description,
 		Path:        featSection.Path,
 		LayoutID:    featSection.LayoutID,
-		Header:      featSection.Header,
-		BlogHeader:  featSection.BlogHeader,
+		Header:      "", // TODO: Get header via relationship
+		BlogHeader:  "", // TODO: Get blog header via relationship
 		LayoutName:  featSection.LayoutName,
 	}
 }

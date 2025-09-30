@@ -115,8 +115,8 @@ func (h *APIHandler) UpdateContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	content.SetID(id, true)   // Set the ID from the URL on the decoded content
-	content.GenUpdateValues() // Generate audit values
+	content.SetID(id, true)
+	content.GenUpdateValues()
 
 	err = h.svc.UpdateContent(r.Context(), &content)
 	if err != nil {
@@ -125,7 +125,6 @@ func (h *APIHandler) UpdateContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Remove existing tags
 	var existingTags []Tag
 	existingTags, err = h.svc.GetTagsForContent(r.Context(), id)
 	if err != nil {
@@ -142,7 +141,6 @@ func (h *APIHandler) UpdateContent(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Add new tags
 	for _, tag := range content.Tags {
 		err = h.svc.AddTagToContent(r.Context(), id, tag.Name)
 		if err != nil {
@@ -265,7 +263,6 @@ func (h *APIHandler) RemoveTagFromContent(w http.ResponseWriter, r *http.Request
 func (h *APIHandler) UploadContentImage(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling UploadContentImage", h.Name())
 
-	// Parse content ID from URL
 	contentIDStr, err := h.Param(w, r, "content_id")
 	if err != nil {
 		h.Err(w, http.StatusBadRequest, "Invalid content ID", err)
@@ -278,7 +275,6 @@ func (h *APIHandler) UploadContentImage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Parse image type from form
 	imageTypeStr := r.FormValue("image_type")
 	if imageTypeStr == "" {
 		h.Err(w, http.StatusBadRequest, "Missing image_type parameter", nil)
@@ -291,7 +287,9 @@ func (h *APIHandler) UploadContentImage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Parse uploaded file
+	altText := r.FormValue("alt_text")
+	caption := r.FormValue("caption")
+
 	file, header, err := r.FormFile("image")
 	if err != nil {
 		h.Err(w, http.StatusBadRequest, "Failed to parse uploaded file", err)
@@ -299,14 +297,12 @@ func (h *APIHandler) UploadContentImage(w http.ResponseWriter, r *http.Request) 
 	}
 	defer file.Close()
 
-	// Process upload through service
-	result, err := h.svc.UploadContentImage(r.Context(), contentID, file, header, imageType)
+	result, err := h.svc.UploadContentImage(r.Context(), contentID, file, header, imageType, altText, caption)
 	if err != nil {
 		h.Err(w, http.StatusInternalServerError, "Failed to upload image", err)
 		return
 	}
 
-	// Return success response
 	msg := fmt.Sprintf("Image uploaded successfully: %s", result.Filename)
 	h.OK(w, msg, map[string]interface{}{
 		"filename":      result.Filename,
@@ -319,7 +315,6 @@ func (h *APIHandler) UploadContentImage(w http.ResponseWriter, r *http.Request) 
 func (h *APIHandler) GetContentImages(w http.ResponseWriter, r *http.Request) {
 	h.Log().Debugf("%s: Handling GetContentImages", h.Name())
 
-	// Parse content ID from URL
 	contentIDStr, err := h.Param(w, r, "content_id")
 	if err != nil {
 		h.Err(w, http.StatusBadRequest, "Invalid content ID", err)
@@ -332,14 +327,12 @@ func (h *APIHandler) GetContentImages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get images through service
 	images, err := h.svc.GetContentImages(r.Context(), contentID)
 	if err != nil {
 		h.Err(w, http.StatusInternalServerError, "Failed to get content images", err)
 		return
 	}
 
-	// Return images list
 	msg := fmt.Sprintf("Retrieved %d images for content", len(images))
 	h.OK(w, msg, map[string]interface{}{
 		"images": images,
@@ -355,7 +348,6 @@ type DeleteContentImageRequest struct {
 func (h *APIHandler) DeleteContentImage(w http.ResponseWriter, r *http.Request) {
 	h.Log().Infof("%s: Handling DeleteContentImage", h.Name())
 
-	// Parse content ID from URL
 	contentIDStr, err := h.Param(w, r, "content_id")
 	if err != nil {
 		h.Log().Infof("Failed to parse content_id: %v", err)
@@ -371,7 +363,6 @@ func (h *APIHandler) DeleteContentImage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Parse image path from request body
 	var req DeleteContentImageRequest
 	err = json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
@@ -381,7 +372,6 @@ func (h *APIHandler) DeleteContentImage(w http.ResponseWriter, r *http.Request) 
 	}
 	h.Log().Infof("Image path: %s", req.ImagePath)
 
-	// Delete image through service
 	err = h.svc.DeleteContentImage(r.Context(), contentID, req.ImagePath)
 	if err != nil {
 		h.Log().Infof("Service delete failed: %v", err)
@@ -390,7 +380,6 @@ func (h *APIHandler) DeleteContentImage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	h.Log().Infof("Image deleted successfully: %s", req.ImagePath)
-	// Return success response
 	msg := fmt.Sprintf("Content image deleted successfully")
 	h.OK(w, msg, nil)
 }

@@ -6,8 +6,6 @@ CREATE TABLE section (
     description TEXT NOT NULL DEFAULT '',
     path TEXT NOT NULL DEFAULT '',
     layout_id TEXT NOT NULL DEFAULT '',
-    header TEXT NOT NULL DEFAULT '',
-    blog_header TEXT NOT NULL DEFAULT '',
     created_by TEXT,
     updated_by TEXT,
     created_at TIMESTAMP,

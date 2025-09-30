@@ -106,7 +106,7 @@ func ToFeatContent(form ContentForm) feat.Content {
 	}
 
 	content.Kind = form.Kind
-	content.Image = form.Image
+	// TODO: Handle image via relationship
 	content.Draft = form.Draft
 	content.Featured = form.Featured
 
@@ -166,7 +166,7 @@ func ToContentForm(r *http.Request, content feat.Content) ContentForm {
 	form.Kind = content.Kind
 	form.Heading = content.Heading
 	form.Body = content.Body
-	form.Image = content.Image
+	form.Image = "" // TODO: Get image via relationship
 	form.Draft = content.Draft
 	form.Featured = content.Featured
 	if content.PublishedAt != nil {
@@ -312,8 +312,7 @@ func SectionFormFromRequest(r *http.Request) (SectionForm, error) {
 func ToFeatSection(form SectionForm) feat.Section {
 	layoutID, _ := uuid.Parse(form.LayoutID)
 	section := feat.NewSection(form.Name, form.Description, form.Path, layoutID)
-	section.Header = form.Header
-	section.BlogHeader = form.BlogHeader
+	// TODO: Handle header and blog header via relationships
 	if form.ID != "" {
 		id, err := uuid.Parse(form.ID)
 		if err == nil {
@@ -332,8 +331,8 @@ func ToSectionForm(r *http.Request, section feat.Section) SectionForm {
 	form.Description = section.Description
 	form.Path = section.Path
 	form.LayoutID = section.LayoutID.String()
-	form.Header = section.Header
-	form.BlogHeader = section.BlogHeader
+	form.Header = "" // TODO: Get header via relationship
+	form.BlogHeader = "" // TODO: Get blog header via relationship
 	return form
 }
 

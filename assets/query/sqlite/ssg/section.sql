@@ -1,7 +1,7 @@
 
 -- Create
-INSERT INTO section (id, short_id, name, description, path, layout_id, header, blog_header, created_by, updated_by, created_at, updated_at)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+INSERT INTO section (id, short_id, name, description, path, layout_id, created_by, updated_by, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 -- Update
 UPDATE section SET
@@ -9,8 +9,6 @@ UPDATE section SET
     description = :description,
     path = :path,
     layout_id = :layout_id,
-    header = :header,
-    blog_header = :blog_header,
     updated_by = :updated_by,
     updated_at = :updated_at
 WHERE id = :id;

@@ -113,12 +113,8 @@ func (s *Seeder) seedData(ctx context.Context, data *SeedFile) error {
 			Description: sMap["description"].(string),
 			Path:        sMap["path"].(string),
 		}
-		if header, ok := sMap["header"].(string); ok {
-			sec.Header = header
-		}
-		if blogHeader, ok := sMap["blog_header"].(string); ok {
-			sec.BlogHeader = blogHeader
-		}
+		// Image relationships will be handled by migration
+		// No longer setting direct image fields on section
 		if layoutRef, ok := sMap["layout_ref"].(string); ok {
 			if id, found := layoutRefToID[layoutRef]; found {
 				sec.LayoutID = id

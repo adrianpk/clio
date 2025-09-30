@@ -223,8 +223,6 @@ func (repo *ClioRepo) CreateSection(ctx context.Context, section ssg.Section) er
 		section.Description,
 		section.Path,
 		section.LayoutID,
-		section.Header,
-		section.BlogHeader,
 		section.GetCreatedBy(),
 		section.GetUpdatedBy(),
 		section.GetCreatedAt(),
@@ -249,7 +247,7 @@ func (repo *ClioRepo) GetSections(ctx context.Context) ([]ssg.Section, error) {
 		var s ssg.Section
 		var layoutName sql.NullString
 		err := rows.Scan(
-			&s.ID, &s.ShortID, &s.Name, &s.Description, &s.Path, &s.LayoutID, &s.Header, &s.BlogHeader,
+			&s.ID, &s.ShortID, &s.Name, &s.Description, &s.Path, &s.LayoutID,
 			&s.CreatedBy, &s.UpdatedBy, &s.CreatedAt, &s.UpdatedAt, &layoutName,
 		)
 		if err != nil {
@@ -275,8 +273,6 @@ func (repo *ClioRepo) GetSection(ctx context.Context, id uuid.UUID) (ssg.Section
 		description string
 		path        string
 		layoutID    uuid.UUID
-		header      string
-		blogHeader  string
 		shortID     string
 		createdBy   uuid.UUID
 		updatedBy   uuid.UUID
@@ -286,7 +282,7 @@ func (repo *ClioRepo) GetSection(ctx context.Context, id uuid.UUID) (ssg.Section
 	)
 
 	err = row.Scan(
-		&sectionID, &shortID, &name, &description, &path, &layoutID, &header, &blogHeader,
+		&sectionID, &shortID, &name, &description, &path, &layoutID,
 		&createdBy, &updatedBy, &createdAt, &updatedAt, &layoutName,
 	)
 	if err != nil {
@@ -298,8 +294,7 @@ func (repo *ClioRepo) GetSection(ctx context.Context, id uuid.UUID) (ssg.Section
 
 	section := ssg.NewSection(name, description, path, layoutID)
 	section.SetID(sectionID)
-	section.Header = header
-	section.BlogHeader = blogHeader
+	// TODO: Remove header and blogHeader field assignments
 	section.LayoutName = layoutName.String
 	section.SetShortID(shortID)
 	section.SetCreatedBy(createdBy)
@@ -643,7 +638,7 @@ func (repo *ClioRepo) CreateImage(ctx context.Context, img *ssg.Image) (err erro
 		err = tx.Commit()
 	}()
 
-	imageQuery, err := repo.Query().Get(featSSG, resImage, "CreateImage")
+	imageQuery, err := repo.Query().Get(featSSG, resImage, "Create")
 	if err != nil {
 		return fmt.Errorf("cannot get create image query: %w", err)
 	}
@@ -655,7 +650,7 @@ func (repo *ClioRepo) CreateImage(ctx context.Context, img *ssg.Image) (err erro
 }
 
 func (repo *ClioRepo) GetImage(ctx context.Context, id uuid.UUID) (ssg.Image, error) {
-	query, err := repo.Query().Get(featSSG, resImage, "GetImage")
+	query, err := repo.Query().Get(featSSG, resImage, "Get")
 	if err != nil {
 		return ssg.Image{}, fmt.Errorf("cannot get image query: %w", err)
 	}
@@ -685,6 +680,24 @@ func (repo *ClioRepo) GetImageByShortID(ctx context.Context, shortID string) (ss
 			return ssg.Image{}, errors.New("image not found")
 		}
 		return ssg.Image{}, fmt.Errorf("cannot get image by short ID: %w", err)
+	}
+
+	return img, nil
+}
+
+func (repo *ClioRepo) GetImageByContentHash(ctx context.Context, contentHash string) (ssg.Image, error) {
+	query, err := repo.Query().Get(featSSG, resImage, "GetImageByContentHash")
+	if err != nil {
+		return ssg.Image{}, fmt.Errorf("cannot get image by content hash query: %w", err)
+	}
+
+	var img ssg.Image
+	err = repo.db.GetContext(ctx, &img, query, contentHash)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ssg.Image{}, errors.New("image not found")
+		}
+		return ssg.Image{}, fmt.Errorf("cannot get image by content hash: %w", err)
 	}
 
 	return img, nil
@@ -720,7 +733,7 @@ func (repo *ClioRepo) UpdateImage(ctx context.Context, img *ssg.Image) (err erro
 		err = tx.Commit()
 	}()
 
-	imageQuery, err := repo.Query().Get(featSSG, resImage, "UpdateImage")
+	imageQuery, err := repo.Query().Get(featSSG, resImage, "Update")
 	if err != nil {
 		return fmt.Errorf("cannot get update image query: %w", err)
 	}
@@ -732,7 +745,7 @@ func (repo *ClioRepo) UpdateImage(ctx context.Context, img *ssg.Image) (err erro
 }
 
 func (repo *ClioRepo) DeleteImage(ctx context.Context, id uuid.UUID) error {
-	query, err := repo.Query().Get(featSSG, resImage, "DeleteImage")
+	query, err := repo.Query().Get(featSSG, resImage, "Delete")
 	if err != nil {
 		return fmt.Errorf("cannot get delete image query: %w", err)
 	}
@@ -892,4 +905,79 @@ func (repo *ClioRepo) GetContentForTag(ctx context.Context, tagID uuid.UUID) ([]
 	}
 
 	return contents, nil
+}
+
+// ContentImage relationship methods
+
+func (repo *ClioRepo) CreateContentImage(ctx context.Context, contentImage *ssg.ContentImage) error {
+	query := `
+		INSERT INTO content_images (id, content_id, image_id, purpose, position, is_active, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	`
+	_, err := repo.db.ExecContext(ctx, query,
+		contentImage.ID,
+		contentImage.ContentID,
+		contentImage.ImageID,
+		contentImage.Purpose,
+		contentImage.Position,
+		contentImage.IsActive,
+		contentImage.CreatedAt,
+		contentImage.UpdatedAt,
+	)
+	return err
+}
+
+func (repo *ClioRepo) DeleteContentImage(ctx context.Context, id uuid.UUID) error {
+	query := `DELETE FROM content_images WHERE id = ?`
+	_, err := repo.db.ExecContext(ctx, query, id)
+	return err
+}
+
+func (repo *ClioRepo) GetContentImagesByContentID(ctx context.Context, contentID uuid.UUID) ([]ssg.ContentImage, error) {
+	query := `
+		SELECT id, content_id, image_id, purpose, position, is_active, created_at, updated_at
+		FROM content_images
+		WHERE content_id = ? AND is_active = true
+		ORDER BY position
+	`
+	var contentImages []ssg.ContentImage
+	err := repo.db.SelectContext(ctx, &contentImages, query, contentID)
+	return contentImages, err
+}
+
+// SectionImage relationship methods
+
+func (repo *ClioRepo) CreateSectionImage(ctx context.Context, sectionImage *ssg.SectionImage) error {
+	query := `
+		INSERT INTO section_images (id, section_id, image_id, purpose, is_active, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?)
+	`
+	_, err := repo.db.ExecContext(ctx, query,
+		sectionImage.ID,
+		sectionImage.SectionID,
+		sectionImage.ImageID,
+		sectionImage.Purpose,
+		sectionImage.IsActive,
+		sectionImage.CreatedAt,
+		sectionImage.UpdatedAt,
+	)
+	return err
+}
+
+func (repo *ClioRepo) DeleteSectionImage(ctx context.Context, id uuid.UUID) error {
+	query := `DELETE FROM section_images WHERE id = ?`
+	_, err := repo.db.ExecContext(ctx, query, id)
+	return err
+}
+
+func (repo *ClioRepo) GetSectionImagesBySectionID(ctx context.Context, sectionID uuid.UUID) ([]ssg.SectionImage, error) {
+	query := `
+		SELECT id, section_id, image_id, purpose, is_active, created_at, updated_at
+		FROM section_images
+		WHERE section_id = ? AND is_active = true
+		ORDER BY created_at
+	`
+	var sectionImages []ssg.SectionImage
+	err := repo.db.SelectContext(ctx, &sectionImages, query, sectionID)
+	return sectionImages, err
 }

@@ -93,7 +93,7 @@
   {{ template "js.tmpl" . }}
 
   <!-- Images Section - moved above buttons -->
-  <div id="images-section" class="hidden mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+  <div id="images-section" class="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
     <div class="flex justify-between items-center mb-3">
       <h4 class="text-sm font-medium text-gray-700">Content Images</h4>
       <button
@@ -131,7 +131,7 @@
           onclick="toggleImageSection()"
           class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400"
         >
-          📷 Images
+          Images
         </button>
     </div>
     <div class="static-action-buttons flex items-center gap-2">
@@ -304,25 +304,25 @@ function displayImages(images) {
     return;
   }
 
-  images.forEach(imagePath => {
+  images.forEach(image => {
     // Skip header images - they're handled separately now
-    if (imagePath.includes('_header_')) {
+    if (image.purpose === 'header') {
       return;
     }
 
     const div = document.createElement('div');
     div.className = 'relative group border border-gray-300 rounded-lg overflow-hidden hover:border-blue-500';
 
-    const imageUrl = `/static/images/${imagePath}`;
+    const imageUrl = `/static/images/${image.file_path}`;
 
     div.innerHTML = `
-      <img src="${imageUrl}" alt="Content image" class="w-full h-20 object-cover cursor-pointer" onclick="insertImageIntoMarkdown('${imagePath}')">
+      <img src="${imageUrl}" alt="${image.alt_text || 'Content image'}" class="w-full h-20 object-cover cursor-pointer" onclick="insertImageIntoMarkdown('${image.file_path}')">
       <div class="absolute top-2 right-2 z-10">
         <button
           type="button"
           class="delete-image-btn bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
           title="Remove image"
-          data-image-path="${imagePath}"
+          data-image-path="${image.file_path}"
         >
           ×
         </button>
@@ -330,13 +330,15 @@ function displayImages(images) {
       <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center transition-all pointer-events-none">
         <span class="text-white text-xs opacity-0 group-hover:opacity-100">Insert</span>
       </div>
+      ${image.alt_text ? `<div class="p-2 bg-gray-50"><p class="text-xs text-gray-700 font-medium text-center">${image.alt_text}</p></div>` : ''}
+      ${image.caption ? `<div class="px-2 pb-2 bg-gray-50"><p class="text-xs text-gray-500 text-center">[${image.caption}]</p></div>` : ''}
     `;
 
     // Add event listener for delete button
     const deleteBtn = div.querySelector('.delete-image-btn');
     deleteBtn.addEventListener('click', function(e) {
       e.stopPropagation();
-      removeContentImage(imagePath);
+      removeContentImage(image.file_path);
     });
 
     gallery.appendChild(div);
@@ -386,9 +388,36 @@ function onImageUploadSuccess(result) {
 }
 
 // Header Image Gallery Functions
-function loadHeaderImageGallery() {
-  const headerImagePath = document.getElementById('image').value;
-  displayHeaderImage(headerImagePath);
+async function loadHeaderImageGallery() {
+  const contentId = document.querySelector('input[name="id"]').value;
+  if (!contentId || contentId === '00000000-0000-0000-0000-000000000000') {
+    // For new content, show placeholder
+    displayHeaderImage('');
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:8081/api/v1/ssg/contents/${contentId}/images`);
+    if (response.ok) {
+      const data = await response.json();
+      const images = data.data.images || [];
+      const headerImage = images.find(img => img.purpose === 'header');
+      if (headerImage) {
+        displayHeaderImage(headerImage.file_path);
+        // Update hidden field for backwards compatibility
+        document.getElementById('image').value = headerImage.file_path;
+      } else {
+        displayHeaderImage('');
+      }
+    } else {
+      displayHeaderImage('');
+    }
+  } catch (error) {
+    console.error('Failed to load header image:', error);
+    // Fallback to hidden field approach
+    const headerImagePath = document.getElementById('image').value;
+    displayHeaderImage(headerImagePath);
+  }
 }
 
 function displayHeaderImage(headerImagePath) {
@@ -422,12 +451,73 @@ function createHeaderImageCard(imagePath) {
         ×
       </button>
     </div>
-    <div class="p-2 text-center">
-      <span class="text-xs text-gray-500">Header Image</span>
+    <div id="header-image-metadata" class="bg-gray-50">
+      <div class="p-2"><p class="text-xs text-gray-700 font-medium text-center" id="header-alt-text">Loading...</p></div>
+      <div class="px-2 pb-2"><p class="text-xs text-gray-500 text-center" id="header-caption">[Loading...]</p></div>
     </div>
   `;
 
+  // Load metadata for header image
+  loadHeaderImageMetadata(imagePath);
+
   return div;
+}
+
+// Load header image metadata from API
+async function loadHeaderImageMetadata(imagePath) {
+  const contentId = document.querySelector('input[name="id"]').value;
+  if (!contentId || contentId === '00000000-0000-0000-0000-000000000000') {
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:8081/api/v1/ssg/contents/${contentId}/images`);
+    if (response.ok) {
+      const data = await response.json();
+      const images = data.data.images || [];
+
+      // Find the header image
+      const headerImage = images.find(img => img.purpose === 'header' && img.file_path === imagePath);
+
+      if (headerImage) {
+        // Update the metadata display
+        const altTextElement = document.getElementById('header-alt-text');
+        const captionElement = document.getElementById('header-caption');
+
+        if (altTextElement) {
+          altTextElement.textContent = headerImage.alt_text || 'Header Image';
+        }
+        if (captionElement) {
+          captionElement.textContent = headerImage.caption ? `[${headerImage.caption}]` : '';
+          captionElement.style.display = headerImage.caption ? 'block' : 'none';
+        }
+      } else {
+        // Fallback if header image not found in API
+        const altTextElement = document.getElementById('header-alt-text');
+        const captionElement = document.getElementById('header-caption');
+
+        if (altTextElement) {
+          altTextElement.textContent = 'Header Image';
+        }
+        if (captionElement) {
+          captionElement.style.display = 'none';
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load header image metadata:', error);
+
+    // Fallback display
+    const altTextElement = document.getElementById('header-alt-text');
+    const captionElement = document.getElementById('header-caption');
+
+    if (altTextElement) {
+      altTextElement.textContent = 'Header Image';
+    }
+    if (captionElement) {
+      captionElement.style.display = 'none';
+    }
+  }
 }
 
 function createHeaderImagePlaceholder() {
@@ -459,7 +549,8 @@ function removeHeaderImage() {
     return;
   }
 
-  const contentId = document.querySelector('input[name="id"]').value;
+  // Get the current header image path before clearing it
+  const headerImagePath = document.getElementById('image').value;
 
   // Clear the hidden field first
   document.getElementById('image').value = '';
@@ -468,22 +559,34 @@ function removeHeaderImage() {
   loadHeaderImageGallery();
 
   // Make API call to delete from server and filesystem
-  deleteHeaderImageFromServer(contentId);
+  if (headerImagePath) {
+    deleteHeaderImageFromServer(headerImagePath);
+  }
 }
 
-async function deleteHeaderImageFromServer(contentId) {
+async function deleteHeaderImageFromServer(headerImagePath) {
+  const contentId = document.querySelector('input[name="id"]').value;
   if (!contentId || contentId === '00000000-0000-0000-0000-000000000000') {
     return;
   }
 
   try {
     // TODO: Should get API base URL from config
-    const response = await fetch(`http://localhost:8081/api/v1/ssg/contents/${contentId}/images/header`, {
-      method: 'DELETE'
+    const response = await fetch(`http://localhost:8081/api/v1/ssg/contents/${contentId}/images/delete`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        image_path: headerImagePath
+      })
     });
 
     if (!response.ok) {
       console.error('Failed to delete header image from server:', response.statusText);
+    } else {
+      // Refresh gallery after successful deletion
+      setTimeout(() => loadHeaderImageGallery(), 100);
     }
   } catch (error) {
     console.error('Error deleting header image from server:', error);
@@ -551,9 +654,10 @@ async function deleteContentImageFromServer(contentId, imagePath) {
   }
 }
 
-// Initialize header gallery on page load
+// Initialize header gallery and content images on page load
 document.addEventListener('DOMContentLoaded', function() {
   loadHeaderImageGallery();
+  loadImageGallery(); // Load content images since section is visible by default
 });
 </script>
 {{ end }}

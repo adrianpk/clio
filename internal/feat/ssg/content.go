@@ -21,7 +21,6 @@ type Content struct {
 	UserID      uuid.UUID  `json:"user_id" db:"user_id"`
 	SectionID   uuid.UUID  `json:"section_id" db:"section_id"`
 	Kind        string     `json:"kind" db:"kind"`
-	Image       string     `json:"image,omitempty" db:"image"`
 	Heading     string     `json:"heading" db:"heading"`
 	Summary     string     `json:"summary" db:"summary"`
 	Body        string     `json:"body" db:"body"`
