@@ -104,19 +104,8 @@ func (c *BaseCore) Stop(ctx context.Context) error {
 // Option defines a type for setting optional parameters in BaseCore.
 type Option func(Core)
 
-// WithLog sets the Logger in BaseCore.
-func WithLog(log Logger) Option {
-	return func(c Core) {
-		c.SetLog(log)
-	}
-}
-
-// WithCfg sets the Config in BaseCore.
-func WithCfg(cfg *Config) Option {
-	return func(c Core) {
-		c.SetCfg(cfg)
-	}
-}
+// WithLog and WithCfg REMOVED - Use XParams instead
+// This forces migration to the XParams pattern
 
 // WithConfigValue sets a specific key-value pair in the Config.
 func WithConfigValue(key string, value interface{}) Option {
@@ -126,6 +115,30 @@ func WithConfigValue(key string, value interface{}) Option {
 		}
 		c.Cfg().Set(key, value)
 	}
+}
+
+// XParams contains the essential dependencies for most components.
+type XParams struct {
+	Cfg *Config
+	Log Logger
+}
+
+// NewCoreWithParams creates a new BaseCore instance with XParams.
+func NewCoreWithParams(name string, params XParams) *BaseCore {
+	return &BaseCore{
+		name: name,
+		log:  params.Log,
+		cfg:  params.Cfg,
+	}
+}
+
+// NewCoreWithParamsAndOpts creates a new BaseCore with XParams and additional options.
+func NewCoreWithParamsAndOpts(name string, params XParams, opts ...Option) *BaseCore {
+	core := NewCoreWithParams(name, params)
+	for _, opt := range opts {
+		opt(core)
+	}
+	return core
 }
 
 // Now returns the current time.

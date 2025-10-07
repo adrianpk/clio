@@ -1,7 +1,6 @@
 package ssg
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -9,13 +8,9 @@ import (
 	"github.com/adrianpk/clio/internal/am"
 )
 
-const (
-	contentType = "content"
-)
 
 type Content struct {
 	ID      uuid.UUID `json:"id" db:"id"`
-	mType   string
 	ShortID string `json:"-" db:"short_id"`
 
 	UserID      uuid.UUID  `json:"user_id" db:"user_id"`
@@ -44,7 +39,6 @@ type Content struct {
 // NewContent creates a new Content.
 func NewContent(heading, body string) Content {
 	c := Content{
-		mType:   contentType,
 		Heading: heading,
 		Body:    body,
 		Draft:   true,
@@ -55,13 +49,10 @@ func NewContent(heading, body string) Content {
 
 // Type returns the type of the entity.
 func (c *Content) Type() string {
-	return am.DefaultType(c.mType)
+	return "content"
 }
 
 // SetType sets the type of the entity.
-func (c *Content) SetType(t string) {
-	c.mType = t
-}
 
 // GetID returns the unique identifier of the entity.
 func (c *Content) GetID() uuid.UUID {
@@ -99,10 +90,6 @@ func (c *Content) SetShortID(shortID string, force ...bool) {
 	}
 }
 
-// TypeID returns a universal identifier for a specific model instance.
-func (c *Content) TypeID() string {
-	return am.Normalize(c.Type()) + "-" + c.GetShortID()
-}
 
 // GenCreateValues delegates to the functional helper.
 func (c *Content) GenCreateValues(userID ...uuid.UUID) {
@@ -172,22 +159,3 @@ func (c *Content) OptLabel() string {
 	return c.Heading
 }
 
-// UnmarshalJSON ensures model fields are initialized after unmarshal.
-func (c *Content) UnmarshalJSON(data []byte) error {
-	type Alias Content
-	temp := &struct {
-		*Alias
-	}{
-		Alias: (*Alias)(c),
-	}
-
-	if err := json.Unmarshal(data, &temp); err != nil {
-		return err
-	}
-
-	if c.mType == "" {
-		c.mType = contentType
-	}
-
-	return nil
-}

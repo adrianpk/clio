@@ -21,6 +21,15 @@ func NewApp(name, version string, fs embed.FS, opts ...am.Option) *App {
 	return app
 }
 
+// NewAppWithParams creates a core.App with XParams.
+func NewAppWithParams(name, version string, fs embed.FS, params am.XParams) *App {
+	core := am.NewAppWithParams(name, version, fs, params)
+	app := &App{
+		App: core,
+	}
+	return app
+}
+
 func (app *App) Start(ctx context.Context) error {
 	err := app.App.Start(ctx)
 	if err != nil {

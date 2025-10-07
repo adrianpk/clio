@@ -38,6 +38,17 @@ func NewFileServer(fs embed.FS, opts ...Option) *FileServer {
 	}
 }
 
+// NewFileServerWithParams creates a FileServer with XParams.
+func NewFileServerWithParams(fs embed.FS, params XParams) *FileServer {
+	routerName := fmt.Sprintf("%s-router", fileServerName)
+
+	r := NewRouterWithParams(routerName, params)
+	return &FileServer{
+		Router: r,
+		fs:     fs,
+	}
+}
+
 func (f *FileServer) SetupRoutes() error {
 	cfg := f.Router.Cfg()
 	if cfg.BoolVal(Key.ServerIndexEnabled, false) {

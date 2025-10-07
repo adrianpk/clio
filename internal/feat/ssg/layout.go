@@ -1,7 +1,6 @@
 package ssg
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -9,16 +8,12 @@ import (
 	"github.com/adrianpk/clio/internal/am"
 )
 
-const (
-	layoutType = "layout"
-)
 
 // Layout model.
 type Layout struct {
 	// Common
-	ID       uuid.UUID `json:"id" db:"id"`
-	mType    string
-	ShortID  string `json:"-" db:"short_id"`
+	ID      uuid.UUID `json:"id" db:"id"`
+	ShortID string    `json:"-" db:"short_id"`
 	RefValue string `json:"ref"`
 
 	// Layout specific fields
@@ -37,7 +32,6 @@ type Layout struct {
 // Newlayout creates a new Layout.
 func Newlayout(name, description, code string) Layout {
 	l := Layout{
-		mType:       layoutType,
 		Name:        name,
 		Description: description,
 		Code:        code,
@@ -48,13 +42,10 @@ func Newlayout(name, description, code string) Layout {
 
 // Type returns the type of the entity.
 func (l *Layout) Type() string {
-	return am.DefaultType(l.mType)
+	return "layout"
 }
 
 // SetType sets the type of the entity.
-func (l *Layout) SetType(t string) {
-	l.mType = t
-}
 
 // GetID returns the unique identifier of the entity.
 func (l *Layout) GetID() uuid.UUID {
@@ -92,10 +83,6 @@ func (l *Layout) SetShortID(shortID string, force ...bool) {
 	}
 }
 
-// TypeID returns a universal identifier for a specific model instance.
-func (l *Layout) TypeID() string {
-	return am.Normalize(l.Type()) + "-" + l.GetShortID()
-}
 
 // GenCreateValues delegates to the functional helper.
 func (l *Layout) GenCreateValues(userID ...uuid.UUID) {
@@ -185,25 +172,6 @@ func (l *Layout) SetRef(ref string) {
 	l.RefValue = ref
 }
 
-// UnmarshalJSON ensures model fields are initialized after unmarshal.
-func (l *Layout) UnmarshalJSON(data []byte) error {
-	type Alias Layout
-	temp := &struct {
-		*Alias
-	}{
-		Alias: (*Alias)(l),
-	}
-
-	if err := json.Unmarshal(data, &temp); err != nil {
-		return err
-	}
-
-	if l.mType == "" {
-		l.mType = layoutType
-	}
-
-	return nil
-}
 
 // StringID returns the unique identifier of the entity as a string.
 func (l *Layout) StringID() string {

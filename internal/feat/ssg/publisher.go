@@ -53,6 +53,14 @@ func NewPublisher(gitClient am.GitClient, opts ...am.Option) *publisher {
 	}
 }
 
+// NewPublisherWithParams creates a Publisher with XParams.
+func NewPublisherWithParams(gitClient am.GitClient, params am.XParams) *publisher {
+	return &publisher{
+		Core:      am.NewCoreWithParams("ssg-pub", params),
+		gitClient: gitClient,
+	}
+}
+
 // Validate implementation
 func (p *publisher) Validate(cfg PublisherConfig) error {
 	// NOTE: See if we can use am.Validator approach here

@@ -17,7 +17,7 @@ type Model interface {
 	// Seedable
 }
 
-// Identifiable interface represents an entity with an ID, Slug, and TypeID.
+// Identifiable interface represents an entity with an ID and Slug.
 type Identifiable interface {
 	// Type returns the type of the entity.
 	Type() string
@@ -33,8 +33,6 @@ type Identifiable interface {
 	GenShortID()
 	// SetShortID sets the short ID of the entity.
 	SetShortID(shortID string, force ...bool)
-	// TypeID returns a universal identifier for a specific model instance.
-	TypeID() string
 	// Slug returns the slug of the entity,
 	Slug() string
 }

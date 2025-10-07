@@ -19,6 +19,15 @@ func NewParamManager(repo Repo, opts ...am.Option) *ParamManager {
 	}
 }
 
+// NewParamManagerWithParams creates a ParamManager with XParams.
+func NewParamManagerWithParams(repo Repo, params am.XParams) *ParamManager {
+	core := am.NewCoreWithParams("param-manager", params)
+	return &ParamManager{
+		Core: core,
+		repo: repo,
+	}
+}
+
 func (pm *ParamManager) FindParam(ctx context.Context, ref string) (Param, error) {
 	return pm.findParamByName(ctx, ref)
 

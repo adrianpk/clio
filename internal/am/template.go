@@ -37,6 +37,17 @@ func NewTemplateManager(assetsFS embed.FS, opts ...Option) *TemplateManager {
 	return tm
 }
 
+// NewTemplateManagerWithParams creates a TemplateManager with XParams.
+func NewTemplateManagerWithParams(assetsFS embed.FS, params XParams) *TemplateManager {
+	core := NewCoreWithParams("template-manager", params)
+	tm := &TemplateManager{
+		Core:     core,
+		assetsFS: assetsFS,
+	}
+
+	return tm
+}
+
 func (tm *TemplateManager) Load() {
 	tm.loadTemplates()
 }
