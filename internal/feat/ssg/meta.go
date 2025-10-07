@@ -1,7 +1,6 @@
 package ssg
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -9,9 +8,6 @@ import (
 	"github.com/adrianpk/clio/internal/am"
 )
 
-const (
-	metaType = "meta"
-)
 
 type Meta struct {
 	ID              uuid.UUID `json:"id" db:"id"`
@@ -36,18 +32,14 @@ type Meta struct {
 
 func NewMeta(contentID uuid.UUID) Meta {
 	return Meta{
-		mType:     metaType,
 		ContentID: contentID,
 	}
 }
 
 func (m *Meta) Type() string {
-	return am.DefaultType(m.mType)
+	return "meta"
 }
 
-func (m *Meta) SetType(t string) {
-	m.mType = t
-}
 
 func (m *Meta) GetID() uuid.UUID {
 	return m.ID
@@ -79,9 +71,6 @@ func (m *Meta) SetShortID(shortID string, force ...bool) {
 	}
 }
 
-func (m *Meta) TypeID() string {
-	return am.Normalize(m.Type()) + "-" + m.GetShortID()
-}
 
 func (m *Meta) GenCreateValues(userID ...uuid.UUID) {
 	am.SetCreateValues(m, userID...)
@@ -131,21 +120,3 @@ func (m *Meta) Slug() string {
 	return m.GetShortID()
 }
 
-func (m *Meta) UnmarshalJSON(data []byte) error {
-	type Alias Meta
-	temp := &struct {
-		*Alias
-	}{
-		Alias: (*Alias)(m),
-	}
-
-	if err := json.Unmarshal(data, &temp); err != nil {
-		return err
-	}
-
-	if m.mType == "" {
-		m.mType = metaType
-	}
-
-	return nil
-}

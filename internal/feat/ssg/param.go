@@ -42,8 +42,8 @@ func NewParam(name, value string) Param {
 }
 
 // Type returns the type of the entity.
-func (p Param) Type() string {
-	return am.DefaultType(p.mType)
+func (p *Param) Type() string {
+	return "param"
 }
 
 // SetType sets the type of the entity.
@@ -87,10 +87,6 @@ func (p *Param) SetShortID(shortID string, force ...bool) {
 	}
 }
 
-// TypeID returns a universal identifier for a specific model instance.
-func (p *Param) TypeID() string {
-	return am.Normalize(p.Type()) + "-" + p.GetShortID()
-}
 
 // GenCreateValues delegates to the functional helper.
 func (p *Param) GenCreateValues(userID ...uuid.UUID) {

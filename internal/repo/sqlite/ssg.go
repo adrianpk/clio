@@ -165,7 +165,6 @@ func (repo *ClioRepo) GetAllContentWithMeta(ctx context.Context) ([]ssg.Content,
 		}
 
 		if _, ok := contentMap[c.ID]; !ok {
-			c.SetType(resContent)
 			c.SectionPath = sectionPath.String
 			c.SectionName = sectionName.String
 			if publishedAt.Valid {
@@ -195,7 +194,6 @@ func (repo *ClioRepo) GetAllContentWithMeta(ctx context.Context) ([]ssg.Content,
 			t.SetShortID(tagShortID.String)
 			t.Name = tagName.String
 			t.SlugField = tagSlug.String
-			t.SetType("tag")
 			contentMap[c.ID].Tags = append(contentMap[c.ID].Tags, t)
 		}
 	}

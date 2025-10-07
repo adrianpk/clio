@@ -1,7 +1,6 @@
 package ssg
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -9,15 +8,11 @@ import (
 	"github.com/adrianpk/clio/internal/am"
 )
 
-const (
-	tagType = "tag"
-)
 
 // Tag model.
 type Tag struct {
 	// Common
 	ID      uuid.UUID `json:"id" db:"id"`
-	mType   string
 	ShortID string `json:"-" db:"short_id"`
 
 	// Tag specific fields
@@ -34,8 +29,7 @@ type Tag struct {
 // NewTag creates a new Tag.
 func NewTag(name string) Tag {
 	t := Tag{
-		mType: tagType,
-		Name:  name,
+		Name: name,
 	}
 
 	return t
@@ -43,13 +37,10 @@ func NewTag(name string) Tag {
 
 // Type returns the type of the entity.
 func (t *Tag) Type() string {
-	return am.DefaultType(t.mType)
+	return "tag"
 }
 
 // SetType sets the type of the entity.
-func (t *Tag) SetType(typ string) {
-	t.mType = typ
-}
 
 // GetID returns the unique identifier of the entity.
 func (t *Tag) GetID() uuid.UUID {
@@ -87,10 +78,6 @@ func (t *Tag) SetShortID(shortID string, force ...bool) {
 	}
 }
 
-// TypeID returns a universal identifier for a specific model instance.
-func (t *Tag) TypeID() string {
-	return am.Normalize(t.Type()) + "-" + t.GetShortID()
-}
 
 // GenCreateValues delegates to the functional helper.
 func (t *Tag) GenCreateValues(userID ...uuid.UUID) {
@@ -163,22 +150,3 @@ func (t *Tag) OptLabel() string {
 	return t.Name
 }
 
-// UnmarshalJSON ensures model fields are initialized after unmarshal.
-func (t *Tag) UnmarshalJSON(data []byte) error {
-	type Alias Tag
-	temp := &struct {
-		*Alias
-	}{
-		Alias: (*Alias)(t),
-	}
-
-	if err := json.Unmarshal(data, &temp); err != nil {
-		return err
-	}
-
-	if t.mType == "" {
-		t.mType = tagType
-	}
-
-	return nil
-}

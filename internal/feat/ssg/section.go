@@ -1,7 +1,6 @@
 package ssg
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -9,15 +8,11 @@ import (
 	"github.com/adrianpk/clio/internal/am"
 )
 
-const (
-	sectionType = "section"
-)
 
 // Section model.
 type Section struct {
 	// Common
 	ID      uuid.UUID `json:"id" db:"id"`
-	mType   string
 	ShortID string `json:"-" db:"short_id"`
 
 	// Section specific fields
@@ -37,7 +32,6 @@ type Section struct {
 // NewSection creates a new Section.
 func NewSection(name, description, path string, layoutID uuid.UUID) Section {
 	s := Section{
-		mType:       sectionType,
 		Name:        name,
 		Description: description,
 		Path:        path,
@@ -49,13 +43,10 @@ func NewSection(name, description, path string, layoutID uuid.UUID) Section {
 
 // Type returns the type of the entity.
 func (s *Section) Type() string {
-	return am.DefaultType(s.mType)
+	return "section"
 }
 
 // SetType sets the type of the entity.
-func (s *Section) SetType(t string) {
-	s.mType = t
-}
 
 // GetID returns the unique identifier of the entity.
 func (s *Section) GetID() uuid.UUID {
@@ -93,10 +84,6 @@ func (s *Section) SetShortID(shortID string, force ...bool) {
 	}
 }
 
-// TypeID returns a universal identifier for a specific model instance.
-func (s *Section) TypeID() string {
-	return am.Normalize(s.Type()) + "-" + s.GetShortID()
-}
 
 // GenCreateValues delegates to the functional helper.
 func (s *Section) GenCreateValues(userID ...uuid.UUID) {
@@ -166,22 +153,3 @@ func (s *Section) OptLabel() string {
 	return s.Name
 }
 
-// UnmarshalJSON ensures model fields are initialized after unmarshal.
-func (s *Section) UnmarshalJSON(data []byte) error {
-	type Alias Section
-	temp := &struct {
-		*Alias
-	}{
-		Alias: (*Alias)(s),
-	}
-
-	if err := json.Unmarshal(data, &temp); err != nil {
-		return err
-	}
-
-	if s.mType == "" {
-		s.mType = sectionType
-	}
-
-	return nil
-}

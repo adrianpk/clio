@@ -41,8 +41,8 @@ func NewUser(username, name, email string) User {
 }
 
 // Type returns the type of the entity.
-func (u User) Type() string {
-	return am.DefaultType(u.mType)
+func (u *User) Type() string {
+	return "user"
 }
 
 // SetType sets the type of the entity.
@@ -86,10 +86,6 @@ func (u *User) SetShortID(shortID string, force ...bool) {
 	}
 }
 
-// TypeID returns a universal identifier for a specific model instance.
-func (u *User) TypeID() string {
-	return am.Normalize(u.Type()) + "-" + u.GetShortID()
-}
 
 // GenCreateValues delegates to the functional helper.
 func (u *User) GenCreateValues(userID ...uuid.UUID) {

@@ -1,7 +1,6 @@
 package ssg
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,8 +12,7 @@ import (
 type ContentTag struct {
 	// Common
 	ID      uuid.UUID `json:"id" db:"id"`
-	mType   string
-	ShortID string `json:"-" db:"short_id"`
+	ShortID string    `json:"-" db:"short_id"`
 
 	ContentID uuid.UUID `json:"content_id" db:"content_id"`
 	TagID     uuid.UUID `json:"tag_id" db:"tag_id"`
@@ -29,7 +27,6 @@ type ContentTag struct {
 // NewContentTag creates a new ContentTag.
 func NewContentTag(contentID, tagID uuid.UUID) ContentTag {
 	ct := ContentTag{
-		mType:     contentTagType,
 		ContentID: contentID,
 		TagID:     tagID,
 	}
@@ -39,13 +36,10 @@ func NewContentTag(contentID, tagID uuid.UUID) ContentTag {
 
 // Type returns the type of the entity.
 func (ct *ContentTag) Type() string {
-	return am.DefaultType(ct.mType)
+	return "content-tag"
 }
 
 // SetType sets the type of the entity.
-func (ct *ContentTag) SetType(typ string) {
-	ct.mType = typ
-}
 
 // GetID returns the unique identifier of the entity.
 func (ct *ContentTag) GetID() uuid.UUID {
@@ -83,10 +77,6 @@ func (ct *ContentTag) SetShortID(shortID string, force ...bool) {
 	}
 }
 
-// TypeID returns a universal identifier for a specific model instance.
-func (ct *ContentTag) TypeID() string {
-	return am.Normalize(ct.Type()) + "-" + ct.GetShortID()
-}
 
 // GenCreateValues delegates to the functional helper.
 func (ct *ContentTag) GenCreateValues(userID ...uuid.UUID) {
@@ -153,29 +143,7 @@ func (ct *ContentTag) OptValue() string {
 }
 
 func (ct *ContentTag) OptLabel() string {
-	return ct.TypeID()
+	return ct.GetShortID()
 }
 
-// UnmarshalJSON ensures model fields are initialized after unmarshal.
-func (ct *ContentTag) UnmarshalJSON(data []byte) error {
-	type Alias ContentTag
-	temp := &struct {
-		*Alias
-	}{
-		Alias: (*Alias)(ct),
-	}
 
-	if err := json.Unmarshal(data, &temp); err != nil {
-		return err
-	}
-
-	if ct.mType == "" {
-		ct.mType = contentTagType
-	}
-
-	return nil
-}
-
-const (
-	contentTagType = "content-tag"
-)

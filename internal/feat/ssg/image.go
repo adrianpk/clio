@@ -54,8 +54,8 @@ func NewImage() Image {
 }
 
 // Type returns the type of the entity.
-func (i Image) Type() string {
-	return am.DefaultType(imageType)
+func (i *Image) Type() string {
+	return "image"
 }
 
 // SetType sets the type of the entity.
@@ -99,10 +99,6 @@ func (i *Image) SetShortID(shortID string, force ...bool) {
 	}
 }
 
-// TypeID returns a universal identifier for a specific model instance.
-func (i *Image) TypeID() string {
-	return am.Normalize(i.Type()) + "-" + i.GetShortID()
-}
 
 // GenCreateValues delegates to the functional helper.
 func (i *Image) GenCreateValues(userID ...uuid.UUID) {

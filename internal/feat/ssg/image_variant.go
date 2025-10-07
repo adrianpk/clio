@@ -42,8 +42,8 @@ func NewImageVariant() ImageVariant {
 }
 
 // Type returns the type of the entity.
-func (iv ImageVariant) Type() string {
-	return am.DefaultType(imageVariantType)
+func (iv *ImageVariant) Type() string {
+	return "image-variant"
 }
 
 // SetType sets the type of the entity.
@@ -87,10 +87,6 @@ func (iv *ImageVariant) SetShortID(shortID string, force ...bool) {
 	}
 }
 
-// TypeID returns a universal identifier for a specific model instance.
-func (iv *ImageVariant) TypeID() string {
-	return am.Normalize(iv.Type()) + "-" + iv.GetShortID()
-}
 
 // GenCreateValues delegates to the functional helper.
 func (iv *ImageVariant) GenCreateValues(userID ...uuid.UUID) {
