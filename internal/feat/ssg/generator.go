@@ -22,6 +22,15 @@ func NewGenerator(opts ...am.Option) *Generator {
 	return g
 }
 
+// NewGeneratorWithParams creates a Generator with XParams.
+func NewGeneratorWithParams(params am.XParams) *Generator {
+	core := am.NewCoreWithParams("ssg-generator", params)
+	g := &Generator{
+		Core: core,
+	}
+	return g
+}
+
 func (g *Generator) Generate(contents []Content) error {
 	g.Log().Info("Starting markdown generation")
 

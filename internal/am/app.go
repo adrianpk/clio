@@ -49,12 +49,12 @@ func NewApp(name, version string, fs embed.FS, opts ...Option) *App {
 
 	if core.Log() == nil {
 		core.SetLog(NewLogger("info"))
-		opts = append(opts, WithLog(core.Log()))
+		// opts = append(opts, WithLog(core.Log())) // REMOVED - migrating to XParams
 	}
 
 	if core.Cfg() == nil {
 		core.SetCfg(NewConfig())
-		opts = append(opts, WithCfg(core.Cfg()))
+		// opts = append(opts, WithCfg(core.Cfg())) // REMOVED - migrating to XParams
 	}
 
 	app := &App{
@@ -72,6 +72,29 @@ func NewApp(name, version string, fs embed.FS, opts ...Option) *App {
 	return app
 }
 
+// NewAppWithParams creates an App with XParams.
+func NewAppWithParams(name, version string, fs embed.FS, params XParams) *App {
+	core := NewCoreWithParams(name, params)
+	core.SetName(name)
+	
+	// Empty opts for now - legacy components will get log/config via app.Add()
+	opts := []Option{}
+	
+	app := &App{
+		opts:       opts,
+		Core:       core,
+		Router:     NewWebRouter("web-router", opts...),
+		APIRouter:  NewWebRouter("api-router", opts...),
+		APIRouters: make(map[string]*Router),
+		Version:    version,
+		fs:         fs,
+		deps:       make(map[string]*Dep),
+		InternalToken: uuid.NewString(),
+	}
+	
+	return app
+}
+
 func (a *App) Add(dep Core) {
 	err := a.checkSetup()
 	if err != nil {
@@ -85,8 +108,13 @@ func (a *App) Add(dep Core) {
 
 	dep.SetOpts(a.opts...)
 
-	dep.SetLog(a.Log())
-	dep.SetCfg(a.Cfg())
+	// Only inject log/config if not already set (XParams components already have them)
+	if dep.Log() == nil {
+		dep.SetLog(a.Log())
+	}
+	if dep.Cfg() == nil {
+		dep.SetCfg(a.Cfg())
+	}
 
 	a.Log().Infof("Adding dependency: %s", dep.Name())
 

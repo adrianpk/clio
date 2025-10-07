@@ -1,8 +1,4 @@
 package am
 
-func DefOpts(log Logger, cfg *Config) []Option {
-	return []Option{
-		WithLog(log),
-		WithCfg(cfg),
-	}
-}
+// DefOpts REMOVED - Use XParams instead
+// func DefOpts(log Logger, cfg *Config) []Option

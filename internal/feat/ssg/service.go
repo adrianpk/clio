@@ -115,6 +115,19 @@ func NewService(assetsFS embed.FS, repo Repo, gen *Generator, publisher Publishe
 	}
 }
 
+// NewServiceWithParams creates a new BaseService with XParams.
+func NewServiceWithParams(assetsFS embed.FS, repo Repo, gen *Generator, publisher Publisher, pm *ParamManager, im *ImageManager, params am.XParams) *BaseService {
+	return &BaseService{
+		Service:  am.NewServiceWithParams("ssg-svc", params),
+		assetsFS: assetsFS,
+		repo:     repo,
+		gen:      gen,
+		pub:      publisher,
+		pm:       pm,
+		im:       im,
+	}
+}
+
 // Publish delegates the publishing task to the underlying pub.
 func (svc *BaseService) Publish(ctx context.Context, commitMessage string) (string, error) {
 	svc.Log().Info("Service starting publish process")

@@ -64,6 +64,29 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	r.Router.ServeHTTP(w, req)
 }
 
+// NewRouterWithParams creates a Router with XParams.
+func NewRouterWithParams(name string, params XParams) *Router {
+	core := NewCoreWithParams(name, params)
+	router := &Router{
+		Core:   core,
+		Router: chi.NewRouter(),
+	}
+
+	return router
+}
+
+// NewAPIRouterWithParams creates an API Router with XParams.
+func NewAPIRouterWithParams(name string, params XParams) *Router {
+	core := NewCoreWithParams(name, params)
+
+	r := &Router{
+		Core:   core,
+		Router: chi.NewRouter(),
+	}
+
+	return r
+}
+
 func (r *Router) SetMiddlewares(mws []Middleware) {
 	for _, mw := range mws {
 		r.Use(mw)

@@ -30,6 +30,14 @@ func NewService(repo Repo, opts ...am.Option) *BaseService {
 	}
 }
 
+// NewServiceWithParams creates an Auth Service with XParams.
+func NewServiceWithParams(repo Repo, params am.XParams) *BaseService {
+	return &BaseService{
+		Service: am.NewServiceWithParams("auth-svc", params),
+		repo:    repo,
+	}
+}
+
 func (svc *BaseService) GetUserByID(ctx context.Context, userID uuid.UUID) (*am.UserCtxData, error) {
 	user, err := svc.repo.GetUser(ctx, userID)
 	if err != nil {

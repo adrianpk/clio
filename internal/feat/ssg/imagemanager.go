@@ -52,6 +52,16 @@ func NewImageManager(opts ...am.Option) *ImageManager {
 	}
 }
 
+// NewImageManagerWithParams creates an ImageManager with XParams.
+func NewImageManagerWithParams(params am.XParams) *ImageManager {
+	core := am.NewCoreWithParams("image-manager", params)
+	imagesPath := core.Cfg().StrValOrDef(am.Key.SSGImagesPath, "_workspace/documents/assets/images")
+	return &ImageManager{
+		Core:          core,
+		baseImagePath: imagesPath,
+	}
+}
+
 // ProcessUpload handles the complete upload process for any image type
 func (im *ImageManager) ProcessUpload(ctx context.Context, file multipart.File, header *multipart.FileHeader, content *Content, section *Section, imageType ImageType, altText, caption string) (*ImageProcessResult, error) {
 	directory, err := im.generateDirectoryPath(content, section, imageType)

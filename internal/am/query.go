@@ -27,6 +27,17 @@ func NewQueryManager(assetsFS embed.FS, engine string, opts ...Option) *QueryMan
 	return qm
 }
 
+// NewQueryManagerWithParams creates a QueryManager with XParams.
+func NewQueryManagerWithParams(assetsFS embed.FS, engine string, params XParams) *QueryManager {
+	core := NewCoreWithParams("query-manager", params)
+	qm := &QueryManager{
+		Core:     core,
+		assetsFS: assetsFS,
+		engine:   engine,
+	}
+	return qm
+}
+
 func (qm *QueryManager) Load() {
 	err := fs.WalkDir(qm.assetsFS, "assets/query", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {

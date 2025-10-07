@@ -23,6 +23,13 @@ func NewClient(opts ...am.Option) *Client {
 	}
 }
 
+// NewClientWithParams creates a GitHub Client with XParams.
+func NewClientWithParams(params am.XParams) *Client {
+	return &Client{
+		Core: am.NewCoreWithParams("github-client", params),
+	}
+}
+
 func (c *Client) Clone(ctx context.Context, repoURL, localPath string, auth am.GitAuth, env []string) error {
 	if auth.Method == am.AuthToken {
 		u, err := url.Parse(repoURL)
