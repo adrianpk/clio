@@ -1,5 +1,7 @@
 # Clio
 
+> **Repository moved**: This project has moved to [hermesgen/clio](https://github.com/hermesgen/clio).
+
 ![Content List](docs/img/content.png)
 <p align="right"><i><a href="docs/gallery/content.md">view gallery...</a></i></p>
 
